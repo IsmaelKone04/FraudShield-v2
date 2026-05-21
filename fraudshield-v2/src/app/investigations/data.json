@@ -1,0 +1,122 @@
+{
+  "stats": [
+    {
+      "id": "total",
+      "label": "Total investigations",
+      "value": 24,
+      "valueFormate": "24",
+      "description": "Depuis janvier 2026",
+      "color": "default"
+    },
+    {
+      "id": "en_cours",
+      "label": "En cours",
+      "value": 9,
+      "valueFormate": "9",
+      "description": "Assignées à des agents",
+      "color": "warning"
+    },
+    {
+      "id": "verifier",
+      "label": "À vérifier",
+      "value": 6,
+      "valueFormate": "6",
+      "description": "En attente de validation",
+      "color": "info"
+    },
+    {
+      "id": "resolues",
+      "label": "Clôturées",
+      "value": 9,
+      "valueFormate": "9",
+      "description": "Taux clôture : 37.5%",
+      "color": "success"
+    }
+  ],
+  "investigations": [
+    {
+      "id": "INV-2026-001",
+      "titre": "Réseau de surfacturation — Cliniques du Nord",
+      "priorite": "Critique",
+      "assigne": "Agent Sall",
+      "dateOuverture": "2026-05-10",
+      "dateMaj": "2026-05-20",
+      "statut": "En cours",
+      "casLies": 8,
+      "montantTotal": "12 400 000 FCFA",
+      "description": "Schéma de surfacturation détecté impliquant 3 cliniques. Montants facturés systématiquement supérieurs aux tarifs conventionnels de 40 à 80%.",
+      "alertesLiees": ["A-2026-0125", "A-2026-0117", "A-2026-0116"],
+      "etablissements": ["Clinique Pasteur", "Polyclinique Liberté", "Clinique du Plateau"]
+    },
+    {
+      "id": "INV-2026-002",
+      "titre": "Usurpation d'identité — Série de remboursements fictifs",
+      "priorite": "Élevée",
+      "assigne": "Agent Diop",
+      "dateOuverture": "2026-05-05",
+      "dateMaj": "2026-05-19",
+      "statut": "En cours",
+      "casLies": 5,
+      "montantTotal": "5 800 000 FCFA",
+      "description": "Plusieurs demandes de remboursement soumises avec des informations d'identité falsifiées. Corrélation détectée avec 2 établissements.",
+      "alertesLiees": ["A-2026-0122"],
+      "etablissements": ["Centre Médical Yoff", "CHU de Dakar"]
+    },
+    {
+      "id": "INV-2026-003",
+      "titre": "Services de radiologie — Actes non réalisés",
+      "priorite": "Moyenne",
+      "assigne": "Agent Niang",
+      "dateOuverture": "2026-05-01",
+      "dateMaj": "2026-05-16",
+      "statut": "À vérifier",
+      "casLies": 12,
+      "montantTotal": "3 200 000 FCFA",
+      "description": "Facturation d'examens radiologiques pour des patients n'ayant pas consulté les établissements concernés selon les registres.",
+      "alertesLiees": ["A-2026-0124", "A-2026-0120"],
+      "etablissements": ["CHU de Dakar", "Hôpital Principal"]
+    },
+    {
+      "id": "INV-2026-004",
+      "titre": "Doublons de remboursement — Médicaments",
+      "priorite": "Faible",
+      "assigne": "Agent Ba",
+      "dateOuverture": "2026-04-28",
+      "dateMaj": "2026-05-10",
+      "statut": "Clôturée",
+      "casLies": 3,
+      "montantTotal": "450 000 FCFA",
+      "description": "Soumission multiple de la même ordonnance pour remboursement auprès de différentes mutuelles. 3 assurés impliqués.",
+      "alertesLiees": ["A-2026-0123", "A-2026-0118"],
+      "etablissements": ["Polyclinique El Hadj", "Clinique Matlaboul"]
+    },
+    {
+      "id": "INV-2026-005",
+      "titre": "Fréquence anormale de consultations — Cabinet privé",
+      "priorite": "Moyenne",
+      "assigne": "Agent Camara",
+      "dateOuverture": "2026-04-20",
+      "dateMaj": "2026-05-15",
+      "statut": "À vérifier",
+      "casLies": 7,
+      "montantTotal": "1 850 000 FCFA",
+      "description": "Un cabinet médical privé facture en moyenne 3x plus de consultations par patient que la moyenne nationale observée.",
+      "alertesLiees": ["A-2026-0120"],
+      "etablissements": ["Cabinet Dr Sall"]
+    },
+    {
+      "id": "INV-2026-006",
+      "titre": "Fausses déclarations — Chirurgies ambulatoires",
+      "priorite": "Élevée",
+      "assigne": "Agent Mbaye",
+      "dateOuverture": "2026-04-15",
+      "dateMaj": "2026-05-18",
+      "statut": "En cours",
+      "casLies": 6,
+      "montantTotal": "8 100 000 FCFA",
+      "description": "Des actes chirurgicaux ambulatoires sont facturés comme hospitalisations complètes, générant des surcoûts importants.",
+      "alertesLiees": ["A-2026-0119"],
+      "etablissements": ["Clinique Matlaboul", "Polyclinique El Hadj"]
+    }
+  ]
+}

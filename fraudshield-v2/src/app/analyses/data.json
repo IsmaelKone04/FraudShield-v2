@@ -1,0 +1,52 @@
+{
+  "statistiquesGlobales": {
+    "totalAnalyses": 142050,
+    "casConfirmes": 4812,
+    "montantRecupere": 84500000,
+    "montantRecupereFormate": "84 500 000 FCFA",
+    "scoreConfianceIA": 96.4
+  },
+  "topEtablissementsSuspects": [
+    { "nom": "Clinique Pasteur", "ville": "Dakar", "cas": 142, "montant": 28400000, "evolution": 14.2 },
+    { "nom": "CHU de Fann", "ville": "Fann", "cas": 98, "montant": 18200000, "evolution": 8.5 },
+    { "nom": "Polyclinique El Hadj", "ville": "Plateau", "cas": 74, "montant": 12400000, "evolution": -3.1 },
+    { "nom": "Centre Médical Yoff", "ville": "Yoff", "cas": 51, "montant": 9800000, "evolution": 22.4 },
+    { "nom": "Clinique du Cap", "ville": "Almadies", "cas": 39, "montant": 7100000, "evolution": 1.2 }
+  ],
+  "repartitionRisque": [
+    { "segment": "0-20% (Faible)", "quantite": 124500 },
+    { "segment": "21-50% (Modéré)", "quantite": 12400 },
+    { "segment": "51-80% (Élevé)", "quantite": 3840 },
+    { "segment": "81-100% (Critique)", "quantite": 1310 }
+  ],
+  "comportementsAnormaux": [
+    {
+      "id": "COMP-001",
+      "indicateur": "Consultations multiples le même jour",
+      "occurrences": 842,
+      "gravite": "Critique",
+      "impactFormate": "12 400 000 FCFA"
+    },
+    {
+      "id": "COMP-002",
+      "indicateur": "Prescriptions hors spécialité médicale",
+      "occurrences": 1204,
+      "gravite": "Moyen",
+      "impactFormate": "8 150 000 FCFA"
+    },
+    {
+      "id": "COMP-003",
+      "indicateur": "Pics nocturnes de facturation",
+      "occurrences": 318,
+      "gravite": "Élevé",
+      "impactFormate": "19 300 000 FCFA"
+    },
+    {
+      "id": "COMP-004",
+      "indicateur": "Actes médicaux géographiquement impossibles",
+      "occurrences": 142,
+      "gravite": "Critique",
+      "impactFormate": "6 700 000 FCFA"
+    }
+  ]
+}

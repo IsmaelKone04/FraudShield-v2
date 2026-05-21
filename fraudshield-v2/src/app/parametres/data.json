@@ -1,0 +1,118 @@
+{
+  "utilisateurs": [
+    {
+      "id": "USR-001",
+      "nom": "Admin Diallo",
+      "email": "admin@fraudshield.sn",
+      "role": "Administrateur",
+      "statut": "Actif",
+      "derniereCo": "20/05/2026 à 09:14",
+      "initiales": "AD",
+      "color": "bg-emerald-500"
+    },
+    {
+      "id": "USR-002",
+      "nom": "Ibou Sall",
+      "email": "isall@fraudshield.sn",
+      "role": "Superviseur",
+      "statut": "Actif",
+      "derniereCo": "20/05/2026 à 08:52",
+      "initiales": "IS",
+      "color": "bg-blue-500"
+    },
+    {
+      "id": "USR-003",
+      "nom": "Fatou Diop",
+      "email": "fdiop@fraudshield.sn",
+      "role": "Agent d'analyse",
+      "statut": "Actif",
+      "derniereCo": "19/05/2026 à 17:30",
+      "initiales": "FD",
+      "color": "bg-purple-500"
+    },
+    {
+      "id": "USR-004",
+      "nom": "Moussa Niang",
+      "email": "mniang@fraudshield.sn",
+      "role": "Agent d'analyse",
+      "statut": "Actif",
+      "derniereCo": "19/05/2026 à 15:45",
+      "initiales": "MN",
+      "color": "bg-orange-500"
+    },
+    {
+      "id": "USR-005",
+      "nom": "Aminata Ba",
+      "email": "aba@fraudshield.sn",
+      "role": "Agent d'analyse",
+      "statut": "Inactif",
+      "derniereCo": "10/05/2026 à 11:20",
+      "initiales": "AB",
+      "color": "bg-slate-500"
+    },
+    {
+      "id": "USR-006",
+      "nom": "Cheikh Camara",
+      "email": "ccamara@fraudshield.sn",
+      "role": "Superviseur",
+      "statut": "Actif",
+      "derniereCo": "20/05/2026 à 10:05",
+      "initiales": "CC",
+      "color": "bg-cyan-500"
+    }
+  ],
+  "modeles": [
+    {
+      "id": "MDL-001",
+      "nom": "Isolation Forest",
+      "type": "Détection anomalies",
+      "version": "v2.3.1",
+      "precision": 94.2,
+      "statut": "Actif",
+      "dernierEntrainement": "15/05/2026",
+      "dossiersTraites": 24536
+    },
+    {
+      "id": "MDL-002",
+      "nom": "XGBoost Classifier",
+      "type": "Classification",
+      "version": "v1.8.0",
+      "precision": 96.8,
+      "statut": "Actif",
+      "dernierEntrainement": "12/05/2026",
+      "dossiersTraites": 18920
+    },
+    {
+      "id": "MDL-003",
+      "nom": "LSTM Séquentiel",
+      "type": "Comportement",
+      "version": "v0.9.2",
+      "precision": 91.5,
+      "statut": "Entraînement",
+      "dernierEntrainement": "20/05/2026",
+      "dossiersTraites": 8340
+    },
+    {
+      "id": "MDL-004",
+      "nom": "Règles Métier",
+      "type": "Règles expertes",
+      "version": "v3.1.0",
+      "precision": 89.1,
+      "statut": "Actif",
+      "dernierEntrainement": "01/05/2026",
+      "dossiersTraites": 24536
+    }
+  ],
+  "parametresSysteme": {
+    "seuilAlerteIA": 75,
+    "analyseAutomatique": true,
+    "notificationEmail": true,
+    "notificationSMS": false,
+    "exportAutomatique": false,
+    "frequenceAnalyse": "temps-reel",
+    "langueInterface": "fr",
+    "fuseauHoraire": "Africa/Dakar",
+    "retentionDonnees": 365,
+    "niveauLog": "info"
+  }
+}

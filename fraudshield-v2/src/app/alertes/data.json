@@ -1,0 +1,158 @@
+{
+  "stats": [
+    {
+      "id": "total",
+      "label": "Total alertes",
+      "value": 1245,
+      "valueFormate": "1 245",
+      "description": "Sur les 50 derniers jours",
+      "color": "default"
+    },
+    {
+      "id": "en_cours",
+      "label": "En cours",
+      "value": 312,
+      "valueFormate": "312",
+      "description": "Nécessitent une action",
+      "color": "warning"
+    },
+    {
+      "id": "verifier",
+      "label": "À vérifier",
+      "value": 198,
+      "valueFormate": "198",
+      "description": "En attente d'analyse",
+      "color": "info"
+    },
+    {
+      "id": "resolues",
+      "label": "Résolues",
+      "value": 735,
+      "valueFormate": "735",
+      "description": "Taux résolution : 59%",
+      "color": "success"
+    }
+  ],
+  "alertes": [
+    {
+      "id": "A-2026-0125",
+      "type": "Surfacturation",
+      "assure": "Moussa Diallo",
+      "etablissement": "Clinique Pasteur",
+      "montantFormate": "2 400 000 FCFA",
+      "scoreIA": 94,
+      "risque": "Élevé",
+      "date": "2026-05-20",
+      "dateFormate": "20/05/2026",
+      "statut": "En cours"
+    },
+    {
+      "id": "A-2026-0124",
+      "type": "Service non fourni",
+      "assure": "Fatou Ndiaye",
+      "etablissement": "CHU de Dakar",
+      "montantFormate": "850 000 FCFA",
+      "scoreIA": 88,
+      "risque": "Élevé",
+      "date": "2026-05-20",
+      "dateFormate": "20/05/2026",
+      "statut": "En cours"
+    },
+    {
+      "id": "A-2026-0123",
+      "type": "Double facturation",
+      "assure": "Ibrahima Sow",
+      "etablissement": "Polyclinique El Hadj",
+      "montantFormate": "320 000 FCFA",
+      "scoreIA": 61,
+      "risque": "Moyen",
+      "date": "2026-05-19",
+      "dateFormate": "19/05/2026",
+      "statut": "À vérifier"
+    },
+    {
+      "id": "A-2026-0122",
+      "type": "Usurpation identité",
+      "assure": "Aminata Camara",
+      "etablissement": "Centre Médical Yoff",
+      "montantFormate": "1 100 000 FCFA",
+      "scoreIA": 97,
+      "risque": "Élevé",
+      "date": "2026-05-19",
+      "dateFormate": "19/05/2026",
+      "statut": "En cours"
+    },
+    {
+      "id": "A-2026-0121",
+      "type": "Surfacturation",
+      "assure": "Oumar Ba",
+      "etablissement": "Clinique du Plateau",
+      "montantFormate": "150 000 FCFA",
+      "scoreIA": 28,
+      "risque": "Faible",
+      "date": "2026-05-18",
+      "dateFormate": "18/05/2026",
+      "statut": "Résolu"
+    },
+    {
+      "id": "A-2026-0120",
+      "type": "Fréquence anormale",
+      "assure": "Rokhaya Thiam",
+      "etablissement": "Hôpital Principal",
+      "montantFormate": "560 000 FCFA",
+      "scoreIA": 55,
+      "risque": "Moyen",
+      "date": "2026-05-18",
+      "dateFormate": "18/05/2026",
+      "statut": "À vérifier"
+    },
+    {
+      "id": "A-2026-0119",
+      "type": "Acte incohérent",
+      "assure": "Cheikh Mbaye",
+      "etablissement": "Cabinet Dr Sall",
+      "montantFormate": "95 000 FCFA",
+      "scoreIA": 22,
+      "risque": "Faible",
+      "date": "2026-05-17",
+      "dateFormate": "17/05/2026",
+      "statut": "Résolu"
+    },
+    {
+      "id": "A-2026-0118",
+      "type": "Double facturation",
+      "assure": "Mame Diarra Fall",
+      "etablissement": "Clinique Matlaboul",
+      "montantFormate": "430 000 FCFA",
+      "scoreIA": 67,
+      "risque": "Moyen",
+      "date": "2026-05-17",
+      "dateFormate": "17/05/2026",
+      "statut": "En cours"
+    },
+    {
+      "id": "A-2026-0117",
+      "type": "Surfacturation",
+      "assure": "Abdou Diop",
+      "etablissement": "Polyclinique Liberté",
+      "montantFormate": "780 000 FCFA",
+      "scoreIA": 81,
+      "risque": "Élevé",
+      "date": "2026-05-16",
+      "dateFormate": "16/05/2026",
+      "statut": "En cours"
+    },
+    {
+      "id": "A-2026-0116",
+      "type": "Service non fourni",
+      "assure": "Marième Faye",
+      "etablissement": "Clinique Pasteur",
+      "montantFormate": "210 000 FCFA",
+      "scoreIA": 73,
+      "risque": "Moyen",
+      "date": "2026-05-15",
+      "dateFormate": "15/05/2026",
+      "statut": "À vérifier"
+    }
+  ]
+}

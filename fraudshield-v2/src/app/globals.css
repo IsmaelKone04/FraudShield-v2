@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+
+  --color-background: oklch(0.157 0.023 265.7);
+  --color-foreground: oklch(0.953 0.005 247.9);
+  
+  --color-card: oklch(0.177 0.029 265.8);
+  --color-card-foreground: oklch(0.953 0.005 247.9);
+  --color-popover: oklch(0.177 0.029 265.8);
+  --color-popover-foreground: oklch(0.953 0.005 247.9);
+  
+  --color-primary: oklch(0.809 0.210 152.7);
+  --color-primary-foreground: oklch(0 0 0);
+  --color-ring: oklch(0.809 0.210 152.7);
+  
+  --color-secondary: oklch(0.226 0.027 259.7);
+  --color-secondary-foreground: oklch(0.953 0.005 247.9);
+  --color-muted: oklch(0.226 0.027 259.7);
+  --color-muted-foreground: oklch(0.536 0.048 256.8);
+  --color-accent: oklch(0.226 0.027 259.7);
+  --color-accent-foreground: oklch(0.953 0.005 247.9);
+  
+  --color-destructive: oklch(0.579 0.214 27.2);
+  --color-destructive-foreground: oklch(0.953 0.005 247.9);
+  
+  --color-border: oklch(0.226 0.027 259.7);
+  --color-input: oklch(0.226 0.027 259.7);
+  --radius-xl: 0.75rem;
+
+  /* SOLUTION v4 : Déclarer sans le préfixe '--color-' force Tailwind à l'exposer globalement */
+  --chart-1: oklch(0.809 0.210 152.7); /* Votre Vert Émeraude */
+  --chart-2: oklch(0.536 0.048 256.8);
+  --chart-3: oklch(0.579 0.214 27.2);
+  --chart-4: oklch(0.226 0.027 259.7);
+  --chart-5: oklch(0.177 0.029 265.8);
+
+  --color-sidebar-background: oklch(0.165 0.025 265.8);
+  --color-sidebar-foreground: oklch(0.953 0.005 247.9);
+  --color-sidebar-primary: oklch(0.809 0.210 152.7);
+  --color-sidebar-primary-foreground: oklch(0 0 0);
+  --color-sidebar-accent: oklch(0.240 0.028 259.7);
+  --color-sidebar-accent-foreground: oklch(0.953 0.005 247.9);
+  --color-sidebar-border: oklch(0.226 0.027 259.7);
+  --color-sidebar-ring: oklch(0.809 0.210 152.7);
+}
+
+/* Vous pouvez supprimer complètement l'ancien bloc :root séparé qui créait le conflit */
+
+.text-balance {
+  text-wrap: balance;
+}
+
+* {
+  border-color: var(--color-border);
+}
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}

@@ -1,0 +1,182 @@
+{
+  "kpis": [
+    {
+      "id": "demandes",
+      "label": "Demandes analysées",
+      "value": 24536,
+      "valueFormatted": "24 536",
+      "change": 12.4,
+      "trend": "up",
+      "periode": "vs mois dernier"
+    },
+    {
+      "id": "alertes",
+      "label": "Alertes détectées",
+      "value": 1245,
+      "valueFormatted": "1 245",
+      "change": 8.2,
+      "trend": "up",
+      "periode": "vs mois dernier"
+    },
+    {
+      "id": "suspects",
+      "label": "Cas suspects",
+      "value": 312,
+      "valueFormatted": "312",
+      "change": -3.1,
+      "trend": "down",
+      "periode": "vs mois dernier"
+    },
+    {
+      "id": "taux",
+      "label": "Taux de fraude estimé",
+      "value": 5.08,
+      "valueFormatted": "5.08%",
+      "change": 0.3,
+      "trend": "up",
+      "periode": "vs mois dernier"
+    }
+  ],
+  "alertesTrend": [
+    { "date": "2026-04-01", "alertes": 120, "resolues": 85 },
+    { "date": "2026-04-02", "alertes": 210, "resolues": 130 },
+    { "date": "2026-04-03", "alertes": 95,  "resolues": 60 },
+    { "date": "2026-04-04", "alertes": 185, "resolues": 140 },
+    { "date": "2026-04-05", "alertes": 290, "resolues": 190 },
+    { "date": "2026-04-06", "alertes": 140, "resolues": 95 },
+    { "date": "2026-04-07", "alertes": 225, "resolues": 150 },
+    { "date": "2026-04-08", "alertes": 80,  "resolues": 55 },
+    { "date": "2026-04-09", "alertes": 310, "resolues": 210 },
+    { "date": "2026-04-10", "alertes": 165, "resolues": 115 },
+    { "date": "2026-04-11", "alertes": 240, "resolues": 170 },
+    { "date": "2026-04-12", "alertes": 115, "resolues": 70 },
+    { "date": "2026-04-13", "alertes": 335, "resolues": 220 },
+    { "date": "2026-04-14", "alertes": 190, "resolues": 130 },
+    { "date": "2026-04-15", "alertes": 260, "resolues": 180 },
+    { "date": "2026-04-16", "alertes": 90,  "resolues": 65 },
+    { "date": "2026-04-17", "alertes": 295, "resolues": 195 },
+    { "date": "2026-04-18", "alertes": 150, "resolues": 100 },
+    { "date": "2026-04-19", "alertes": 215, "resolues": 145 },
+    { "date": "2026-04-20", "alertes": 360, "resolues": 250 },
+    { "date": "2026-04-21", "alertes": 130, "resolues": 85 },
+    { "date": "2026-04-22", "alertes": 245, "resolues": 160 },
+    { "date": "2026-04-23", "alertes": 105, "resolues": 75 },
+    { "date": "2026-04-24", "alertes": 280, "resolues": 190 },
+    { "date": "2026-04-25", "alertes": 395, "resolues": 270 },
+    { "date": "2026-04-26", "alertes": 170, "resolues": 110 },
+    { "date": "2026-04-27", "alertes": 315, "resolues": 220 },
+    { "date": "2026-04-28", "alertes": 125, "resolues": 80 },
+    { "date": "2026-04-29", "alertes": 270, "resolues": 185 },
+    { "date": "2026-04-30", "alertes": 420, "resolues": 290 },
+    { "date": "2026-05-01", "alertes": 195, "resolues": 130 },
+    { "date": "2026-05-02", "alertes": 340, "resolues": 240 },
+    { "date": "2026-05-03", "alertes": 150, "resolues": 95 },
+    { "date": "2026-05-04", "alertes": 290, "resolues": 200 },
+    { "date": "2026-05-05", "alertes": 460, "resolues": 310 },
+    { "date": "2026-05-06", "alertes": 210, "resolues": 150 },
+    { "date": "2026-05-07", "alertes": 375, "resolues": 260 },
+    { "date": "2026-05-08", "alertes": 135, "resolues": 90 },
+    { "date": "2026-05-09", "alertes": 315, "resolues": 210 },
+    { "date": "2026-05-10", "alertes": 490, "resolues": 340 },
+    { "date": "2026-05-11", "alertes": 225, "resolues": 160 },
+    { "date": "2026-05-12", "alertes": 360, "resolues": 250 },
+    { "date": "2026-05-13", "alertes": 160, "resolues": 110 },
+    { "date": "2026-05-14", "alertes": 410, "resolues": 285 },
+    { "date": "2026-05-15", "alertes": 530, "resolues": 360 },
+    { "date": "2026-05-16", "alertes": 250, "resolues": 180 },
+    { "date": "2026-05-17", "alertes": 380, "resolues": 270 },
+    { "date": "2026-05-18", "alertes": 180, "resolues": 120 },
+    { "date": "2026-05-19", "alertes": 435, "resolues": 300 },
+    { "date": "2026-05-20", "alertes": 560, "resolues": 390 }
+],
+  "fraudeParType": [
+    { "type": "Surfacturation",        "nombre": 561, "montant": 4200000, "pourcentage": 45, "couleur": "#ff4757" },
+    { "type": "Services non fournis",  "nombre": 311, "montant": 2100000, "pourcentage": 25, "couleur": "#ffa502" },
+    { "type": "Double facturation",    "nombre": 187, "montant": 980000,  "pourcentage": 15, "couleur": "#3ea6ff" },
+    { "type": "Usurpation identité",   "nombre": 124, "montant": 1540000, "pourcentage": 10, "couleur": "#a55eea" },
+    { "type": "Autres",                "nombre": 62,  "montant": 320000,  "pourcentage": 5,  "couleur": "#4a6070" }
+  ],
+  "dernieresAlertes": [
+    {
+      "id": "A-2026-0125",
+      "type": "Surfacturation",
+      "assure": "Moussa Diallo",
+      "etablissement": "Clinique Pasteur",
+      "montant": 2400000,
+      "montantFormate": "2 400 000 FCFA",
+      "risque": "Élevé",
+      "scoreIA": 94,
+      "date": "18/05/2026",
+      "statut": "En cours"
+    },
+    {
+      "id": "A-2026-0124",
+      "type": "Service non fourni",
+      "assure": "Fatou Ndiaye",
+      "etablissement": "CHU de Dakar",
+      "montant": 850000,
+      "montantFormate": "850 000 FCFA",
+      "risque": "Élevé",
+      "scoreIA": 88,
+      "date": "18/05/2026",
+      "statut": "En cours"
+    },
+    {
+      "id": "A-2026-0123",
+      "type": "Double facturation",
+      "assure": "Ibrahima Sow",
+      "etablissement": "Polyclinique El Hadj",
+      "montant": 320000,
+      "montantFormate": "320 000 FCFA",
+      "risque": "Moyen",
+      "scoreIA": 61,
+      "date": "17/05/2026",
+      "statut": "À vérifier"
+    },
+    {
+      "id": "A-2026-0122",
+      "type": "Usurpation identité",
+      "assure": "Aminata Camara",
+      "etablissement": "Centre Médical Yoff",
+      "montant": 1100000,
+      "montantFormate": "1 100 000 FCFA",
+      "risque": "Élevé",
+      "scoreIA": 97,
+      "date": "17/05/2026",
+      "statut": "En cours"
+    },
+    {
+      "id": "A-2026-0121",
+      "type": "Surfacturation",
+      "assure": "Oumar Ba",
+      "etablissement": "Clinique du Plateau",
+      "montant": 150000,
+      "montantFormate": "150 000 FCFA",
+      "risque": "Faible",
+      "scoreIA": 28,
+      "date": "16/05/2026",
+      "statut": "Résolu"
+    },
+    {
+      "id": "A-2026-0120",
+      "type": "Fréquence anormale",
+      "assure": "Rokhaya Thiam",
+      "etablissement": "Hôpital Principal",
+      "montant": 560000,
+      "montantFormate": "560 000 FCFA",
+      "risque": "Moyen",
+      "scoreIA": 55,
+      "date": "15/05/2026",
+      "statut": "À vérifier"
+    }
+  ],
+  "scoreRisqueGlobal": {
+    "score": 85,
+    "niveau": "Élevé",
+    "details": [
+      { "label": "Surfacturation", "valeur": 85, "couleur": "#ff4757" },
+      { "label": "Doublons",       "valeur": 42, "couleur": "#ffa502" },
+      { "label": "Identité",       "valeur": 61, "couleur": "#3ea6ff" }
+    ]
+  }
+}
