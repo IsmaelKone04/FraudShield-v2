@@ -199,7 +199,7 @@ export default function RapportsPage() {
           />
         </div>
 
-        <Select value={categorie} onValueChange={setCategorie}>
+        <Select value={categorie} onValueChange={(v) => setCategorie(v ?? "")}>
           <SelectTrigger className="w-44 h-9 text-sm">
             <SelectValue placeholder="Catégorie" />
           </SelectTrigger>
@@ -210,7 +210,7 @@ export default function RapportsPage() {
           </SelectContent>
         </Select>
 
-        <Select value={filtreStatut} onValueChange={setStatut}>
+        <Select value={filtreStatut} onValueChange={(v) => setStatut(v ?? "")}>
           <SelectTrigger className="w-40 h-9 text-sm">
             <SelectValue placeholder="Statut" />
           </SelectTrigger>
@@ -221,7 +221,7 @@ export default function RapportsPage() {
           </SelectContent>
         </Select>
 
-        <Select value={filtreFormat} onValueChange={setFormat}>
+        <Select value={filtreFormat} onValueChange={(v) => setFormat(v ?? "")}>
           <SelectTrigger className="w-32 h-9 text-sm">
             <SelectValue placeholder="Format" />
           </SelectTrigger>

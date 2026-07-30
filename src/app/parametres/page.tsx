@@ -192,7 +192,7 @@ export default function ParametresPage() {
                     label="Fréquence d'analyse"
                     description="Cadence du moteur de détection"
                   >
-                    <Select value={frequence} onValueChange={setFrequence}>
+                    <Select value={frequence} onValueChange={(v) => setFrequence(v ?? "")}>
                       <SelectTrigger className="w-44 h-8 text-xs">
                         <SelectValue />
                       </SelectTrigger>
@@ -239,7 +239,7 @@ export default function ParametresPage() {
                     label="Rétention des données"
                     description="Durée de conservation des dossiers archivés"
                   >
-                    <Select value={retention} onValueChange={setRetention}>
+                    <Select value={retention} onValueChange={(v) => setRetention(v ?? "")}>
                       <SelectTrigger className="w-44 h-8 text-xs">
                         <SelectValue />
                       </SelectTrigger>

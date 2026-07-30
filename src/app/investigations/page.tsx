@@ -122,7 +122,7 @@ export default function InvestigationsPage() {
           />
         </div>
 
-        <Select value={filtrePriorite} onValueChange={setPriorite}>
+        <Select value={filtrePriorite} onValueChange={(v) => setPriorite(v ?? "")}>
           <SelectTrigger className="w-40 h-9 text-sm">
             <SelectValue placeholder="Priorité" />
           </SelectTrigger>
@@ -135,7 +135,7 @@ export default function InvestigationsPage() {
           </SelectContent>
         </Select>
 
-        <Select value={filtreStatut} onValueChange={setStatut}>
+        <Select value={filtreStatut} onValueChange={(v) => setStatut(v ?? "")}>
           <SelectTrigger className="w-40 h-9 text-sm">
             <SelectValue placeholder="Statut" />
           </SelectTrigger>

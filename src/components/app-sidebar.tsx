@@ -95,20 +95,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/25 shrink-0">
-                  <Shield className="size-4 text-emerald-400" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none min-w-0">
-                  <span className="font-bold text-sm text-foreground truncate">
-                    FraudShield
-                  </span>
-                  <span className="text-[10px] text-muted-foreground tracking-widest uppercase truncate">
-                    Santé
-                  </span>
-                </div>
-              </Link>
+            <SidebarMenuButton size="lg" render={<Link href="/dashboard" />}>
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/25 shrink-0">
+                <Shield className="size-4 text-emerald-400" />
+              </div>
+              <div className="flex flex-col gap-0.5 leading-none min-w-0">
+                <span className="font-bold text-sm text-foreground truncate">
+                  FraudShield
+                </span>
+                <span className="text-[10px] text-muted-foreground tracking-widest uppercase truncate">
+                  Santé
+                </span>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -141,7 +139,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
-                      asChild
+                      render={
+                        <Link href={item.href} className="flex items-center w-full gap-2" />
+                      }
                       isActive={isActive}
                       tooltip={item.title}
                       className={`group/item transition-all duration-150 ${
@@ -150,39 +150,37 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           : "hover:bg-white/[0.04]"
                       }`}
                     >
-                      <Link href={item.href} className="flex items-center w-full gap-2">
-                        {/* Icône */}
-                        <Icon
-                          size={16}
-                          className={`shrink-0 ${
-                            isActive
-                              ? "text-emerald-400"
-                              : "text-muted-foreground group-hover/item:text-foreground"
-                          }`}
-                        />
+                      {/* Icône */}
+                      <Icon
+                        size={16}
+                        className={`shrink-0 ${
+                          isActive
+                            ? "text-emerald-400"
+                            : "text-muted-foreground group-hover/item:text-foreground"
+                        }`}
+                      />
 
-                        {/* Label */}
-                        <span className={`truncate text-sm flex-1 ${
-                          isActive ? "font-semibold" : "font-medium"
-                        }`}>
-                          {item.title}
-                        </span>
+                      {/* Label */}
+                      <span className={`truncate text-sm flex-1 ${
+                        isActive ? "font-semibold" : "font-medium"
+                      }`}>
+                        {item.title}
+                      </span>
 
-                        {/* Badge */}
-                        {item.badge && (
-                          <Badge
-                            variant="outline"
-                            className={`text-[10px] font-bold px-1.5 py-0 h-4 shrink-0 group-data-[collapsible=icon]:hidden ${item.badgeColor}`}
-                          >
-                            {item.badge}
-                          </Badge>
-                        )}
+                      {/* Badge */}
+                      {item.badge && (
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] font-bold px-1.5 py-0 h-4 shrink-0 group-data-[collapsible=icon]:hidden ${item.badgeColor}`}
+                        >
+                          {item.badge}
+                        </Badge>
+                      )}
 
-                        {/* Chevron si actif */}
-                        {isActive && (
-                          <ChevronRight size={12} className="text-emerald-400/60 shrink-0 group-data-[collapsible=icon]:hidden" />
-                        )}
-                      </Link>
+                      {/* Chevron si actif */}
+                      {isActive && (
+                        <ChevronRight size={12} className="text-emerald-400/60 shrink-0 group-data-[collapsible=icon]:hidden" />
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )
@@ -196,20 +194,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/parametres">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-emerald-500 text-black font-bold text-xs shrink-0">
-                  AD
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none min-w-0">
-                  <span className="text-sm font-semibold text-foreground truncate">
-                    Admin Diallo
-                  </span>
-                  <span className="text-xs text-muted-foreground truncate">
-                    Administrateur
-                  </span>
-                </div>
-              </Link>
+            <SidebarMenuButton size="lg" render={<Link href="/parametres" />}>
+              <div className="flex size-8 items-center justify-center rounded-lg bg-emerald-500 text-black font-bold text-xs shrink-0">
+                AD
+              </div>
+              <div className="flex flex-col gap-0.5 leading-none min-w-0">
+                <span className="text-sm font-semibold text-foreground truncate">
+                  Admin Diallo
+                </span>
+                <span className="text-xs text-muted-foreground truncate">
+                  Administrateur
+                </span>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
