@@ -23,7 +23,7 @@ Le code a toutefois été écrit pour que le branchement à la vraie API soit im
 
 ## 🔌 Bascule données fictives → API réelle
 
-Tout passe par un service unique, [`src/lib/services/dashboard.service.ts`](src/lib/services/dashboard.service.ts).
+L'accès aux données est centralisé dans [`src/lib/services/dashboard.service.ts`](src/lib/services/dashboard.service.ts).
 Chaque méthode sait lire aussi bien le jeu de données local que l'endpoint distant :
 
 ```ts
@@ -36,8 +36,7 @@ async getKPIs(): Promise<KPI[]> {
 }
 ```
 
-Pour passer sur l'API réelle, deux variables d'environnement suffisent —
-**aucun composant n'a besoin d'être modifié** :
+Deux variables d'environnement pilotent la bascule :
 
 ```bash
 NEXT_PUBLIC_USE_MOCK=false
@@ -46,6 +45,12 @@ NEXT_PUBLIC_API_URL=https://mon-api/api/v1
 
 C'est le choix de conception dont je suis le plus satisfait sur ce projet : l'interface
 a pu être construite et démontrée sans jamais attendre que le backend soit prêt.
+
+> **État réel du chantier.** Le motif est en place mais n'est pas encore généralisé :
+> à ce jour, seul le tableau de bord passe par le service. Les cinq autres écrans
+> importent encore leur `data.json` directement, et quatre des cinq méthodes du service
+> ne sont appelées nulle part. La phase 1 de [`docs/ROADMAP.md`](docs/ROADMAP.md) traite
+> exactement ce point — d'ici là, brancher l'API réelle demande de modifier les pages.
 
 ## 🚀 Démarrage
 
@@ -61,6 +66,15 @@ npx auth secret          # génère AUTH_SECRET
 
 npm run dev              # http://localhost:3000
 ```
+
+`npx auth secret` n'est pas facultatif : sans `AUTH_SECRET`, la connexion échoue.
+
+| Commande | |
+|---|---|
+| `npm run dev` | serveur de développement |
+| `npm run build` | build de production |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint 9 (Next 16 a supprimé `next lint`) |
 
 ### Comptes de démonstration
 
@@ -81,6 +95,7 @@ jamais en clair — l'authentification définitive est destinée à être délé
 ```
 src/
 ├── app/
+│   ├── api/auth/[...nextauth]/   # Montage des routes NextAuth
 │   ├── dashboard/        # Vue d'ensemble : KPIs, tendances, dernières alertes
 │   ├── alertes/          # Liste des alertes, filtres, statuts
 │   ├── investigations/   # Dossiers en cours d'instruction
@@ -100,9 +115,14 @@ src/
 
 ### Contrôle d'accès
 
-[`src/proxy.ts`](src/proxy.ts) protège les routes avant même le rendu : toute visite de
-`/dashboard` sans session est redirigée vers `/login`, et `/dashboard/admin` exige le
-rôle `ADMINISTRATEUR`. Le rôle est porté par le jeton JWT et exposé dans la session.
+[`src/proxy.ts`](src/proxy.ts) protège les routes avant même le rendu, selon un principe
+*fail-closed* : **tout ce qui n'est pas explicitement public exige une session**. Seule
+`/login` est ouverte (avec les routes `/api/auth/*`, nécessaires à la connexion elle-même).
+Une page ajoutée demain est donc protégée sans qu'on ait à y penser.
+
+Le rôle est porté par le jeton JWT et exposé dans la session. La restriction du préfixe
+`/dashboard/admin` au rôle `ADMINISTRATEUR` est en place, mais **la page correspondante
+n'existe pas encore** : elle est prévue en phase 4 pour accueillir le journal d'audit.
 
 > À noter : Next.js 16 a renommé le fichier `middleware.ts` en `proxy.ts`. Ce n'est pas
 > un fichier exotique, c'est bien le mécanisme de middleware standard.
@@ -113,7 +133,7 @@ rôle `ADMINISTRATEUR`. Le rôle est porté par le jeton JWT et exposé dans la 
 |---------|-------|
 | Framework | Next.js 16 (App Router) |
 | UI | React 19, Tailwind CSS 4, shadcn/ui sur Base UI |
-| Tableaux | TanStack Table + dnd-kit (réordonnancement) |
+| Tableaux | `<table>` + composants `ui/table` (pas de tri ni de réordonnancement à ce jour) |
 | Graphiques | Recharts |
 | Authentification | NextAuth v5 (Credentials), bcrypt, JWT |
 | Validation | Zod |
@@ -125,8 +145,32 @@ rôle `ADMINISTRATEUR`. Le rôle est porté par le jeton JWT et exposé dans la 
 - **Données fictives** : aucun jeu de données réel, pour d'évidentes raisons de confidentialité.
 - **Répertoire d'utilisateurs local** : les trois comptes de démonstration sont codés dans
   `src/auth.ts`. En production, l'authentification doit passer par l'API.
-- **Écritures non persistées** : changer le statut d'une alerte met à jour l'affichage,
-  mais rien n'est enregistré tant que l'API n'est pas branchée.
+- **Aucune écriture** : la console est en lecture seule. Changer le statut d'une alerte,
+  l'assigner ou enregistrer les paramètres n'est pas encore possible — plusieurs boutons
+  sont en place mais sans action derrière. C'est l'objet de la phase 2 de la feuille de
+  route.
+- **Accès en lecture seulement pour tous les rôles** : le rôle est bien porté par le JWT
+  et exposé dans la session, mais il ne conditionne encore aucune fonctionnalité.
+
+## 🗺️ Feuille de route
+
+Le projet est repris depuis août 2026 selon un plan en six phases, détaillé dans
+[`docs/ROADMAP.md`](docs/ROADMAP.md) — avec la liste des tâches, les estimations et
+les arbitrages. Résumé :
+
+| Phase | | État |
+|---|---|---|
+| **P0** | Remise en marche : connexion, accueil, contrôle d'accès | ✅ terminée |
+| **P1** | Fondations : service généralisé, validation Zod, gestion d'erreurs | à venir |
+| **P2** | Interactions : statuts, assignation, export, paramètres persistés | à venir |
+| **P3** | Détail d'alerte (`/alertes/[id]`) | à venir |
+| **P4** | Explicabilité du score · boucle de rétroaction · graphe de réseaux · simulateur de seuils · piste d'audit | à venir |
+| **P5** | Accessibilité, thème, tests, responsive, documentation finale | à venir |
+
+La phase 4 porte le parti pris du projet : **mettre l'analyste au centre plutôt que le
+modèle**. Les outils du marché produisent un score et une file d'alertes ; ils
+n'expliquent pas le score, ne referment jamais la boucle sur les faux positifs, et
+raisonnent dossier par dossier alors que la fraude organisée se lit dans les liens.
 
 ## 📄 Licence
 

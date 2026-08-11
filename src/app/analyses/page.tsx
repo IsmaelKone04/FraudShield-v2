@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts"
 import { ShieldAlertIcon, TrendingUpIcon, ActivityIcon, CheckCircle2Icon, ArrowUpRightIcon, ArrowDownRightIcon } from "lucide-react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"

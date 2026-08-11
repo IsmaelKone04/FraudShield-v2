@@ -10,7 +10,7 @@ import {
   SelectTrigger, SelectValue,
 } from "@/components/ui/select"
 import {
-  Shield, Bell, Database, Users, Settings,
+  Bell, Database, Users, Settings,
   Save, Plus, RefreshCw, Clock, CheckCircle,
   AlertTriangle, Key, Globe, HardDrive,
 } from "lucide-react"

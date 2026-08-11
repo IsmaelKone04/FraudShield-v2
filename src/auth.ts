@@ -4,7 +4,9 @@ import bcrypt from "bcryptjs"
 import { z } from "zod"
 
 // L'import est nécessaire pour que TypeScript accepte d'augmenter le module
-// "next-auth/jwt" plus bas (sans lui : TS2664).
+// "next-auth/jwt" plus bas (sans lui : TS2664). Il paraît inutilisé à ESLint,
+// d'où la désactivation ciblée : le retirer casse la compilation.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { JWT } from "next-auth/jwt"
 
 // Typage des extensions pour que TypeScript reconnaisse le champ "role"
