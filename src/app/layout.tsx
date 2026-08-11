@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -39,6 +40,14 @@ export default function RootLayout({
     >
       <body className="bg-background text-foreground antialiased font-sans">
         {children}
+        {/*
+          Point de sortie des notifications. Le composant existait déjà mais
+          n'était monté nulle part : aucun `toast()` ne pouvait s'afficher.
+          Le thème est figé sur « dark » tant que le sélecteur clair/sombre
+          n'est pas en place (phase 5) — sinon les notifications suivraient les
+          préférences du système sur une interface, elle, toujours sombre.
+        */}
+        <Toaster theme="dark" position="bottom-right" richColors />
       </body>
     </html>
   );

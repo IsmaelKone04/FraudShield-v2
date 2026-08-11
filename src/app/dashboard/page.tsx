@@ -5,12 +5,15 @@ import { DataTable } from "@/components/data-table"
 import { SectionCards } from "@/components/section-cards"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-
-import data from "./data.json"
+import { dashboardService } from "@/lib/services"
 
 export default async function Page() {
   const session = await auth()
   const role = session?.user?.role // Contient "ADMINISTRATEUR", "SUPERVISEUR" ou "ANALYSTE"
+  const [dernieresAlertes, alertesTrend] = await Promise.all([
+    dashboardService.getDernieresAlertes(),
+    dashboardService.getAlertesTrend(),
+  ])
 
   return (
     <SidebarProvider
@@ -47,9 +50,9 @@ export default async function Page() {
 
               <SectionCards />
               <div className="px-4 lg:px-6">
-                <ChartAreaInteractive />
+                <ChartAreaInteractive alertesTrend={alertesTrend} />
               </div>
-              <DataTable data={data.dernieresAlertes} />
+              <DataTable data={dernieresAlertes} />
             </div>
           </div>
         </div>

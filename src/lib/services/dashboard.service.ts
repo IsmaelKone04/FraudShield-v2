@@ -1,103 +1,61 @@
-/**
- * FraudShield Santé — Dashboard Service
- *
- * Stratégie de transition JSON → API :
- * - En développement : lit les données depuis data.json (mock local)
- * - En production    : appelle le vrai endpoint FastAPI
- *
- * Pour passer à l'API réelle, il suffit de :
- * 1. Mettre USE_MOCK=false dans .env.local
- * 2. Renseigner NEXT_PUBLIC_API_URL dans .env.local
- * Aucun composant n'a besoin d'être modifié.
- */
+import { z } from "zod"
+import { chargerMock, fetchFromAPI, USE_MOCK } from "@/lib/api/client"
+import {
+  alerteTrendSchema,
+  dashboardDataSchema,
+  fraudeParTypeSchema,
+  kpiSchema,
+  scoreRisqueSchema,
+  type AlerteTrend,
+  type DashboardData,
+  type FraudeParType,
+  type KPI,
+  type ScoreRisque,
+} from "@/lib/schemas/dashboard.schema"
+import type { Alerte } from "@/lib/schemas/alertes.schema"
+import { alertesService } from "./alertes.service"
 
-import type {
-  DashboardData,
-  KPI,
-  AlerteTrend,
-  FraudeParType,
-  Alerte,
-  ScoreRisque,
-} from "@/lib/types/dashboard.types"
+const ORIGINE = "dashboard/data.json"
 
-// ─── Configuration ────────────────────────────────────────────────────────────
-const USE_MOCK   = process.env.NEXT_PUBLIC_USE_MOCK !== "false"
-const API_URL    = process.env.NEXT_PUBLIC_API_URL  || "http://localhost:8000/api/v1"
+const chargerJeuLocal = (): Promise<DashboardData> =>
+  chargerMock(
+    () => import("@/app/dashboard/data.json"),
+    dashboardDataSchema,
+    ORIGINE
+  )
 
-// ─── Chargement du mock local ─────────────────────────────────────────────────
-async function getMockData(): Promise<DashboardData> {
-  // Next.js permet l'import dynamique de JSON — zéro fetch réseau
-  const data = await import("@/app/dashboard/data.json")
-  return data.default as DashboardData
-}
-
-// ─── Appels API réels (activés quand USE_MOCK=false) ─────────────────────────
-async function fetchFromAPI<T>(endpoint: string): Promise<T> {
-  const token = typeof window !== "undefined"
-    ? localStorage.getItem("token")
-    : null
-
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    // Next.js 14 : revalider toutes les 60 secondes
-    next: { revalidate: 60 },
-  })
-
-  if (!res.ok) {
-    throw new Error(`API error ${res.status} on ${endpoint}`)
-  }
-
-  return res.json()
-}
-
-// ─── Service public ───────────────────────────────────────────────────────────
 export const dashboardService = {
-
-  /** Tous les KPIs (cards du haut) */
+  /** Cartes de KPI en tête de page. */
   async getKPIs(): Promise<KPI[]> {
-    if (USE_MOCK) {
-      const data = await getMockData()
-      return data.kpis
-    }
-    return fetchFromAPI<KPI[]>("/dashboard/kpis")
+    if (USE_MOCK) return (await chargerJeuLocal()).kpis
+    return fetchFromAPI("/dashboard/kpis", z.array(kpiSchema))
   },
 
-  /** Données du graphique évolution alertes */
+  /** Courbe d'évolution des alertes. */
   async getAlertesTrend(): Promise<AlerteTrend[]> {
-    if (USE_MOCK) {
-      const data = await getMockData()
-      return data.alertesTrend
-    }
-    return fetchFromAPI<AlerteTrend[]>("/dashboard/alertes-trend")
+    if (USE_MOCK) return (await chargerJeuLocal()).alertesTrend
+    return fetchFromAPI("/dashboard/alertes-trend", z.array(alerteTrendSchema))
   },
 
-  /** Répartition des fraudes par type */
+  /** Répartition des fraudes par type. */
   async getFraudeParType(): Promise<FraudeParType[]> {
-    if (USE_MOCK) {
-      const data = await getMockData()
-      return data.fraudeParType
-    }
-    return fetchFromAPI<FraudeParType[]>("/dashboard/fraude-types")
+    if (USE_MOCK) return (await chargerJeuLocal()).fraudeParType
+    return fetchFromAPI("/dashboard/fraude-types", z.array(fraudeParTypeSchema))
   },
 
-  /** Dernières alertes pour le tableau */
-  async getDernieresAlertes(): Promise<Alerte[]> {
-    if (USE_MOCK) {
-      const data = await getMockData()
-      return data.dernieresAlertes
-    }
-    return fetchFromAPI<Alerte[]>("/alertes?limit=6&sort=date_desc")
+  /**
+   * Dernières alertes du tableau de bord.
+   *
+   * Déléguée au service des alertes : le tableau de bord montre un extrait de la
+   * même source que la page dédiée, il n'en détient pas une seconde copie.
+   */
+  getDernieresAlertes(limite = 6): Promise<Alerte[]> {
+    return alertesService.getDernieres(limite)
   },
 
-  /** Score de risque global */
+  /** Score de risque global du portefeuille. */
   async getScoreRisque(): Promise<ScoreRisque> {
-    if (USE_MOCK) {
-      const data = await getMockData()
-      return data.scoreRisqueGlobal
-    }
-    return fetchFromAPI<ScoreRisque>("/dashboard/score-risque")
+    if (USE_MOCK) return (await chargerJeuLocal()).scoreRisqueGlobal
+    return fetchFromAPI("/dashboard/score-risque", scoreRisqueSchema)
   },
 }

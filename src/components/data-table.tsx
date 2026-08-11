@@ -1,9 +1,7 @@
-"use client"
-
-import data from "@/app/dashboard/data.json"
 import { Badge } from "@/components/ui/badge"
 import { Clock, Eye } from "lucide-react"
 import Link from "next/link"
+import type { Alerte } from "@/lib/schemas/alertes.schema"
 
 const risqueCfg: Record<string, { label: string; className: string }> = {
   "Élevé":  { label: "Élevé",     className: "bg-red-500/15 text-red-400 border-red-500/20"     },
@@ -17,6 +15,11 @@ const statutCfg: Record<string, { className: string }> = {
   "Résolu":     { className: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20" },
 }
 
+const COLONNES = [
+  "ID Alerte", "Type", "Assuré", "Établissement",
+  "Montant", "Score IA", "Risque", "Date", "Statut",
+]
+
 function ScoreBar({ score }: { score: number }) {
   const color = score >= 80 ? "#ff4757" : score >= 50 ? "#ffa502" : "#00e578"
   return (
@@ -29,17 +32,23 @@ function ScoreBar({ score }: { score: number }) {
   )
 }
 
-export function DataTable({ data: _unused }: { data?: any[] }) {
+/**
+ * Tableau des dernières alertes du tableau de bord.
+ *
+ * Il est piloté par ses props : la version précédente déclarait recevoir `data`
+ * puis l'ignorait pour réimporter `dashboard/data.json` elle-même, ce qui rendait
+ * le composant inutilisable ailleurs et court-circuitait le service.
+ */
+export function DataTable({ data }: { data: Alerte[] }) {
   return (
     <div className="px-4 lg:px-6">
       <div className="rounded-xl border border-border/50 bg-card overflow-hidden">
 
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
           <div>
             <h3 className="text-sm font-semibold text-foreground">Dernières alertes</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {data.dernieresAlertes.length} cas suspects récents
+              {data.length} cas suspects récents
             </p>
           </div>
           <Link
@@ -51,24 +60,22 @@ export function DataTable({ data: _unused }: { data?: any[] }) {
           </Link>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border/30">
-                {["ID Alerte","Type","Assuré","Établissement","Montant","Score IA","Risque","Date","Statut"].map(h => (
-                  <th key={h} className="text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 px-4 py-3">
+                {COLONNES.map(h => (
+                  <th key={h} scope="col" className="text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 px-4 py-3">
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {data.dernieresAlertes.map((a, i) => (
+              {data.map((a) => (
                 <tr
                   key={a.id}
-                  className="border-b border-border/20 hover:bg-white/[0.02] transition-colors cursor-pointer"
-                  style={{ animationDelay: `${i * 60}ms` }}
+                  className="border-b border-border/20 hover:bg-white/[0.02] transition-colors"
                 >
                   <td className="px-4 py-3.5">
                     <span className="font-mono text-xs text-emerald-400">{a.id}</span>
@@ -90,7 +97,7 @@ export function DataTable({ data: _unused }: { data?: any[] }) {
                   <td className="px-4 py-3.5">
                     <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Clock size={11} />
-                      {a.date}
+                      {a.dateFormate}
                     </span>
                   </td>
                   <td className="px-4 py-3.5">

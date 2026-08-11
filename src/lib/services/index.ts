@@ -1,0 +1,6 @@
+export { dashboardService } from "./dashboard.service"
+export { alertesService } from "./alertes.service"
+export { investigationsService } from "./investigations.service"
+export { analysesService } from "./analyses.service"
+export { rapportsService } from "./rapports.service"
+export { parametresService } from "./parametres.service"

@@ -1,62 +1,55 @@
-// ─── KPI Cards ────────────────────────────────────────────────────────────────
-export interface KPI {
-  id:             string
-  label:          string
-  value:          number
-  valueFormatted: string
-  change:         number
-  trend:          "up" | "down"
-  periode:        string
-}
+/**
+ * Types du domaine.
+ *
+ * Ils ne sont plus écrits à la main : ils sont **déduits** des schémas Zod de
+ * `src/lib/schemas/`, qui servent aussi à valider les données au runtime. Un
+ * type et un schéma maintenus séparément finissent par se contredire ; ici, il
+ * n'y a qu'une définition.
+ *
+ * Ce fichier ne subsiste que comme point d'entrée commode.
+ */
 
-// ─── Graphique évolution ──────────────────────────────────────────────────────
-export interface AlerteTrend {
-  date:     string
-  alertes:  number
-  resolues: number
-}
+export type {
+  Stat,
+  NiveauRisque,
+  StatutAlerte,
+} from "@/lib/schemas/commun"
 
-// ─── Répartition fraudes ──────────────────────────────────────────────────────
-export interface FraudeParType {
-  type:        string
-  nombre:      number
-  montant:     number
-  pourcentage: number
-  couleur:     string
-}
+export type {
+  KPI,
+  AlerteTrend,
+  FraudeParType,
+  ScoreRisqueDetail,
+  ScoreRisque,
+  DashboardData,
+} from "@/lib/schemas/dashboard.schema"
 
-// ─── Tableau alertes ──────────────────────────────────────────────────────────
-export interface Alerte {
-  id:             string
-  type:           string
-  assure:         string
-  etablissement:  string
-  montant:        number
-  montantFormate: string
-  risque:         "Élevé" | "Moyen" | "Faible"
-  scoreIA:        number
-  date:           string
-  statut:         "En cours" | "À vérifier" | "Résolu"
-}
+export type { Alerte, AlertesData } from "@/lib/schemas/alertes.schema"
 
-// ─── Score risque ─────────────────────────────────────────────────────────────
-export interface ScoreRisqueDetail {
-  label:   string
-  valeur:  number
-  couleur: string
-}
+export type {
+  Priorite,
+  StatutInvestigation,
+  Investigation,
+  InvestigationsData,
+} from "@/lib/schemas/investigations.schema"
 
-export interface ScoreRisque {
-  score:   number
-  niveau:  string
-  details: ScoreRisqueDetail[]
-}
+export type {
+  StatistiquesGlobales,
+  EtablissementSuspect,
+  SegmentRisque,
+  ComportementAnormal,
+  AnalysesData,
+} from "@/lib/schemas/analyses.schema"
 
-// ─── Structure complète du data.json ─────────────────────────────────────────
-export interface DashboardData {
-  kpis:               KPI[]
-  alertesTrend:       AlerteTrend[]
-  fraudeParType:      FraudeParType[]
-  dernieresAlertes:   Alerte[]
-  scoreRisqueGlobal:  ScoreRisque
-}
+export type {
+  CategorieRapport,
+  Rapport,
+  RapportsData,
+} from "@/lib/schemas/rapports.schema"
+
+export type {
+  Utilisateur,
+  Modele,
+  ParametresSysteme,
+  ParametresData,
+} from "@/lib/schemas/parametres.schema"

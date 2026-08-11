@@ -23,20 +23,18 @@ Le code a toutefois été écrit pour que le branchement à la vraie API soit im
 
 ## 🔌 Bascule données fictives → API réelle
 
-L'accès aux données est centralisé dans [`src/lib/services/dashboard.service.ts`](src/lib/services/dashboard.service.ts).
-Chaque méthode sait lire aussi bien le jeu de données local que l'endpoint distant :
+**Aucun composant n'importe de données.** Chaque écran est un composant serveur qui
+interroge le service de son domaine ; le composant client ne reçoit que des props.
 
 ```ts
-async getKPIs(): Promise<KPI[]> {
-  if (USE_MOCK) {
-    const data = await getMockData()
-    return data.kpis
-  }
-  return fetchFromAPI<KPI[]>("/dashboard/kpis")
+// src/lib/services/alertes.service.ts
+async getAlertes(): Promise<Alerte[]> {
+  if (USE_MOCK) return (await chargerJeuLocal()).alertes
+  return fetchFromAPI("/alertes", z.array(alerteSchema))
 }
 ```
 
-Deux variables d'environnement pilotent la bascule :
+Deux variables d'environnement suffisent à basculer :
 
 ```bash
 NEXT_PUBLIC_USE_MOCK=false
@@ -46,11 +44,22 @@ NEXT_PUBLIC_API_URL=https://mon-api/api/v1
 C'est le choix de conception dont je suis le plus satisfait sur ce projet : l'interface
 a pu être construite et démontrée sans jamais attendre que le backend soit prêt.
 
-> **État réel du chantier.** Le motif est en place mais n'est pas encore généralisé :
-> à ce jour, seul le tableau de bord passe par le service. Les cinq autres écrans
-> importent encore leur `data.json` directement, et quatre des cinq méthodes du service
-> ne sont appelées nulle part. La phase 1 de [`docs/ROADMAP.md`](docs/ROADMAP.md) traite
-> exactement ce point — d'ici là, brancher l'API réelle demande de modifier les pages.
+### Le contrat est vérifié, des deux côtés
+
+Chaque réponse — de l'API **comme du jeu local** — est validée par un schéma Zod avant
+d'atteindre un composant. Les types TypeScript sont déduits de ces schémas, jamais
+écrits en parallèle :
+
+```
+src/lib/schemas/     ← définition unique (schéma + type déduit)
+src/lib/api/client.ts ← bascule mock/API, appel HTTP, validation
+src/lib/services/    ← une façade métier par domaine
+```
+
+Valider le jeu fictif n'est pas superflu : c'est ce qui garantit qu'il respecte le
+contrat que l'API devra respecter. Un champ manquant ou renommé se signale
+immédiatement, avec son chemin exact, au lieu de produire un `undefined` au milieu du
+rendu.
 
 ## 🚀 Démarrage
 
@@ -92,10 +101,14 @@ jamais en clair — l'authentification définitive est destinée à être délé
 
 ## 🧱 Structure
 
+Chaque écran suit le même découpage : `page.tsx` (serveur) charge via le service et
+passe les données à `*-client.tsx` (client), qui porte les filtres et l'interaction.
+
 ```
 src/
 ├── app/
 │   ├── api/auth/[...nextauth]/   # Montage des routes NextAuth
+│   ├── error.tsx  loading.tsx  not-found.tsx
 │   ├── dashboard/        # Vue d'ensemble : KPIs, tendances, dernières alertes
 │   ├── alertes/          # Liste des alertes, filtres, statuts
 │   ├── investigations/   # Dossiers en cours d'instruction
@@ -107,11 +120,15 @@ src/
 │   ├── ui/               # Bibliothèque shadcn/ui (variante Base UI)
 │   └── ...               # Sidebar, tableaux, graphiques, cartes de KPI
 ├── lib/
-│   ├── services/         # Accès aux données (bascule mock ↔ API)
-│   └── types/            # Types du domaine
+│   ├── api/client.ts     # Bascule mock ↔ API, appel HTTP, validation
+│   ├── schemas/          # Schémas Zod — définition unique du domaine
+│   ├── services/         # Une façade métier par domaine
+│   └── types/            # Types déduits des schémas (point d'entrée commode)
 ├── auth.ts               # Configuration NextAuth (fournisseur, rôles, session)
 └── proxy.ts              # Contrôle d'accès aux routes (ex-`middleware`, Next.js 16)
 ```
+
+Les arbitrages structurants sont consignés dans [`docs/DECISIONS.md`](docs/DECISIONS.md).
 
 ### Contrôle d'accès
 
@@ -134,6 +151,7 @@ n'existe pas encore** : elle est prévue en phase 4 pour accueillir le journal d
 | Framework | Next.js 16 (App Router) |
 | UI | React 19, Tailwind CSS 4, shadcn/ui sur Base UI |
 | Tableaux | `<table>` + composants `ui/table` (pas de tri ni de réordonnancement à ce jour) |
+| Validation | Zod 4, au runtime, sur les données locales comme distantes |
 | Graphiques | Recharts |
 | Authentification | NextAuth v5 (Credentials), bcrypt, JWT |
 | Validation | Zod |
@@ -161,7 +179,7 @@ les arbitrages. Résumé :
 | Phase | | État |
 |---|---|---|
 | **P0** | Remise en marche : connexion, accueil, contrôle d'accès | ✅ terminée |
-| **P1** | Fondations : service généralisé, validation Zod, gestion d'erreurs | à venir |
+| **P1** | Fondations : service généralisé, validation Zod, gestion d'erreurs | ✅ terminée |
 | **P2** | Interactions : statuts, assignation, export, paramètres persistés | à venir |
 | **P3** | Détail d'alerte (`/alertes/[id]`) | à venir |
 | **P4** | Explicabilité du score · boucle de rétroaction · graphe de réseaux · simulateur de seuils · piste d'audit | à venir |

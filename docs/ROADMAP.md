@@ -128,27 +128,27 @@ ne pouvait aboutir puisque toutes les routes `/api/auth/*` répondaient 404.
 
 ---
 
-### Phase 1 — Assainir les fondations · M2
+### Phase 1 — Assainir les fondations · M2 ✅ terminée
 
 Objectif : que l'argument central du README — « deux variables d'environnement suffisent,
-aucun composant à modifier » — devienne vrai. Il est faux aujourd'hui : un seul composant
-sur dix passe par le service, et quatre méthodes sur cinq ne sont jamais appelées.
+aucun composant à modifier » — devienne vrai. Il était faux : un seul composant sur dix
+passait par le service, et quatre méthodes sur cinq n'étaient jamais appelées.
 
-| # | Tâche | Fichiers | Est. |
-|---|---|---|---|
-| **P1-1** | Étendre le service aux 6 domaines (dashboard, alertes, investigations, analyses, rapports, paramètres) : une méthode par écran, chacune avec sa bascule mock/API. | `src/lib/services/` | 1 |
-| **P1-2** | Faire passer **toutes** les pages par le service. Plus aucun `import data from "./data.json"` dans un composant. | `src/app/*/page.tsx` | 1 |
-| **P1-3** | Dédupliquer les 6 alertes présentes à la fois dans `dashboard/data.json` et `alertes/data.json` → source unique. | `src/app/*/data.json` | 0,5 |
-| **P1-4** | Typer les 5 domaines manquants avec Zod, et **valider la réponse API au runtime**. Zod est déjà installé et inutilisé : c'est le filet qui évite qu'une API réelle mal formée fasse écran blanc. | `src/lib/types/`, `src/lib/schemas/` | 1 |
-| **P1-5** | Corriger `colorMap[kpi.id]` : valeur de repli au lieu d'un plantage sur identifiant inconnu — précisément le scénario du branchement API. | `src/components/section-cards.tsx` | 0,25 |
-| **P1-6** | `DataTable` ignore sa prop `data` (`{ data: _unused }`) et réimporte le JSON. Rendre le composant réellement piloté par ses props. | `src/components/data-table.tsx` | 0,25 |
-| **P1-7** | Ajouter `error.tsx`, `loading.tsx`, `not-found.tsx` (racine + par section). Aujourd'hui la moindre erreur de `fetch` rend une 500 brute. | `src/app/**` | 0,5 |
-| **P1-8** | Monter `<Toaster />` dans le layout — le composant existe, n'est jamais monté, donc aucun toast ne peut s'afficher. | `src/app/layout.tsx` | 0,25 |
-| **P1-9** | Ménage : retirer les 6 dépendances inutilisées (`@tanstack/react-table`, 4× `@dnd-kit/*`, `shadcn` en dépendance d'exécution) et les 5 composants `ui/` jamais importés. **Ou** les utiliser — décider, puis noter la décision. | `package.json`, `src/components/ui/` | 0,5 |
-| **P1-11** | Trier les vulnérabilités remontées par `npm audit` (2 critiques, 8 hautes au 11/08). Distinguer ce qui est exploitable en production de ce qui ne concerne que l'outillage de développement, puis corriger ou documenter. À faire **avant** d'ajouter la moindre dépendance. | `package.json` | 0,5 |
-| **P1-10** | **Documentation** : `docs/DECISIONS.md` (ADR-001 architecture de service, ADR-002 validation Zod au runtime, ADR-003 contrôle d'accès fail-closed), README section « bascule » réécrite pour dire vrai. | `docs/`, `README.md` | 0,5 |
+| # | Tâche | Fichiers | Est. | |
+|---|---|---|---|---|
+| **P1-1** | Étendre le service aux 6 domaines (dashboard, alertes, investigations, analyses, rapports, paramètres) : une méthode par écran, chacune avec sa bascule mock/API. | `src/lib/services/` | 1 | ✅ |
+| **P1-2** | Faire passer **toutes** les pages par le service. Plus aucun `import data from "./data.json"` dans un composant. | `src/app/*/page.tsx` | 1 | ✅ |
+| **P1-3** | Dédupliquer les 6 alertes présentes à la fois dans `dashboard/data.json` et `alertes/data.json` → source unique. | `src/app/*/data.json` | 0,5 | ✅ |
+| **P1-4** | Typer les 5 domaines manquants avec Zod, et **valider la réponse API au runtime**. Zod est déjà installé et inutilisé : c'est le filet qui évite qu'une API réelle mal formée fasse écran blanc. | `src/lib/types/`, `src/lib/schemas/` | 1 | ✅ |
+| **P1-5** | Corriger `colorMap[kpi.id]` : valeur de repli au lieu d'un plantage sur identifiant inconnu — précisément le scénario du branchement API. | `src/components/section-cards.tsx` | 0,25 | ✅ |
+| **P1-6** | `DataTable` ignore sa prop `data` (`{ data: _unused }`) et réimporte le JSON. Rendre le composant réellement piloté par ses props. | `src/components/data-table.tsx` | 0,25 | ✅ |
+| **P1-7** | Ajouter `error.tsx`, `loading.tsx`, `not-found.tsx` (racine + par section). Aujourd'hui la moindre erreur de `fetch` rend une 500 brute. | `src/app/**` | 0,5 | ✅ |
+| **P1-8** | Monter `<Toaster />` dans le layout — le composant existe, n'est jamais monté, donc aucun toast ne peut s'afficher. | `src/app/layout.tsx` | 0,25 | ✅ |
+| **P1-9** | Ménage : retirer les 6 dépendances inutilisées (`@tanstack/react-table`, 4× `@dnd-kit/*`, `shadcn` en dépendance d'exécution) et les 5 composants `ui/` jamais importés. **Ou** les utiliser — décider, puis noter la décision. | `package.json`, `src/components/ui/` | 0,5 | ✅ |
+| **P1-11** | Trier les vulnérabilités remontées par `npm audit` (2 critiques, 8 hautes au 11/08). Distinguer ce qui est exploitable en production de ce qui ne concerne que l'outillage de développement, puis corriger ou documenter. À faire **avant** d'ajouter la moindre dépendance. | `package.json` | 0,5 | ✅ |
+| **P1-10** | **Documentation** : `docs/DECISIONS.md` (ADR-001 architecture de service, ADR-002 validation Zod au runtime, ADR-003 contrôle d'accès fail-closed), README section « bascule » réécrite pour dire vrai. | `docs/`, `README.md` | 0,5 | ✅ |
 
-**Total ≈ 6,25 j.**
+**Total ≈ 6,25 j.** Détail dans [`../CHANGELOG.md`](../CHANGELOG.md), arbitrages dans [`DECISIONS.md`](DECISIONS.md).
 
 ---
 
@@ -278,7 +278,7 @@ Unité : la demi-journée de travail effectif.
 | Phase | Contenu | Est. | Cumul | État |
 |---|---|---|---|---|
 | P0 | Remise en marche | 1,75 | 1,75 | ✅ |
-| P1 | Fondations | 6,25 | 8 | |
+| P1 | Fondations | 6,25 | 8 | ✅ |
 | P2 | Interactions | 5,25 | 13,25 | |
 | P3 | Détail d'alerte | 2,75 | 16 | |
 | P4 | Différenciateurs | 16 | 32 | |

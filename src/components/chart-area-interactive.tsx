@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/toggle-group"
 
 // Importation de vos données réelles de fraude
-import globalData from "@/app/dashboard/data.json"
+import type { AlerteTrend } from "@/lib/schemas/dashboard.schema"
 
 export const description = "Évolution des alertes de fraude"
 
@@ -47,7 +47,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ChartAreaInteractive() {
+export function ChartAreaInteractive({ alertesTrend }: { alertesTrend: AlerteTrend[] }) {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState("90d")
 
@@ -59,7 +59,7 @@ export function ChartAreaInteractive() {
 
   // Filtrage intelligent basé sur vos données (10 mois disponibles)
   const filteredData = React.useMemo(() => {
-    const allData = globalData.alertesTrend
+    const allData = alertesTrend
     if (timeRange === "7d") {
       return allData.slice(-3) // Simule les périodes courtes
     }
@@ -67,7 +67,7 @@ export function ChartAreaInteractive() {
       return allData.slice(-6) // Période intermédiaire
     }
     return allData // "90d" renvoie l'historique complet
-  }, [timeRange])
+  }, [timeRange, alertesTrend])
 
   return (
     <Card className="@container/card border-border bg-card">
