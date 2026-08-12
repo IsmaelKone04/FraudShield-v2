@@ -4,6 +4,77 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 3 — Le détail d'alerte · jalon M3
+
+L'écran qui manquait au produit. L'analyste cliquait sur une alerte à 94 et il ne se
+passait rien : la console savait dire *qu'il y a un problème*, jamais *lequel*. C'est
+aussi le socle de la phase 4 — l'explicabilité, la décision et la piste d'audit vivent
+sur cet écran.
+
+### Ajouté
+
+- **La route `/alertes/[id]`**, atteignable depuis la liste comme depuis le tableau de
+  bord. L'identifiant ouvre le dossier, et un chevron en fin de ligne offre une cible
+  plus large ; la ligne entière n'est **pas** cliquable, elle porte deux listes
+  déroulantes et un clic sur « Résolu » ne doit pas changer d'écran.
+- **Les actes facturés.** Le jeu de données s'arrêtait à la ligne d'alerte ; il porte
+  désormais, pour chacune des dix alertes, le détail des actes avec code de nomenclature,
+  quantité, montant facturé, **tarif de référence** et le signal relevé par le moteur sur
+  cette ligne précise. Sans le tarif de référence, « 180 000 FCFA » ne veut rien dire.
+  Les lignes sans reproche sont marquées comme telles : toutes les lignes d'un dossier
+  signalé ne sont pas fautives.
+- **La chronologie du dossier**, qui mêle les événements du serveur et ce qui vient
+  d'être fait dans la console — ces derniers portant un badge « non transmis », parce
+  qu'un journal d'événements est le pire endroit où laisser croire le contraire.
+- **La barre de décision** : fraude confirmée, classée sans suite, pièce demandée. Motif
+  **obligatoire**, auteur et horodatage enregistrés, et c'est la décision qui fixe le
+  statut — pas l'inverse (ADR-012). « Revenir sur la décision » rend au dossier le
+  statut qu'il avait avant, mémorisé au moment de décider plutôt que deviné après coup.
+- **Le fil de notes internes**, horodaté et signé. Une note ne se supprime que par son
+  auteur.
+- **`src/components/score-ia.tsx`** — les seuils de couleur du score étaient écrits à
+  l'identique dans deux tableaux ; le dossier en aurait fait une troisième copie.
+- **`src/components/ui/textarea.tsx`** — Base UI n'expose pas de primitive équivalente.
+- **ADR-011 à ADR-013.**
+
+### Corrigé
+
+- **`getAlerte()` n'était appelée par personne** depuis la phase 1. Elle rend désormais
+  le dossier complet et sert la nouvelle route.
+- **`toLocaleString` retiré des montants calculés** : il sépare les milliers par une
+  espace insécable étroite dont la présence dépend de la version d'ICU, donc du serveur
+  et du navigateur — le rendu aurait différé entre les deux, et les montants déjà mis en
+  forme dans le jeu de données emploient une espace ordinaire. Même raison pour les
+  horodatages, découpés depuis l'ISO plutôt que convertis.
+
+### Vérifications
+
+`npm run typecheck` ✅ · `npm run build` ✅ (12 routes) · `npm run lint` **2 erreurs, 0
+avertissement** (inchangé).
+
+**24 assertions sur le HTML servi** avec connexion réelle (le dossier, la navigation
+depuis les deux écrans, l'identifiant inconnu, l'accès sans session) et **19 tests** sur
+ce qui n'existe que côté client : décision, annulation, notes, contrat du stockage,
+assemblage et cohérence du dossier.
+
+> Le contrôle de cohérence a été **prouvé en le cassant** : ramener un acte de 520 000 à
+> 519 000 FCFA fait échouer le chargement du dossier avec les deux totaux en regard, au
+> lieu d'afficher une somme qui contredit l'en-tête.
+
+### Dette laissée sciemment
+
+- **404 souple** sur un identifiant inconnu : la bonne page s'affiche, le statut reste
+  200. Cause mesurée et arbitrage assumé en [ADR-013](docs/DECISIONS.md).
+- **« Classée sans suite » n'est pas encore qualifiée par cause** — c'est P4-6, et c'est
+  de cette qualification que vivra le registre des faux positifs.
+- **Le bouton « Ajouter une note » des investigations reste désactivé** : le contrat d'un
+  dossier d'investigation ne porte toujours pas de journal de notes. Les notes ajoutées
+  en phase 3 sont celles des alertes.
+- **Aucune capture d'écran** : le projet n'embarque aucun outil de navigateur, et en
+  ajouter un pour illustrer la documentation ne se justifiait pas (ADR-005).
+
+---
+
 ## Phase 2 — Rendre la console vivante · jalon M2
 
 L'audit avait compté **onze boutons sans action**. La phase 0 avait dû retirer du README

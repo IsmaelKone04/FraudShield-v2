@@ -15,10 +15,13 @@ import {
 } from "@/lib/api/mutations"
 import type { StatutAlerte } from "@/lib/schemas/commun"
 import type { StatutInvestigation } from "@/lib/schemas/investigations.schema"
+import { DECISIONS } from "@/lib/decisions"
 import {
   etatPersisteSchema,
   VERSION_STOCKAGE,
+  type Decision,
   type EtatPersiste,
+  type Note,
 } from "@/lib/schemas/modifications.schema"
 
 /**
@@ -47,6 +50,23 @@ const STOCKAGE_NEUTRE: StateStorage = {
 type Actions = {
   changerStatutAlerte: (id: string, statut: StatutAlerte) => Promise<void>
   assignerAlerte: (id: string, analyste: string | null) => Promise<void>
+  /**
+   * Enregistre la conclusion de l'analyste et le statut qui en découle.
+   *
+   * Les deux partent ensemble : une décision qui laisserait le dossier dans son
+   * statut antérieur serait une décision sans effet.
+   */
+  deciderAlerte: (
+    id: string,
+    decision: Omit<Decision, "horodatage">
+  ) => Promise<void>
+  /** Rend au dossier le statut qu'il avait avant la décision, et l'efface. */
+  annulerDecisionAlerte: (id: string) => Promise<void>
+  ajouterNote: (
+    id: string,
+    note: Omit<Note, "id" | "horodatage">
+  ) => Promise<void>
+  supprimerNote: (id: string, noteId: string) => Promise<void>
   changerStatutInvestigation: (
     id: string,
     statut: StatutInvestigation
@@ -127,6 +147,48 @@ export const useModificationsStore = create<StoreModifications>()(
           appliquer("alertes", id, { assigneA: analyste }, () =>
             envoyerModificationAlerte(id, { assigneA: analyste })
           ),
+
+        deciderAlerte: (id, decision) => {
+          const complete: Decision = { ...decision, horodatage: maintenant() }
+          const statut = DECISIONS[decision.type].statut
+          return appliquer("alertes", id, { decision: complete, statut }, () =>
+            envoyerModificationAlerte(id, { decision: complete, statut })
+          )
+        },
+
+        annulerDecisionAlerte: (id) => {
+          const decision = get().alertes[id]?.decision
+          if (!decision) return Promise.resolve()
+
+          // `undefined` retire le champ à la sérialisation : le dossier
+          // retrouve exactement l'état où la décision l'avait trouvé.
+          const patch = {
+            decision: undefined,
+            statut: decision.statutAnterieur,
+          }
+          return appliquer("alertes", id, patch, () =>
+            envoyerModificationAlerte(id, patch)
+          )
+        },
+
+        ajouterNote: (id, note) => {
+          const notes: Note[] = [
+            ...(get().alertes[id]?.notes ?? []),
+            { ...note, id: crypto.randomUUID(), horodatage: maintenant() },
+          ]
+          return appliquer("alertes", id, { notes }, () =>
+            envoyerModificationAlerte(id, { notes })
+          )
+        },
+
+        supprimerNote: (id, noteId) => {
+          const notes = (get().alertes[id]?.notes ?? []).filter(
+            (note) => note.id !== noteId
+          )
+          return appliquer("alertes", id, { notes }, () =>
+            envoyerModificationAlerte(id, { notes })
+          )
+        },
 
         changerStatutInvestigation: (id, statut) =>
           appliquer("investigations", id, { statut }, () =>

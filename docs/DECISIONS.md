@@ -310,3 +310,99 @@ et `COMPTES` n'est plus que le répertoire de démonstration.
 **Coût assumé.** Le jeu de données perd trois agents et l'écran d'administration
 paraît plus vide. Six lignes dont quatre étaient fausses valaient moins que trois
 lignes vraies.
+---
+
+## ADR-011 — Le dossier étend le résumé, et ses actes doivent en totaliser le montant
+
+**Contexte.** L'écran de détail avait besoin de ce que la liste ne porte pas :
+les actes facturés, les tarifs de référence, la chronologie, les références
+d'assuré et d'établissement. Deux façons de s'en tirer. Charger tout dans
+`GET /alertes` — donc transporter les actes de mille alertes pour en afficher
+dix lignes. Ou décrire le dossier comme un objet séparé, au risque qu'il
+redéfinisse l'alerte et finisse par la contredire.
+
+**Décision.** `alerteDetailSchema` **étend** `alerteSchema` au lieu de le
+redéfinir : un champ ajouté à l'alerte se retrouve dans le dossier sans que
+personne ait à y penser. Le jeu local, lui, ne recopie rien — il tient un
+`details` indexé par identifiant qui ne contient *que* les compléments, et le
+service assemble les deux. Il n'existe donc jamais deux montants, deux dates ou
+deux statuts pour la même alerte. C'est l'ADR-004 appliquée avant que le
+problème n'existe, plutôt qu'après.
+
+**Le contrôle, encore une fois parce que le schéma ne peut rien voir.** Chaque
+ligne d'acte est valide isolément, et pourtant leur somme peut ne pas faire le
+montant annoncé en en-tête — l'écran afficherait alors un total qui contredit
+le titre, sans que rien ne proteste. `alertesService.getAlerte()` compare donc
+la somme des actes au montant de l'alerte et lève une `ApiError` nommant les
+deux valeurs. Vérifié en le provoquant : ramener un acte de 520 000 à
+519 000 FCFA fait échouer le chargement du dossier avec les deux chiffres en
+regard, au lieu d'afficher un total faux.
+
+**Conséquence.** Enrichir le jeu de données coûte un peu plus cher : ajouter un
+acte oblige à ajuster le montant de l'alerte, ou l'inverse. C'est précisément ce
+qu'on veut — un jeu de démonstration incohérent est un jeu de démonstration qui
+se voit à l'écran le jour de la démonstration.
+
+---
+
+## ADR-012 — Une décision se motive, et c'est elle qui fixe le statut
+
+**Contexte.** Le statut d'une alerte se changeait déjà d'une liste déroulante,
+sans rien dire de plus. Or « Résolu » ne distingue pas une fraude établie d'un
+faux positif — deux issues opposées, réduites au même mot. La phase 4 attend
+justement de savoir laquelle des deux, pour mesurer la dérive du modèle (D2) et
+pour tenir une piste d'audit (D5).
+
+**Décision.** Trois issues, et elles ne se recouvrent pas : **fraude confirmée**,
+**classée sans suite**, **pièce demandée**. Chacune porte un **motif
+obligatoire** — une décision sans motif n'est opposable à aucun établissement et
+ne vaut rien dans un contentieux — ainsi que son auteur et son horodatage.
+
+Le statut n'est pas choisi à part : il **découle** de la décision, par une table
+unique (`src/lib/decisions.ts`). Laisser l'analyste décider *et* choisir le
+statut permettrait d'enregistrer « fraude confirmée » sur un dossier resté « en
+cours ». La liste déroulante de statut reste là pour le tri courant ; la
+décision, elle, engage.
+
+**Revenir en arrière rend l'état antérieur, il ne le devine pas.** La décision
+mémorise le statut qu'avait le dossier au moment où elle a été prise. Sans lui,
+annuler obligerait à supposer un statut de retour — et la phase 4 attend de
+toute façon un avant/après pour son journal d'audit.
+
+**Ce qui est laissé à la phase 4.** « Classée sans suite » n'est pas encore
+qualifiée par cause (seuil trop bas, contexte médical légitime, doublon
+administratif) : c'est P4-6, et c'est de cette qualification que vivra le
+registre des faux positifs. Le motif libre en tient lieu d'ici là.
+
+**Notes et motif ne sont pas la même chose.** Le fil de notes internes sert
+l'instruction — un constat, un échange, une pièce reçue. Le motif de décision
+sort du service. Les confondre reviendrait à envoyer une note de couloir à
+l'établissement mis en cause.
+
+---
+
+## ADR-013 — Un identifiant inconnu rend la page « introuvable », pas le statut 404
+
+**Contexte.** `/alertes/A-2026-9999` doit se comporter comme une adresse
+inexistante. `notFound()` est appelé dès que le service répond `null`, et la
+page « introuvable » maison s'affiche bien — mais la réponse porte le statut
+**200**, pas 404.
+
+**Cause, mesurée et non supposée.** `src/app/loading.tsx` place une frontière de
+streaming à la racine de l'application. L'en-tête de la réponse part donc avant
+que le composant serveur n'ait fini, c'est-à-dire avant `notFound()` : le statut
+est déjà écrit quand la décision se prend. Vérifié en retirant temporairement le
+fichier — la même requête répond alors 404, et le remettre restaure le 200.
+
+**Décision : garder l'état de chargement, assumer le 404 souple.** Supprimer
+`loading.tsx` corrigerait le statut au prix de l'indicateur de chargement sur
+les six écrans. Le déplacer segment par segment ne suffirait pas : une frontière
+posée sur `alertes/` couvre aussi `alertes/[id]`. Il faudrait un groupe de
+routes pour isoler la liste du dossier — de la tuyauterie pour un code de statut,
+sur une application déclarée `noindex`, sans consommateur externe et sans
+référencement à préserver.
+
+**Ce que ça coûte, et quand il faudra le payer.** Un client automatisé — un
+robot, un test de bout en bout, une supervision — verrait 200 là où il attend
+404. Le jour où l'un de ces trois apparaît, le groupe de routes devient
+justifié. D'ici là, l'utilisateur voit la bonne page, ce qui est ce qui compte.

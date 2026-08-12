@@ -1,10 +1,12 @@
 import { z } from "zod"
-import { chargerMock, fetchFromAPI, USE_MOCK } from "@/lib/api/client"
+import { ApiError, chargerMock, fetchFromAPI, USE_MOCK } from "@/lib/api/client"
 import { statSchema, type Stat } from "@/lib/schemas/commun"
 import {
+  alerteDetailSchema,
   alerteSchema,
   alertesDataSchema,
   type Alerte,
+  type AlerteDetail,
   type AlertesData,
 } from "@/lib/schemas/alertes.schema"
 
@@ -45,15 +47,54 @@ export const alertesService = {
     )
   },
 
-  /** Une alerte par son identifiant, `null` si elle n'existe pas. */
-  async getAlerte(id: string): Promise<Alerte | null> {
+  /**
+   * Le dossier complet d'une alerte, `null` si l'identifiant est inconnu.
+   *
+   * En mode démonstration, le résumé et son complément sont assemblés ici : le
+   * jeu local ne recopie pas l'un dans l'autre, de sorte qu'ils ne puissent pas
+   * diverger (ADR-004). En cible, l'API renvoie le dossier d'un seul tenant.
+   */
+  async getAlerte(id: string): Promise<AlerteDetail | null> {
     if (USE_MOCK) {
-      const { alertes } = await chargerJeuLocal()
-      return alertes.find((a) => a.id === id) ?? null
+      const { alertes, details } = await chargerJeuLocal()
+      const alerte = alertes.find((a) => a.id === id)
+      if (!alerte) return null
+
+      const complement = details[id]
+      if (!complement) {
+        throw new ApiError(
+          `L'alerte ${id} n'a pas de complément dans le jeu local — ` +
+            `ajouter une entrée « ${id} » dans « details » (${ORIGINE})`,
+          ORIGINE
+        )
+      }
+
+      return verifierTotalDesActes({ ...alerte, ...complement })
     }
     return fetchFromAPI(
       `/alertes/${encodeURIComponent(id)}`,
-      alerteSchema.nullable()
+      alerteDetailSchema.nullable()
     )
   },
+}
+
+/**
+ * Vérifie que les actes facturés totalisent bien le montant de l'alerte.
+ *
+ * Le schéma ne peut rien en dire : chaque ligne est valide isolément, et
+ * pourtant l'écran afficherait un total qui ne correspondrait pas au montant
+ * annoncé juste au-dessus. Même raisonnement que le contrôle d'annuaire de
+ * l'ADR-010 — une incohérence entre deux champs valides se détecte par un
+ * contrôle explicite, pas par un schéma plus strict.
+ */
+function verifierTotalDesActes(dossier: AlerteDetail): AlerteDetail {
+  const total = dossier.actes.reduce((somme, acte) => somme + acte.montant, 0)
+  if (total !== dossier.montant) {
+    throw new ApiError(
+      `Le total des actes de ${dossier.id} (${total}) ne correspond pas au ` +
+        `montant de l'alerte (${dossier.montant}) — ${ORIGINE}`,
+      ORIGINE
+    )
+  }
+  return dossier
 }

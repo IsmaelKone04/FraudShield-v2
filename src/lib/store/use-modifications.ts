@@ -2,12 +2,14 @@
 
 import { useMemo } from "react"
 
-import type { Alerte } from "@/lib/schemas/alertes.schema"
+import type { Alerte, AlerteDetail } from "@/lib/schemas/alertes.schema"
 import type { Investigation } from "@/lib/schemas/investigations.schema"
 import type {
+  Decision,
   ModificationAlerte,
   ModificationInvestigation,
   ModificationParametres,
+  Note,
 } from "@/lib/schemas/modifications.schema"
 import type { ParametresSysteme } from "@/lib/schemas/parametres.schema"
 import { useModificationsStore } from "./modifications.store"
@@ -53,6 +55,38 @@ export function useAlertesAvecModifications(
   return useMemo(
     () => alertes.map((alerte) => fusionnerAlerte(alerte, modifications[alerte.id])),
     [alertes, modifications]
+  )
+}
+
+export type AlerteDetailAvecModifications = AlerteDetail &
+  AlerteAvecModifications & {
+    /** Conclusion de l'analyste, tant qu'il n'en a pas pris. */
+    decision: Decision | undefined
+    /** Commentaires internes, du plus ancien au plus récent. */
+    notes: Note[]
+  }
+
+/**
+ * Le dossier d'une alerte, à jour de ce qui a été fait dans la console.
+ *
+ * La décision et les notes n'existent que localement : le contrat de lecture
+ * ne les porte pas encore. Elles sont donc lues dans le store et non dans le
+ * dossier reçu du serveur — le jour où l'API les renverra, c'est cette fusion
+ * qui changera, pas l'écran.
+ */
+export function useAlerteDetail(
+  dossier: AlerteDetail
+): AlerteDetailAvecModifications {
+  const modification = useModificationsStore((etat) => etat.alertes[dossier.id])
+
+  return useMemo(
+    () => ({
+      ...dossier,
+      ...fusionnerAlerte(dossier, modification),
+      decision: modification?.decision,
+      notes: modification?.notes ?? [],
+    }),
+    [dossier, modification]
   )
 }
 

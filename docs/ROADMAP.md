@@ -193,22 +193,48 @@ Trois choses n'étaient pas au plan et ont dû être traitées :
 
 ---
 
-### Phase 3 — Le détail d'alerte · **M3**
+### Phase 3 — Le détail d'alerte · **M3** ✅ terminée
 
 L'écran qui manque. Aujourd'hui les lignes portent un `cursor-pointer` qui ne mène nulle
 part : l'utilisateur clique sur une alerte à 94 et il ne se passe rien. C'est le socle de
 toute la phase 4 — l'explicabilité, la décision et la piste d'audit vivent ici.
 
-| # | Tâche | Est. |
-|---|---|---|
-| **P3-1** | Route `/alertes/[id]` + navigation depuis la liste (et depuis le dashboard). | 0,5 |
-| **P3-2** | En-tête : assuré, établissement, montant, type, score, statut, chronologie du dossier. | 0,5 |
-| **P3-3** | Historique des actes du dossier (le jeu de données fictif doit être enrichi en conséquence — la structure actuelle s'arrête à la ligne d'alerte). | 0,5 |
-| **P3-4** | Barre de décision : confirmer la fraude / classer sans suite / demander une pièce. C'est le point d'entrée de D2 et D5. | 0,5 |
-| **P3-5** | Fil de commentaires internes (le bouton « Ajouter une note » de P2-6 aboutit ici). | 0,5 |
-| **P3-6** | **Documentation M3** : README + capture de l'écran. | 0,25 |
+| # | Tâche | Est. | |
+|---|---|---|---|
+| **P3-1** | Route `/alertes/[id]` + navigation depuis la liste (et depuis le dashboard). | 0,5 | ✅ |
+| **P3-2** | En-tête : assuré, établissement, montant, type, score, statut, chronologie du dossier. | 0,5 | ✅ |
+| **P3-3** | Historique des actes du dossier (le jeu de données fictif doit être enrichi en conséquence — la structure actuelle s'arrête à la ligne d'alerte). | 0,5 | ✅ |
+| **P3-4** | Barre de décision : confirmer la fraude / classer sans suite / demander une pièce. C'est le point d'entrée de D2 et D5. | 0,5 | ✅ |
+| **P3-5** | Fil de commentaires internes (le bouton « Ajouter une note » de P2-6 aboutit ici). | 0,5 | ✅ |
+| **P3-6** | **Documentation M3** : README + capture de l'écran. | 0,25 | ✅ * |
 
-**Total ≈ 2,75 j.**
+**Total ≈ 2,75 j.** Détail dans [`../CHANGELOG.md`](../CHANGELOG.md), arbitrages dans
+[`DECISIONS.md`](DECISIONS.md) (ADR-011 à ADR-013).
+
+\* Sans capture d'écran : le projet n'embarque aucun outil de navigateur et en ajouter un
+pour illustrer la documentation ne se justifiait pas (ADR-005). À reprendre en P5-8, où
+les captures sont déjà prévues.
+
+#### Écarts constatés
+
+- **Le motif de décision n'était pas au plan**, la tâche P3-4 ne parlant que des trois
+  boutons. Une décision sans motif n'étant opposable à personne, il est devenu
+  obligatoire — et c'est la décision qui fixe le statut, pas une liste déroulante à côté
+  (ADR-012).
+- **Le contrôle de cohérence des actes** s'est imposé une fois le jeu de données enrichi :
+  dix dossiers écrits à la main, dix occasions qu'un total contredise son en-tête.
+- **P3-5 ne s'applique qu'aux alertes.** Le bouton « Ajouter une note » visé par le plan
+  est sur les investigations, dont le contrat ne porte pas de journal de notes ; il reste
+  donc désactivé, avec son motif.
+
+#### Dette reportée
+
+| Constat | Vers |
+|---|---|
+| 404 souple sur un identifiant inconnu : bonne page, statut 200. Cause mesurée (ADR-013). | P5, si un robot ou un test de bout en bout l'exige |
+| « Classée sans suite » n'est pas qualifiée par cause. | P4-6 |
+| Le score n'est pas décomposé — les signaux par acte en tiennent lieu. | P4-1 à P4-4 |
+| Captures d'écran de la documentation. | P5-8 |
 
 ---
 
@@ -302,7 +328,7 @@ Unité : la demi-journée de travail effectif.
 | P0 | Remise en marche | 1,75 | 1,75 | ✅ |
 | P1 | Fondations | 6,25 | 8 | ✅ |
 | P2 | Interactions | 5,25 | 13,25 | ✅ |
-| P3 | Détail d'alerte | 2,75 | 16 | |
+| P3 | Détail d'alerte | 2,75 | 16 | ✅ |
 | P4 | Différenciateurs | 16 | 32 | |
 | P5 | Finition | 7 | 39 | |
 

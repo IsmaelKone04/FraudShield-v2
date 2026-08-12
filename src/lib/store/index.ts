@@ -5,6 +5,7 @@ export {
   fusionnerAlerte,
   fusionnerInvestigation,
   fusionnerParametres,
+  useAlerteDetail,
   useAlertesAvecModifications,
   useInvestigationsAvecModifications,
   useNombreModifications,
@@ -13,5 +14,6 @@ export {
 } from "./use-modifications"
 export type {
   AlerteAvecModifications,
+  AlerteDetailAvecModifications,
   InvestigationAvecModifications,
 } from "./use-modifications"

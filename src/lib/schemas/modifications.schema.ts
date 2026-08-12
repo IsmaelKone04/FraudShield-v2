@@ -26,10 +26,65 @@ export const VERSION_STOCKAGE = 1
 /** Horodatage de la modification, pour l'afficher et pour départager plus tard. */
 const modifieLeSchema = z.iso.datetime()
 
+/**
+ * Ce qu'un analyste peut conclure d'un dossier.
+ *
+ * Trois issues, et elles ne se recouvrent pas : la fraude est établie, elle ne
+ * l'est pas, ou l'instruction ne peut pas se poursuivre en l'état. La phase 4
+ * affinera « classée sans suite » en causes typées (seuil trop bas, contexte
+ * médical légitime, doublon administratif) — c'est de cette qualification que
+ * vivra le registre des faux positifs.
+ */
+export const TYPES_DECISION = [
+  "fraude_confirmee",
+  "classee_sans_suite",
+  "piece_demandee",
+] as const
+export const typeDecisionSchema = z.enum(TYPES_DECISION)
+export type TypeDecision = z.infer<typeof typeDecisionSchema>
+
+export const decisionSchema = z.object({
+  type: typeDecisionSchema,
+  /**
+   * Obligatoire : une décision sans motif n'est pas opposable à
+   * l'établissement mis en cause, et ne vaut rien dans un contentieux.
+   */
+  motif: z.string().trim().min(1).max(1000),
+  /** Adresse du compte qui décide — le « qui » de la piste d'audit. */
+  acteur: z.email(),
+  horodatage: modifieLeSchema,
+  /**
+   * Statut du dossier juste avant la décision.
+   *
+   * Conservé pour deux raisons : revenir sur une décision doit rendre au
+   * dossier son état antérieur plutôt qu'un état deviné, et la piste d'audit
+   * de la phase 4 attend précisément un avant/après.
+   */
+  statutAnterieur: statutAlerteSchema,
+})
+export type Decision = z.infer<typeof decisionSchema>
+
+/** Un commentaire interne porté au dossier. */
+export const noteSchema = z.object({
+  id: z.string(),
+  texte: z.string().trim().min(1).max(2000),
+  auteur: z.email(),
+  horodatage: modifieLeSchema,
+})
+export type Note = z.infer<typeof noteSchema>
+
 export const modificationAlerteSchema = z.object({
   statut: statutAlerteSchema.optional(),
   /** Adresse de l'analyste en charge ; `null` remet l'alerte en attente. */
   assigneA: z.string().nullable().optional(),
+  /**
+   * Ces deux champs sont facultatifs, comme l'a été `parametres` avant eux :
+   * un contenu écrit par une version antérieure continue donc d'être lu, et
+   * `VERSION_STOCKAGE` n'a pas à bouger — l'incrémenter jetterait au passage
+   * les modifications déjà enregistrées (même raisonnement qu'en ADR-008).
+   */
+  decision: decisionSchema.optional(),
+  notes: z.array(noteSchema).optional(),
   modifieLe: modifieLeSchema,
 })
 export type ModificationAlerte = z.infer<typeof modificationAlerteSchema>

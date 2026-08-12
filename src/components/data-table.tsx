@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge"
-import { Clock, Eye } from "lucide-react"
+import { ChevronRight, Clock, Eye } from "lucide-react"
 import Link from "next/link"
+import { ScoreIA } from "@/components/score-ia"
 import type { Alerte } from "@/lib/schemas/alertes.schema"
 
 const risqueCfg: Record<string, { label: string; className: string }> = {
@@ -19,18 +20,6 @@ const COLONNES = [
   "ID Alerte", "Type", "Assuré", "Établissement",
   "Montant", "Score IA", "Risque", "Date", "Statut",
 ]
-
-function ScoreBar({ score }: { score: number }) {
-  const color = score >= 80 ? "#ff4757" : score >= 50 ? "#ffa502" : "#00e578"
-  return (
-    <div className="flex items-center gap-2 min-w-[80px]">
-      <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-        <div style={{ width: `${score}%`, background: color }} className="h-full rounded-full transition-all" />
-      </div>
-      <span style={{ color }} className="text-xs font-mono w-6 text-right">{score}</span>
-    </div>
-  )
-}
 
 /**
  * Tableau des dernières alertes du tableau de bord.
@@ -69,6 +58,9 @@ export function DataTable({ data }: { data: Alerte[] }) {
                     {h}
                   </th>
                 ))}
+                <th scope="col" className="w-10 px-4 py-3">
+                  <span className="sr-only">Ouvrir le dossier</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -78,7 +70,12 @@ export function DataTable({ data }: { data: Alerte[] }) {
                   className="border-b border-border/20 hover:bg-white/[0.02] transition-colors"
                 >
                   <td className="px-4 py-3.5">
-                    <span className="font-mono text-xs text-emerald-400">{a.id}</span>
+                    <Link
+                      href={`/alertes/${a.id}`}
+                      className="rounded font-mono text-xs text-emerald-400 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    >
+                      {a.id}
+                    </Link>
                   </td>
                   <td className="px-4 py-3.5 text-sm text-foreground">{a.type}</td>
                   <td className="px-4 py-3.5 text-sm text-foreground">{a.assure}</td>
@@ -87,7 +84,7 @@ export function DataTable({ data }: { data: Alerte[] }) {
                     <span className="font-mono text-xs text-foreground">{a.montantFormate}</span>
                   </td>
                   <td className="px-4 py-3.5">
-                    <ScoreBar score={a.scoreIA} />
+                    <ScoreIA score={a.scoreIA} />
                   </td>
                   <td className="px-4 py-3.5">
                     <Badge variant="outline" className={`text-[10px] font-semibold ${risqueCfg[a.risque]?.className}`}>
@@ -104,6 +101,16 @@ export function DataTable({ data }: { data: Alerte[] }) {
                     <Badge variant="outline" className={`text-[10px] ${statutCfg[a.statut]?.className}`}>
                       {a.statut}
                     </Badge>
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <Link
+                      href={`/alertes/${a.id}`}
+                      aria-label={`Ouvrir le dossier ${a.id}`}
+                      title="Ouvrir le dossier"
+                      className="flex size-7 items-center justify-center rounded-lg text-muted-foreground/60 transition-colors hover:bg-white/[0.04] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    >
+                      <ChevronRight size={15} />
+                    </Link>
                   </td>
                 </tr>
               ))}

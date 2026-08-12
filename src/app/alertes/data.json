@@ -174,5 +174,438 @@
       "statut": "À vérifier",
       "assigneA": null
     }
-  ]
+  ],
+  "details": {
+    "A-2026-0125": {
+      "assureRef": "SN-ASS-44718",
+      "contratRef": "CTR-2024-8890",
+      "etablissementRef": "ETB-DK-014",
+      "praticien": "Dr Aliou Ndour",
+      "actes": [
+        {
+          "code": "CS-041",
+          "libelle": "Consultation spécialisée — cardiologie",
+          "date": "2026-05-18",
+          "dateFormate": "18/05/2026",
+          "quantite": 1,
+          "montant": 180000,
+          "montantFormate": "180 000 FCFA",
+          "tarifReference": 25000,
+          "signal": "Facturé 7,2 fois le tarif de référence de la nomenclature"
+        },
+        {
+          "code": "IMG-220",
+          "libelle": "IRM cardiaque avec injection",
+          "date": "2026-05-18",
+          "dateFormate": "18/05/2026",
+          "quantite": 2,
+          "montant": 1700000,
+          "montantFormate": "1 700 000 FCFA",
+          "tarifReference": 900000,
+          "signal": "Tarif unitaire supérieur de 89 % à la référence, et deux examens le même jour"
+        },
+        {
+          "code": "BIO-118",
+          "libelle": "Bilan lipidique complet",
+          "date": "2026-05-19",
+          "dateFormate": "19/05/2026",
+          "quantite": 1,
+          "montant": 520000,
+          "montantFormate": "520 000 FCFA",
+          "tarifReference": 38000,
+          "signal": "Facturé 13,7 fois le tarif de référence"
+        }
+      ],
+      "chronologie": [
+        {
+          "horodatage": "2026-05-20T06:12:00.000Z",
+          "libelle": "Alerte levée par le moteur de détection — score 94",
+          "acteur": null
+        },
+        {
+          "horodatage": "2026-05-20T08:41:00.000Z",
+          "libelle": "Dossier assigné pour instruction",
+          "acteur": "admin@fraudshield.com"
+        }
+      ]
+    },
+    "A-2026-0124": {
+      "assureRef": "SN-ASS-30912",
+      "contratRef": "CTR-2023-4417",
+      "etablissementRef": "ETB-DK-001",
+      "praticien": "Dr Khady Sarr",
+      "actes": [
+        {
+          "code": "HOS-010",
+          "libelle": "Journée d'hospitalisation — médecine interne",
+          "date": "2026-05-15",
+          "dateFormate": "15/05/2026",
+          "quantite": 4,
+          "montant": 640000,
+          "montantFormate": "640 000 FCFA",
+          "tarifReference": 640000,
+          "signal": "Aucune trace de séjour au registre d'admission de l'établissement sur la période"
+        },
+        {
+          "code": "KIN-052",
+          "libelle": "Séance de kinésithérapie respiratoire",
+          "date": "2026-05-16",
+          "dateFormate": "16/05/2026",
+          "quantite": 6,
+          "montant": 210000,
+          "montantFormate": "210 000 FCFA",
+          "tarifReference": 210000,
+          "signal": "Séances facturées à des dates où l'assurée était déclarée sortie"
+        }
+      ],
+      "chronologie": [
+        {
+          "horodatage": "2026-05-20T05:48:00.000Z",
+          "libelle": "Alerte levée par le moteur de détection — score 88",
+          "acteur": null
+        },
+        {
+          "horodatage": "2026-05-20T09:05:00.000Z",
+          "libelle": "Dossier assigné pour instruction",
+          "acteur": "admin@fraudshield.com"
+        }
+      ]
+    },
+    "A-2026-0123": {
+      "assureRef": "SN-ASS-51204",
+      "contratRef": "CTR-2025-1130",
+      "etablissementRef": "ETB-DK-027",
+      "praticien": "Dr Serigne Fall",
+      "actes": [
+        {
+          "code": "CHIR-307",
+          "libelle": "Ablation de kyste sébacé",
+          "date": "2026-05-14",
+          "dateFormate": "14/05/2026",
+          "quantite": 1,
+          "montant": 160000,
+          "montantFormate": "160 000 FCFA",
+          "tarifReference": 160000,
+          "signal": null
+        },
+        {
+          "code": "CHIR-307",
+          "libelle": "Ablation de kyste sébacé",
+          "date": "2026-05-16",
+          "dateFormate": "16/05/2026",
+          "quantite": 1,
+          "montant": 160000,
+          "montantFormate": "160 000 FCFA",
+          "tarifReference": 160000,
+          "signal": "Acte identique déjà facturé le 14/05 pour le même assuré, par le même praticien"
+        }
+      ],
+      "chronologie": [
+        {
+          "horodatage": "2026-05-19T07:20:00.000Z",
+          "libelle": "Alerte levée par le moteur de détection — score 61",
+          "acteur": null
+        },
+        {
+          "horodatage": "2026-05-19T11:32:00.000Z",
+          "libelle": "Dossier assigné pour instruction",
+          "acteur": "admin@fraudshield.com"
+        },
+        {
+          "horodatage": "2026-05-19T15:10:00.000Z",
+          "libelle": "Statut porté à « À vérifier » — pièces demandées à l'établissement",
+          "acteur": "superviseur@fraudshield.com"
+        }
+      ]
+    },
+    "A-2026-0122": {
+      "assureRef": "SN-ASS-19883",
+      "contratRef": "CTR-2024-2205",
+      "etablissementRef": "ETB-DK-052",
+      "praticien": "Dr Mamadou Cissé",
+      "actes": [
+        {
+          "code": "DEN-118",
+          "libelle": "Pose de couronne céramo-métallique",
+          "date": "2026-05-17",
+          "dateFormate": "17/05/2026",
+          "quantite": 3,
+          "montant": 900000,
+          "montantFormate": "900 000 FCFA",
+          "tarifReference": 900000,
+          "signal": "Actes facturés pendant que l'assurée était enregistrée en consultation dans une autre région"
+        },
+        {
+          "code": "RAD-045",
+          "libelle": "Radiographie panoramique dentaire",
+          "date": "2026-05-17",
+          "dateFormate": "17/05/2026",
+          "quantite": 2,
+          "montant": 200000,
+          "montantFormate": "200 000 FCFA",
+          "tarifReference": 200000,
+          "signal": "Signature du registre de l'établissement non concordante avec celle du contrat"
+        }
+      ],
+      "chronologie": [
+        {
+          "horodatage": "2026-05-19T06:03:00.000Z",
+          "libelle": "Alerte levée par le moteur de détection — score 97",
+          "acteur": null
+        },
+        {
+          "horodatage": "2026-05-19T08:15:00.000Z",
+          "libelle": "Dossier assigné pour instruction",
+          "acteur": "admin@fraudshield.com"
+        }
+      ]
+    },
+    "A-2026-0121": {
+      "assureRef": "SN-ASS-60471",
+      "contratRef": "CTR-2022-7741",
+      "etablissementRef": "ETB-DK-008",
+      "praticien": "Dr Ndèye Gueye",
+      "actes": [
+        {
+          "code": "CS-012",
+          "libelle": "Consultation généraliste",
+          "date": "2026-05-16",
+          "dateFormate": "16/05/2026",
+          "quantite": 1,
+          "montant": 15000,
+          "montantFormate": "15 000 FCFA",
+          "tarifReference": 15000,
+          "signal": null
+        },
+        {
+          "code": "PAN-070",
+          "libelle": "Pansement complexe",
+          "date": "2026-05-16",
+          "dateFormate": "16/05/2026",
+          "quantite": 3,
+          "montant": 135000,
+          "montantFormate": "135 000 FCFA",
+          "tarifReference": 120000,
+          "signal": "Écart de 12,5 % au tarif de référence"
+        }
+      ],
+      "chronologie": [
+        {
+          "horodatage": "2026-05-18T06:30:00.000Z",
+          "libelle": "Alerte levée par le moteur de détection — score 28",
+          "acteur": null
+        },
+        {
+          "horodatage": "2026-05-18T10:12:00.000Z",
+          "libelle": "Dossier assigné pour instruction",
+          "acteur": "admin@fraudshield.com"
+        },
+        {
+          "horodatage": "2026-05-18T16:45:00.000Z",
+          "libelle": "Dossier clos — écart tarifaire justifié par la fourniture de pansements techniques",
+          "acteur": "admin@fraudshield.com"
+        }
+      ]
+    },
+    "A-2026-0120": {
+      "assureRef": "SN-ASS-27350",
+      "contratRef": "CTR-2023-9902",
+      "etablissementRef": "ETB-DK-003",
+      "praticien": "Dr Ousmane Bâ",
+      "actes": [
+        {
+          "code": "CS-012",
+          "libelle": "Consultation généraliste",
+          "date": "2026-05-07",
+          "dateFormate": "07/05/2026",
+          "quantite": 8,
+          "montant": 120000,
+          "montantFormate": "120 000 FCFA",
+          "tarifReference": 120000,
+          "signal": "8 consultations en 11 jours — 4 fois la moyenne de l'assurée sur douze mois"
+        },
+        {
+          "code": "BIO-101",
+          "libelle": "Numération formule sanguine",
+          "date": "2026-05-12",
+          "dateFormate": "12/05/2026",
+          "quantite": 4,
+          "montant": 88000,
+          "montantFormate": "88 000 FCFA",
+          "tarifReference": 88000,
+          "signal": "Prescription répétée sans changement de traitement entre deux examens"
+        },
+        {
+          "code": "MED-500",
+          "libelle": "Délivrance de médicaments — antalgiques",
+          "date": "2026-05-17",
+          "dateFormate": "17/05/2026",
+          "quantite": 6,
+          "montant": 352000,
+          "montantFormate": "352 000 FCFA",
+          "tarifReference": 352000,
+          "signal": null
+        }
+      ],
+      "chronologie": [
+        {
+          "horodatage": "2026-05-18T05:55:00.000Z",
+          "libelle": "Alerte levée par le moteur de détection — score 55",
+          "acteur": null
+        },
+        {
+          "horodatage": "2026-05-18T09:40:00.000Z",
+          "libelle": "Statut porté à « À vérifier » — historique de l'assurée demandé",
+          "acteur": "superviseur@fraudshield.com"
+        }
+      ]
+    },
+    "A-2026-0119": {
+      "assureRef": "SN-ASS-71026",
+      "contratRef": "CTR-2021-3388",
+      "etablissementRef": "ETB-DK-119",
+      "praticien": "Dr Ibrahima Sall",
+      "actes": [
+        {
+          "code": "GYN-201",
+          "libelle": "Échographie pelvienne",
+          "date": "2026-05-15",
+          "dateFormate": "15/05/2026",
+          "quantite": 1,
+          "montant": 95000,
+          "montantFormate": "95 000 FCFA",
+          "tarifReference": 95000,
+          "signal": "Acte de la nomenclature gynécologique facturé pour un assuré de sexe masculin"
+        }
+      ],
+      "chronologie": [
+        {
+          "horodatage": "2026-05-17T07:02:00.000Z",
+          "libelle": "Alerte levée par le moteur de détection — score 22",
+          "acteur": null
+        },
+        {
+          "horodatage": "2026-05-17T14:20:00.000Z",
+          "libelle": "Dossier clos — erreur de saisie du code acte reconnue et corrigée par l'établissement",
+          "acteur": "superviseur@fraudshield.com"
+        }
+      ]
+    },
+    "A-2026-0118": {
+      "assureRef": "SN-ASS-38845",
+      "contratRef": "CTR-2024-6612",
+      "etablissementRef": "ETB-TB-041",
+      "praticien": "Dr Astou Diagne",
+      "actes": [
+        {
+          "code": "LAB-330",
+          "libelle": "Sérologie complète",
+          "date": "2026-05-15",
+          "dateFormate": "15/05/2026",
+          "quantite": 1,
+          "montant": 215000,
+          "montantFormate": "215 000 FCFA",
+          "tarifReference": 215000,
+          "signal": null
+        },
+        {
+          "code": "LAB-330",
+          "libelle": "Sérologie complète",
+          "date": "2026-05-15",
+          "dateFormate": "15/05/2026",
+          "quantite": 1,
+          "montant": 215000,
+          "montantFormate": "215 000 FCFA",
+          "tarifReference": 215000,
+          "signal": "Même acte, même jour, facturé par deux services de l'établissement"
+        }
+      ],
+      "chronologie": [
+        {
+          "horodatage": "2026-05-17T06:41:00.000Z",
+          "libelle": "Alerte levée par le moteur de détection — score 67",
+          "acteur": null
+        }
+      ]
+    },
+    "A-2026-0117": {
+      "assureRef": "SN-ASS-49517",
+      "contratRef": "CTR-2023-2074",
+      "etablissementRef": "ETB-DK-066",
+      "praticien": "Dr Modou Kane",
+      "actes": [
+        {
+          "code": "ORT-410",
+          "libelle": "Pose de plâtre — membre inférieur",
+          "date": "2026-05-14",
+          "dateFormate": "14/05/2026",
+          "quantite": 1,
+          "montant": 240000,
+          "montantFormate": "240 000 FCFA",
+          "tarifReference": 85000,
+          "signal": "Facturé 2,8 fois le tarif de référence"
+        },
+        {
+          "code": "CS-041",
+          "libelle": "Consultation spécialisée — orthopédie",
+          "date": "2026-05-14",
+          "dateFormate": "14/05/2026",
+          "quantite": 2,
+          "montant": 90000,
+          "montantFormate": "90 000 FCFA",
+          "tarifReference": 50000,
+          "signal": "Tarif unitaire supérieur de 80 % à la référence"
+        },
+        {
+          "code": "IMG-150",
+          "libelle": "Radiographie standard — 3 incidences",
+          "date": "2026-05-15",
+          "dateFormate": "15/05/2026",
+          "quantite": 3,
+          "montant": 450000,
+          "montantFormate": "450 000 FCFA",
+          "tarifReference": 165000,
+          "signal": "Facturé 2,7 fois le tarif de référence"
+        }
+      ],
+      "chronologie": [
+        {
+          "horodatage": "2026-05-16T06:18:00.000Z",
+          "libelle": "Alerte levée par le moteur de détection — score 81",
+          "acteur": null
+        }
+      ]
+    },
+    "A-2026-0116": {
+      "assureRef": "SN-ASS-55390",
+      "contratRef": "CTR-2025-4488",
+      "etablissementRef": "ETB-DK-014",
+      "praticien": "Dr Aliou Ndour",
+      "actes": [
+        {
+          "code": "KIN-052",
+          "libelle": "Séance de kinésithérapie respiratoire",
+          "date": "2026-05-13",
+          "dateFormate": "13/05/2026",
+          "quantite": 10,
+          "montant": 210000,
+          "montantFormate": "210 000 FCFA",
+          "tarifReference": 210000,
+          "signal": "10 séances facturées, 3 émargements retrouvés au registre du cabinet"
+        }
+      ],
+      "chronologie": [
+        {
+          "horodatage": "2026-05-15T07:35:00.000Z",
+          "libelle": "Alerte levée par le moteur de détection — score 73",
+          "acteur": null
+        },
+        {
+          "horodatage": "2026-05-15T13:50:00.000Z",
+          "libelle": "Statut porté à « À vérifier » — registre d'émargement demandé",
+          "acteur": "superviseur@fraudshield.com"
+        }
+      ]
+    }
+  }
 }

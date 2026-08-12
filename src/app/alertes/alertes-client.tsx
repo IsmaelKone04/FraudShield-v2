@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import {
@@ -15,10 +16,11 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
-  AlertTriangle, Clock, CheckCircle,
+  AlertTriangle, ChevronRight, Clock, CheckCircle,
   Eye, EyeOff, Search, Download, Filter, RotateCcw, UserCheck,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { ScoreIA } from "@/components/score-ia"
 import { SelecteurAssignation } from "@/components/selecteur-assignation"
 import { SelecteurStatut } from "@/components/selecteur-statut"
 import type { Alerte } from "@/lib/schemas/alertes.schema"
@@ -55,22 +57,6 @@ const statColorMap: Record<string, string> = {
 }
 
 // ─── Sous-composants ──────────────────────────────────────────────────────────
-function ScoreBar({ score }: { score: number }) {
-  const color = score >= 80 ? "#ff4757" : score >= 50 ? "#ffa502" : "#00e578"
-  return (
-    <div className="flex items-center gap-2 min-w-[90px]">
-      <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-        <div
-          style={{ width: `${score}%`, background: color }}
-          className="h-full rounded-full transition-all duration-700"
-        />
-      </div>
-      <span style={{ color }} className="text-xs font-mono w-6 text-right font-semibold">
-        {score}
-      </span>
-    </div>
-  )
-}
 
 /** Sous-ensemble des propriétés que Recharts transmet à une infobulle personnalisée. */
 type InfobulleProps = {
@@ -400,12 +386,16 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
                     {h}
                   </th>
                 ))}
+                {/* Colonne d'ouverture du dossier : son en-tête n'a rien à dire. */}
+                <th scope="col" className="w-10 px-4 py-3">
+                  <span className="sr-only">Ouvrir le dossier</span>
+                </th>
               </tr>
             </thead>
             <tbody>
               {alertesAffichees.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-12 text-sm text-muted-foreground">
+                  <td colSpan={11} className="text-center py-12 text-sm text-muted-foreground">
                     Aucune alerte ne correspond aux filtres sélectionnés.
                   </td>
                 </tr>
@@ -417,10 +407,18 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
                       className={`border-b border-border/20 hover:bg-white/[0.02] transition-colors
                                   ${sousLeSeuil ? "opacity-50" : ""}`}
                     >
+                      {/*
+                        L'identifiant ouvre le dossier. La ligne entière n'est
+                        pas cliquable : elle contient deux listes déroulantes,
+                        et un clic sur « Résolu » ne doit pas changer d'écran.
+                      */}
                       <td className="px-4 py-3.5">
-                        <span className="font-mono text-xs text-emerald-400 font-semibold">
+                        <Link
+                          href={`/alertes/${a.id}`}
+                          className="rounded font-mono text-xs font-semibold text-emerald-400 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                        >
                           {a.id}
-                        </span>
+                        </Link>
                       </td>
                       <td className="px-4 py-3.5 text-sm text-foreground whitespace-nowrap">
                         {a.type}
@@ -438,7 +436,7 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2">
-                          <ScoreBar score={a.scoreIA} />
+                          <ScoreIA score={a.scoreIA} />
                           {sousLeSeuil && (
                             <span
                               title={`Sous le seuil de ${seuil} % : avec la configuration actuelle, cette alerte ne serait pas levée.`}
@@ -467,6 +465,16 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
                       </td>
                       <td className="px-4 py-3.5">
                         <SelecteurStatut id={a.id} statut={a.statut} />
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <Link
+                          href={`/alertes/${a.id}`}
+                          aria-label={`Ouvrir le dossier ${a.id}`}
+                          title="Ouvrir le dossier"
+                          className="flex size-7 items-center justify-center rounded-lg text-muted-foreground/60 transition-colors hover:bg-white/[0.04] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                        >
+                          <ChevronRight size={15} />
+                        </Link>
                       </td>
                     </tr>
                   )

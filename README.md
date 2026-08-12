@@ -110,6 +110,8 @@ La console **modifie** des données. Elle ne se contente plus d'afficher.
 | Geste | Où | Effet |
 |---|---|---|
 | Changer le statut d'une alerte | `/alertes` | Liste et cartes de KPI mises à jour |
+| **Décider d'un dossier** | `/alertes/[id]` | Fraude confirmée, classée sans suite, ou pièce demandée — motif obligatoire, et c'est la décision qui fixe le statut |
+| **Écrire une note interne** | `/alertes/[id]` | Fil horodaté et signé, versé à la chronologie |
 | Assigner une alerte, réassigner un dossier | `/alertes`, `/investigations` | Aux comptes ci-dessus, avec filtre « Mes dossiers » |
 | Clôturer ou rouvrir un dossier | `/investigations` | |
 | Exporter en CSV | `/alertes`, `/investigations`, `/rapports` | Fichier produit par le navigateur |
@@ -147,6 +149,7 @@ src/
 │   ├── error.tsx  loading.tsx  not-found.tsx
 │   ├── dashboard/        # Vue d'ensemble : KPIs, tendances, dernières alertes
 │   ├── alertes/          # Liste des alertes, filtres, statuts
+│   │   └── [id]/         # Le dossier : actes facturés, chronologie, décision, notes
 │   ├── investigations/   # Dossiers en cours d'instruction
 │   ├── analyses/         # Analyses par type de fraude
 │   ├── rapports/         # Génération et export de rapports
@@ -211,8 +214,13 @@ n'existe pas encore** : elle est prévue en phase 4 pour accueillir le journal d
   session, et protège les routes via `proxy.ts` — mais il ne restreint aucune action.
   Un analyste peut réassigner un dossier comme un superviseur. Décider qui a le droit de
   quoi est une règle métier, traitée en phase 4 avec la piste d'audit.
-- **Pas encore d'écran de détail d'alerte** : les lignes s'ouvrent sur place, il n'y a pas
-  de route `/alertes/[id]`. C'est l'objet de la phase 3.
+- **Le score n'est pas encore expliqué** : le dossier affiche les signaux relevés sur
+  chaque acte, mais pas la décomposition du score facteur par facteur. C'est le
+  différenciateur D1, en phase 4.
+- **404 souple sur un identifiant d'alerte inconnu** : la page « introuvable » s'affiche
+  bien, mais la réponse porte le statut 200. La frontière de streaming posée par
+  `src/app/loading.tsx` envoie l'en-tête avant que `notFound()` ne soit atteint — cause
+  mesurée, arbitrage assumé, détail en [ADR-013](docs/DECISIONS.md).
 
 ## 🗺️ Feuille de route
 
@@ -225,7 +233,7 @@ les arbitrages. Résumé :
 | **P0** | Remise en marche : connexion, accueil, contrôle d'accès | ✅ terminée |
 | **P1** | Fondations : service généralisé, validation Zod, gestion d'erreurs | ✅ terminée |
 | **P2** | Interactions : statuts, assignation, export, paramètres persistés | ✅ terminée |
-| **P3** | Détail d'alerte (`/alertes/[id]`) | à venir |
+| **P3** | Détail d'alerte (`/alertes/[id]`) | ✅ terminée |
 | **P4** | Explicabilité du score · boucle de rétroaction · graphe de réseaux · simulateur de seuils · piste d'audit | à venir |
 | **P5** | Accessibilité, thème, tests, responsive, documentation finale | à venir |
 
