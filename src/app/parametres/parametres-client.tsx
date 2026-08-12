@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,9 +13,16 @@ import {
 import {
   Bell, Database, Users, Settings,
   Save, Plus, RefreshCw, Clock, CheckCircle,
-  AlertTriangle, Key, Globe, HardDrive,
+  AlertTriangle, Key, Globe, HardDrive, RotateCcw,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { API_URL, USE_MOCK } from "@/lib/api/client"
+import type { ParametresData, ParametresSysteme } from "@/lib/schemas/parametres.schema"
+import {
+  ecartParametres,
+  useModificationsStore,
+  useParametresSysteme,
+} from "@/lib/store"
 
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -43,15 +51,42 @@ const sections = [
   { id: "securite",      label: "Sécurité & API",  icon: Key       },
 ]
 
+/**
+ * Réglages dessinés dans la maquette mais absents du contrat de données : ils ne
+ * sont rattachés à rien et ne peuvent donc pas être enregistrés. Plutôt que de
+ * laisser croire le contraire, l'interrupteur est inerte et le dit.
+ */
+const NON_ENREGISTRE =
+  "Réglage de la maquette : aucun champ correspondant dans le contrat de données, il n'est pas enregistré."
+
+/**
+ * Le répertoire des comptes est celui de `src/lib/utilisateurs.ts` : il sert à
+ * l'authentification comme à l'assignation. Le modifier depuis cet écran
+ * supposerait une API d'administration que la console n'a pas (voir ADR-009).
+ */
+const SANS_ADMINISTRATION =
+  "L'annuaire est celui des comptes de la console (src/lib/utilisateurs.ts). Le modifier suppose une API d'administration, absente du périmètre."
+
 // ─── Toggle ───────────────────────────────────────────────────────────────────
-function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ value, onChange, disabled, title }: {
+  value: boolean
+  onChange: (v: boolean) => void
+  disabled?: boolean
+  title?: string
+}) {
   return (
     <button
+      type="button"
+      role="switch"
+      aria-checked={value}
+      disabled={disabled}
+      title={title}
       onClick={() => onChange(!value)}
       className={`relative w-11 h-6 rounded-full border transition-all duration-200
                   ${value
                     ? "bg-emerald-500 border-emerald-400"
-                    : "bg-white/5 border-border/50"}`}
+                    : "bg-white/5 border-border/50"}
+                  ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
     >
       <span className={`absolute top-0.5 size-5 rounded-full bg-white shadow
                         transition-all duration-200
@@ -80,25 +115,97 @@ function SettingRow({
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-import type { ParametresData } from "@/lib/schemas/parametres.schema"
+// ─── Bouton d'enregistrement ──────────────────────────────────────────────────
+/** Présent en haut et en bas de page : une seule définition pour les deux. */
+function BoutonEnregistrer({ onSave, saved, enCours, libelle, size }: {
+  onSave: () => void
+  saved: boolean
+  enCours: boolean
+  libelle: string
+  size?: "sm" | "default"
+}) {
+  return (
+    <Button
+      size={size}
+      onClick={onSave}
+      disabled={enCours}
+      className={`gap-2 font-semibold text-xs transition-all
+        ${saved
+          ? "bg-emerald-600 hover:bg-emerald-600 text-white"
+          : "bg-emerald-500 hover:bg-emerald-600 text-black"}`}
+    >
+      {saved
+        ? <><CheckCircle size={13} /> Enregistré !</>
+        : <><Save size={13} /> {libelle}</>
+      }
+    </Button>
+  )
+}
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export function ParametresClient({ data }: { data: ParametresData }) {
   const [activeSection, setActiveSection] = useState("general")
 
-  // État paramètres système
-  const [seuil,            setSeuil]     = useState(data.parametresSysteme.seuilAlerteIA)
-  const [autoAnalyse,      setAuto]      = useState(data.parametresSysteme.analyseAutomatique)
-  const [notifEmail,       setEmail]     = useState(data.parametresSysteme.notificationEmail)
-  const [notifSMS,         setSMS]       = useState(data.parametresSysteme.notificationSMS)
-  const [exportAuto,       setExport]    = useState(data.parametresSysteme.exportAutomatique)
-  const [frequence,        setFrequence] = useState(data.parametresSysteme.frequenceAnalyse)
-  const [retention,        setRetention] = useState(String(data.parametresSysteme.retentionDonnees))
-  const [saved,            setSaved]     = useState(false)
+  // Les réglages du serveur, recouverts par ceux déjà enregistrés ici.
+  const enregistres         = useParametresSysteme(data.parametresSysteme)
+  const enregistrer         = useModificationsStore(etat => etat.enregistrerParametres)
+  const remettreAZero       = useModificationsStore(etat => etat.reinitialiserParametres)
+  const modifieLocalement   = useModificationsStore(etat => etat.parametres !== null)
 
-  const handleSave = () => {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2500)
+  // Le formulaire travaille sur un brouillon : tant que « Enregistrer » n'a pas
+  // été cliqué, rien n'est retenu.
+  const [brouillon, setBrouillon] = useState<ParametresSysteme>(enregistres)
+  const [saved,     setSaved]     = useState(false)
+  const [enCours,   setEnCours]   = useState(false)
+
+  /**
+   * Le store est vide au premier rendu (`skipHydration`) puis se remplit après le
+   * montage : le brouillon doit alors repartir des valeurs relues, sans quoi
+   * l'écran afficherait les réglages d'origine et les réenregistrerait par-dessus.
+   *
+   * C'est le schéma « ajuster un état pendant le rendu » documenté par React,
+   * préféré à un effet : React reprend le rendu avant de rien afficher, là où un
+   * effet laisserait passer une image intermédiaire.
+   */
+  const [reference, setReference] = useState(enregistres)
+  if (reference !== enregistres) {
+    setReference(enregistres)
+    setBrouillon(enregistres)
+  }
+
+  function modifier<C extends keyof ParametresSysteme>(
+    cle: C,
+    valeur: ParametresSysteme[C]
+  ) {
+    setBrouillon(etat => ({ ...etat, [cle]: valeur }))
+  }
+
+  /** Raccourcis de lecture, pour ne pas alourdir le formulaire. */
+  const { seuilAlerteIA: seuil, analyseAutomatique: autoAnalyse,
+          notificationEmail: notifEmail, notificationSMS: notifSMS,
+          exportAutomatique: exportAuto, frequenceAnalyse: frequence } = brouillon
+
+  async function handleSave() {
+    setEnCours(true)
+    try {
+      // Seuls les réglages qui s'écartent du serveur sont conservés (ADR-006).
+      await enregistrer(ecartParametres(data.parametresSysteme, brouillon))
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+      toast.success("Paramètres enregistrés", {
+        description:
+          "Conservés dans ce navigateur : aucune API de configuration à qui les transmettre.",
+      })
+    } catch (erreur) {
+      toast.error("Enregistrement impossible", {
+        description:
+          erreur instanceof Error
+            ? erreur.message
+            : "Les réglages n'ont pas pu être enregistrés.",
+      })
+    } finally {
+      setEnCours(false)
+    }
   }
 
   return (
@@ -112,20 +219,34 @@ export function ParametresClient({ data }: { data: ParametresData }) {
             Configuration et administration de la plateforme
           </p>
         </div>
-        <Button
+        <BoutonEnregistrer
           size="sm"
-          onClick={handleSave}
-          className={`gap-2 font-semibold text-xs transition-all
-            ${saved
-              ? "bg-emerald-600 hover:bg-emerald-600 text-white"
-              : "bg-emerald-500 hover:bg-emerald-600 text-black"}`}
-        >
-          {saved
-            ? <><CheckCircle size={13} /> Enregistré !</>
-            : <><Save size={13} /> Enregistrer</>
-          }
-        </Button>
+          onSave={handleSave}
+          saved={saved}
+          enCours={enCours}
+          libelle="Enregistrer"
+        />
       </div>
+
+      {/* ── Réglages propres à ce navigateur ── */}
+      {modifieLocalement && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-blue-500/20 bg-blue-500/[0.06] px-4 py-2.5">
+          <span className="text-xs text-blue-300">
+            Ces réglages sont enregistrés dans ce navigateur et s'appliquent à la
+            console. En l'absence d'API de configuration, ils ne sont transmis à
+            aucun serveur et ne suivent pas votre compte.
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={remettreAZero}
+            className="ml-auto h-7 gap-1.5 text-xs text-blue-300 hover:text-blue-200"
+          >
+            <RotateCcw size={12} />
+            Rétablir les valeurs d&apos;origine
+          </Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-[220px_1fr] gap-6">
 
@@ -170,12 +291,13 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                 <CardContent className="pt-0">
                   <SettingRow
                     label="Seuil d'alerte IA"
-                    description={`Score minimum pour déclencher une alerte — actuellement ${seuil}%`}
+                    description={`Score minimum pour déclencher une alerte — les alertes en dessous sont signalées comme telles dans la liste`}
                   >
                     <div className="flex items-center gap-3 w-64">
                       <input
                         type="range" min={0} max={100} value={seuil}
-                        onChange={e => setSeuil(Number(e.target.value))}
+                        aria-label="Seuil d'alerte IA, en pourcentage"
+                        onChange={e => modifier("seuilAlerteIA", Number(e.target.value))}
                         className="flex-1 accent-emerald-500"
                       />
                       <span className="text-sm font-bold text-emerald-400 w-10 text-right font-mono">
@@ -188,14 +310,17 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                     label="Analyse automatique"
                     description="Analyser les dossiers dès leur importation"
                   >
-                    <Toggle value={autoAnalyse} onChange={setAuto} />
+                    <Toggle value={autoAnalyse} onChange={v => modifier("analyseAutomatique", v)} />
                   </SettingRow>
 
                   <SettingRow
                     label="Fréquence d'analyse"
                     description="Cadence du moteur de détection"
                   >
-                    <Select value={frequence} onValueChange={(v) => setFrequence(v ?? "")}>
+                    <Select
+                      value={frequence}
+                      onValueChange={v => v && modifier("frequenceAnalyse", v)}
+                    >
                       <SelectTrigger className="w-44 h-8 text-xs">
                         <SelectValue />
                       </SelectTrigger>
@@ -212,7 +337,7 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                     label="Export automatique"
                     description="Générer les exports CSV chaque nuit à minuit"
                   >
-                    <Toggle value={exportAuto} onChange={setExport} />
+                    <Toggle value={exportAuto} onChange={v => modifier("exportAutomatique", v)} />
                   </SettingRow>
                 </CardContent>
               </Card>
@@ -225,8 +350,11 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <SettingRow label="Fuseau horaire" description="Dakar, Sénégal (UTC+0)">
-                    <Select defaultValue="Africa/Dakar">
+                  <SettingRow label="Fuseau horaire" description="Fuseau de référence de la console">
+                    <Select
+                      value={brouillon.fuseauHoraire}
+                      onValueChange={v => v && modifier("fuseauHoraire", v)}
+                    >
                       <SelectTrigger className="w-44 h-8 text-xs">
                         <SelectValue />
                       </SelectTrigger>
@@ -242,7 +370,10 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                     label="Rétention des données"
                     description="Durée de conservation des dossiers archivés"
                   >
-                    <Select value={retention} onValueChange={(v) => setRetention(v ?? "")}>
+                    <Select
+                      value={String(brouillon.retentionDonnees)}
+                      onValueChange={v => v && modifier("retentionDonnees", Number(v))}
+                    >
                       <SelectTrigger className="w-44 h-8 text-xs">
                         <SelectValue />
                       </SelectTrigger>
@@ -276,31 +407,31 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                   label="Notifications par email"
                   description="Recevoir les alertes critiques par email"
                 >
-                  <Toggle value={notifEmail} onChange={setEmail} />
+                  <Toggle value={notifEmail} onChange={v => modifier("notificationEmail", v)} />
                 </SettingRow>
                 <SettingRow
                   label="Notifications SMS"
                   description="Recevoir les alertes de niveau élevé par SMS"
                 >
-                  <Toggle value={notifSMS} onChange={setSMS} />
+                  <Toggle value={notifSMS} onChange={v => modifier("notificationSMS", v)} />
                 </SettingRow>
                 <SettingRow
                   label="Alertes en temps réel"
                   description="Notifications instantanées dans l'interface"
                 >
-                  <Toggle value={true} onChange={() => {}} />
+                  <Toggle value={true} onChange={() => {}} disabled title={NON_ENREGISTRE} />
                 </SettingRow>
                 <SettingRow
                   label="Résumé quotidien"
                   description="Recevoir un résumé des activités chaque matin à 8h"
                 >
-                  <Toggle value={false} onChange={() => {}} />
+                  <Toggle value={false} onChange={() => {}} disabled title={NON_ENREGISTRE} />
                 </SettingRow>
                 <SettingRow
                   label="Rapport hebdomadaire"
                   description="Résumé automatique chaque lundi matin"
                 >
-                  <Toggle value={true} onChange={() => {}} />
+                  <Toggle value={true} onChange={() => {}} disabled title={NON_ENREGISTRE} />
                 </SettingRow>
               </CardContent>
             </Card>
@@ -322,6 +453,8 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                     </CardDescription>
                   </div>
                   <Button size="sm"
+                    disabled
+                    title={SANS_ADMINISTRATION}
                     className="gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-black
                                font-semibold text-xs">
                     <Plus size={13} />
@@ -385,6 +518,8 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                         </td>
                         <td className="px-4 py-3.5">
                           <Button size="sm" variant="ghost"
+                            disabled
+                            title={SANS_ADMINISTRATION}
                             className="h-7 text-xs text-muted-foreground hover:text-foreground">
                             Éditer
                           </Button>
@@ -503,32 +638,46 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
+                  {/* Ces trois lignes décrivent l'état réel de la configuration.
+                      Elles étaient éditables et affichaient des valeurs inventées :
+                      une adresse en dur, un interrupteur toujours à « oui », un
+                      jeton de vingt-quatre points qui n'existait pas. */}
                   <SettingRow
                     label="URL de l'API backend"
-                    description="Endpoint FastAPI — laisser vide en mode mock"
+                    description="Lue au démarrage dans NEXT_PUBLIC_API_URL — un champ de saisie ne peut pas la changer en cours de session"
                   >
                     <Input
-                      defaultValue="http://localhost:8000/api/v1"
-                      className="w-72 h-8 text-xs font-mono bg-white/5 border-border/50"
+                      value={API_URL}
+                      readOnly
+                      aria-label="URL de l'API backend, en lecture seule"
+                      className="w-72 h-8 text-xs font-mono bg-white/5 border-border/50 text-muted-foreground"
                     />
                   </SettingRow>
                   <SettingRow
                     label="Mode mock (données locales)"
-                    description="Désactiver pour se connecter au vrai backend"
+                    description={USE_MOCK
+                      ? "Actif : les écrans lisent les jeux de données locaux"
+                      : "Inactif : les écrans interrogent l'API de détection"}
                   >
-                    <Toggle value={true} onChange={() => {}} />
+                    <Toggle
+                      value={USE_MOCK}
+                      onChange={() => {}}
+                      disabled
+                      title="Fixé au démarrage par la variable d'environnement NEXT_PUBLIC_USE_MOCK : un interrupteur ne peut pas le changer en cours de session."
+                    />
                   </SettingRow>
                   <SettingRow
-                    label="Authentification JWT"
-                    description="Token d'authentification — généré automatiquement"
+                    label="Authentification"
+                    description="Session NextAuth, portée par un cookie httpOnly — jamais lisible depuis le navigateur, donc pas affichable ici"
                   >
                     <div className="flex items-center gap-2">
-                      <Input
-                        value="••••••••••••••••••••••••"
-                        readOnly
-                        className="w-48 h-8 text-xs font-mono bg-white/5 border-border/50"
-                      />
+                      <Badge variant="outline"
+                        className="bg-emerald-500/15 text-emerald-400 border-emerald-500/20 text-xs">
+                        Cookie de session
+                      </Badge>
                       <Button size="sm" variant="outline"
+                        disabled
+                        title="La session se renouvelle à la connexion. La régénérer depuis cet écran supposerait un jeton géré par la console, ce qui n'est pas le cas."
                         className="h-8 text-xs border-border/50">
                         Regénérer
                       </Button>
@@ -558,13 +707,16 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                     label="Journal des activités"
                     description="Traçabilité complète des actions utilisateurs"
                   >
-                    <Toggle value={true} onChange={() => {}} />
+                    <Toggle value={true} onChange={() => {}} disabled title={NON_ENREGISTRE} />
                   </SettingRow>
                   <SettingRow
                     label="Niveau de log"
                     description="Niveau de détail des journaux système"
                   >
-                    <Select defaultValue="info">
+                    <Select
+                      value={brouillon.niveauLog}
+                      onValueChange={v => v && modifier("niveauLog", v)}
+                    >
                       <SelectTrigger className="w-36 h-8 text-xs">
                         <SelectValue />
                       </SelectTrigger>
@@ -580,7 +732,7 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                     label="Double authentification"
                     description="2FA obligatoire pour les administrateurs"
                   >
-                    <Toggle value={false} onChange={() => {}} />
+                    <Toggle value={false} onChange={() => {}} disabled title={NON_ENREGISTRE} />
                   </SettingRow>
                 </CardContent>
               </Card>
@@ -589,18 +741,12 @@ export function ParametresClient({ data }: { data: ParametresData }) {
 
           {/* Bouton save bas de page */}
           <div className="flex justify-end pt-2">
-            <Button
-              onClick={handleSave}
-              className={`gap-2 font-semibold text-xs transition-all
-                ${saved
-                  ? "bg-emerald-600 hover:bg-emerald-600 text-white"
-                  : "bg-emerald-500 hover:bg-emerald-600 text-black"}`}
-            >
-              {saved
-                ? <><CheckCircle size={13} /> Enregistré !</>
-                : <><Save size={13} /> Enregistrer les modifications</>
-              }
-            </Button>
+            <BoutonEnregistrer
+              onSave={handleSave}
+              saved={saved}
+              enCours={enCours}
+              libelle="Enregistrer les modifications"
+            />
           </div>
 
         </div>

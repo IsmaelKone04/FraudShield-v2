@@ -4,6 +4,108 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 2 — Rendre la console vivante · jalon M2
+
+L'audit avait compté **onze boutons sans action**. La phase 0 avait dû retirer du README
+la promesse « changer le statut d'une alerte » ; cette phase la rétablit pour de bon, et
+tranche chaque commande restante : elle agit, elle disparaît, ou elle dit pourquoi elle
+n'agit pas.
+
+### Ajouté
+
+- **`src/lib/store/`** — store Zustand des modifications. Il ne mémorise que les **écarts**
+  par identifiant, jamais une copie des données du serveur ; la fusion se fait au rendu
+  (ADR-006). En mode démonstration il persiste dans `localStorage`, relu au montage côté
+  client pour ne pas casser l'hydratation ; en mode API il appelle
+  `src/lib/api/mutations.ts` et **annule l'écart si l'appel échoue**.
+- **Changement de statut des alertes** (En cours / À vérifier / Résolu) depuis la liste,
+  avec toast de confirmation et cartes de KPI qui suivent le changement.
+- **Assignation** des alertes **et** des dossiers d'investigation aux comptes de la
+  console, plus un filtre **« Mes dossiers »** alimenté par l'adresse de la session.
+- **Clôture et réouverture d'un dossier** d'investigation.
+- **Export CSV réel** (`src/lib/csv.ts`, `src/lib/exports.ts`) pour les alertes et les
+  dossiers, produit par le navigateur sans backend (ADR-007). Les colonnes sont définies
+  une seule fois : montants en numérique et dates en JJ/MM/AAAA pour qu'un tableur les
+  reconnaisse, et une colonne « Modifié localement » qui distingue les lignes changées
+  dans ce navigateur de celles reçues du serveur.
+- **Le seuil de déclenchement agit enfin.** Réglé dans les Paramètres, il atténue dans la
+  liste les alertes passées sous son niveau, les marque « < seuil » et permet de les
+  masquer — six sur dix avec le jeu de démonstration et le seuil d'origine de 75 %.
+- **`src/lib/utilisateurs.ts`** — annuaire unique des comptes, partagé par
+  l'authentification, l'assignation et l'affichage.
+- **`src/lib/stats-statuts.ts`** — recalcul des cartes de KPI **par écart** : les cartes
+  décrivent une population bien plus large que la liste visible (1 245 alertes pour 10
+  lignes), un changement de statut y applique donc ±1 au lieu de recompter faussement.
+- **ADR-006 à ADR-010** dans [`docs/DECISIONS.md`](docs/DECISIONS.md).
+- **Une dépendance** : `zustand` 5.0.14. Ajout arbitré au regard d'ADR-005 — le besoin
+  (état partagé entre écrans, persistance versionnée, hydratation différée) dépassait ce
+  qu'un contexte React aurait porté proprement.
+
+### Corrigé
+
+- **Trois annuaires de personnes coexistaient** : les comptes réels de `src/auth.ts`, six
+  agents fictifs en `@fraudshield.sn` dans `parametres/data.json`, et des noms libres
+  (« Agent Sall », « Agent Diop ») dans `investigations/data.json`. Un dossier ne pouvait
+  donc être réassigné à personne — son titulaire n'existait nulle part ailleurs. Il n'en
+  reste qu'un ; le champ `assigne` est contraint à une adresse ; et un contrôle de
+  cohérence **fait échouer le build** si le jeu local s'en écarte à nouveau (ADR-010).
+  Zod ne pouvait rien y voir : les listes étaient valides, seulement contradictoires.
+- **`handleSave` affichait « Enregistré ! » pendant 2,5 s sans rien écrire** — au
+  rechargement, tout était revenu (ADR-008).
+- **Trois lignes de l'onglet Sécurité affichaient des valeurs inventées** : une URL d'API
+  modifiable alors qu'elle est lue au démarrage dans l'environnement, un interrupteur de
+  mode mock toujours à « oui », et un jeton de vingt-quatre points pour une session qui
+  tient dans un cookie `httpOnly` — précisément illisible depuis le navigateur. Les trois
+  décrivent désormais l'état réel.
+- **Le rôle s'affichait en code** sur le tableau de bord : « ADMINISTRATEUR » au lieu
+  d'« Administrateur ». Le code reste celui que compare `proxy.ts`.
+- **Le dernier `<button>` brut** (`dashboard/page.tsx`) passe sur le composant `Button` :
+  il n'avait aucune action, forçait son texte en noir quel que soit le thème, et son
+  libellé — « Réassigner les dossiers suspects » — annonçait un traitement par lot que la
+  console ne sait pas faire. C'est un lien vers `/investigations`, où la réassignation a
+  lieu dossier par dossier.
+
+### Arbitrage des onze commandes (ADR-009)
+
+| Devenues réelles | Retirées | Désactivées, avec motif en infobulle |
+|---|---|---|
+| Changer le statut · Assigner · Exporter · Clôturer / Rouvrir · Enregistrer les paramètres · Nouveau rapport · Réassigner un dossier | Ouvrir le dossier — doublon du clic sur la carte, sans écran de destination | Télécharger (18 fiches) · Ajouter une note · Nouvelle investigation · Inviter · Éditer · Regénérer · cinq interrupteurs hors contrat |
+
+« Aperçu » est **renommé « Détails »** : il n'ouvrait aucun document et n'en existe aucun ;
+il déplie ce que la console sait réellement de la fiche.
+
+### Supprimé
+
+- Les six utilisateurs fictifs de `parametres/data.json`, dont quatre n'existaient pas.
+- Le bouton « Ouvrir le dossier ».
+
+### Vérifications
+
+`npm run typecheck` ✅ · `npm run build` ✅ (11 routes) · `npm run lint` **2 erreurs, 0
+avertissement** (inchangé — les deux `set-state-in-effect` planifiées en phase 5).
+
+Vérifié sur le serveur de développement, connexion réelle à l'appui : **25 assertions sur
+le HTML servi** (`/investigations`, `/rapports`, `/parametres`, `/dashboard` vu par un
+superviseur puis par un analyste) et **13 tests** sur le recalcul des cartes de KPI.
+
+> Le contrôle de cohérence de l'annuaire a été **prouvé en le cassant** : une adresse
+> remise en `@fraudshield.sn` fait échouer `npm run build` avec les deux listes en regard,
+> au lieu de laisser la divergence s'installer en silence.
+
+### Dette laissée sciemment
+
+- **Les sections des Paramètres ne sont pas adressables** : `activeSection` est un état
+  client, donc seule « Général » est rendue côté serveur. Les autres commandes de l'écran
+  sont couvertes par le typecheck et la relecture, pas par le rendu vérifié. Rendre les
+  sections adressables corrigerait les deux à la fois → phase 5.
+- **Les dossiers n'exposent que l'axe ouvert / clôturé**, pas le sélecteur à trois états
+  des alertes → phase 3.
+- **Le rôle ne conditionne toujours pas l'assignation** : le raccourci du tableau de bord
+  est réservé aux rôles d'encadrement, mais le sélecteur, lui, n'est gardé par rien.
+  Décider qui a le droit de réassigner est une règle métier → phase 4.
+
+---
+
 ## Phase 1 — Fondations
 
 L'argument central du projet — « deux variables d'environnement suffisent, aucun

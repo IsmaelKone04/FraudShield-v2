@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { toast } from "sonner"
 import {
   AreaChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer,
@@ -15,24 +16,28 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
   AlertTriangle, Clock, CheckCircle,
-  Eye, Search, Download, Filter,
+  Eye, EyeOff, Search, Download, Filter, RotateCcw, UserCheck,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { SelecteurAssignation } from "@/components/selecteur-assignation"
+import { SelecteurStatut } from "@/components/selecteur-statut"
 import type { Alerte } from "@/lib/schemas/alertes.schema"
 import type { Stat } from "@/lib/schemas/commun"
 import type { AlerteTrend } from "@/lib/schemas/dashboard.schema"
+import { exporterAlertes } from "@/lib/exports"
+import { appliquerEcartStatuts, CARTES_ALERTES } from "@/lib/stats-statuts"
+import {
+  useAlertesAvecModifications,
+  useModificationsStore,
+  useNombreModifications,
+  useSeuilAlerteIA,
+} from "@/lib/store"
 
 // ─── Config badges ────────────────────────────────────────────────────────────
 const risqueCfg: Record<string, string> = {
   "Élevé":  "bg-red-500/15 text-red-400 border-red-500/20",
   "Moyen":  "bg-yellow-500/15 text-yellow-400 border-yellow-500/20",
   "Faible": "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
-}
-
-const statutCfg: Record<string, { className: string; icon: LucideIcon }> = {
-  "En cours":   { className: "bg-yellow-500/15 text-yellow-400 border-yellow-500/20",  icon: Clock         },
-  "À vérifier": { className: "bg-blue-500/15 text-blue-400 border-blue-500/20",        icon: Eye           },
-  "Résolu":     { className: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20", icon: CheckCircle },
 }
 
 const statIconMap: Record<string, LucideIcon> = {
@@ -89,15 +94,37 @@ function CustomTooltip({ active, payload, label }: InfobulleProps) {
 }
 
 // ─── Page principale ──────────────────────────────────────────────────────────
-export function AlertesClient({ alertes, stats, alertesTrend }: {
+export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuilParDefaut }: {
   alertes: Alerte[]
   stats: Stat[]
   alertesTrend: AlerteTrend[]
+  /** Adresse du compte connecté, pour le filtre « Mes dossiers ». */
+  utilisateur: string | null
+  /** Seuil de déclenchement du serveur, avant réglage local. */
+  seuilParDefaut: number
 }) {
   const [recherche, setRecherche]   = useState("")
   const [filtreStatut, setStatut]   = useState("tous")
   const [filtreRisque, setRisque]   = useState("tous")
   const [periodeGraph, setPeriode]  = useState("30")
+  const [mesDossiers, setMesDossiers] = useState(false)
+  const [masquerSousLeSeuil, setMasquer] = useState(false)
+
+  // Les alertes du serveur, augmentées des changements de l'utilisateur.
+  const alertesAJour      = useAlertesAvecModifications(alertes)
+  const nombreModifs      = useNombreModifications()
+  const reinitialiser     = useModificationsStore(etat => etat.reinitialiser)
+
+  // Le réglage de l'écran Paramètres, appliqué ici : une alerte dont le score est
+  // en dessous du seuil ne serait pas déclenchée avec la configuration actuelle.
+  const seuil = useSeuilAlerteIA(seuilParDefaut)
+
+  // Les cartes décrivent 1 245 alertes, la liste n'en montre que dix : on reporte
+  // l'écart plutôt que de recompter (voir `lib/stats-statuts.ts`).
+  const statsAJour = useMemo(
+    () => appliquerEcartStatuts(stats, alertes, alertesAJour, CARTES_ALERTES),
+    [stats, alertes, alertesAJour]
+  )
 
   // Données graphique filtrées par période
   const trendData = useMemo(() => {
@@ -109,7 +136,7 @@ export function AlertesClient({ alertes, stats, alertesTrend }: {
 
   // Alertes filtrées
   const alertesFiltrees = useMemo(() => {
-    return alertes.filter(a => {
+    return alertesAJour.filter(a => {
       const matchRecherche = recherche === "" ||
         a.id.toLowerCase().includes(recherche.toLowerCase()) ||
         a.assure.toLowerCase().includes(recherche.toLowerCase()) ||
@@ -117,9 +144,45 @@ export function AlertesClient({ alertes, stats, alertesTrend }: {
         a.type.toLowerCase().includes(recherche.toLowerCase())
       const matchStatut = filtreStatut === "tous" || a.statut === filtreStatut
       const matchRisque = filtreRisque === "tous" || a.risque === filtreRisque
-      return matchRecherche && matchStatut && matchRisque
+      const matchAssignation = !mesDossiers || a.assigneA === utilisateur
+      return matchRecherche && matchStatut && matchRisque && matchAssignation
     })
-  }, [recherche, filtreStatut, filtreRisque, alertes])
+  }, [recherche, filtreStatut, filtreRisque, mesDossiers, utilisateur, alertesAJour])
+
+  // Ce que le seuil retire de la liste, avant de décider de l'afficher ou non.
+  const nombreSousLeSeuil = useMemo(
+    () => alertesFiltrees.filter(a => a.scoreIA < seuil).length,
+    [alertesFiltrees, seuil]
+  )
+
+  const alertesAffichees = useMemo(
+    () =>
+      masquerSousLeSeuil
+        ? alertesFiltrees.filter(a => a.scoreIA >= seuil)
+        : alertesFiltrees,
+    [alertesFiltrees, masquerSousLeSeuil, seuil]
+  )
+
+  /**
+   * Exporte ce qui est à l'écran, filtres compris : l'analyste qui a isolé les
+   * dossiers à risque élevé attend ces dossiers-là, pas la liste entière.
+   */
+  function exporter() {
+    const nombre = alertesAffichees.length
+    try {
+      const nomFichier = exporterAlertes(alertesAffichees)
+      toast.success(`${nombre} alerte${nombre > 1 ? "s" : ""} exportée${nombre > 1 ? "s" : ""}`, {
+        description: `${nomFichier} — filtres en cours appliqués.`,
+      })
+    } catch (erreur) {
+      toast.error("Export impossible", {
+        description:
+          erreur instanceof Error
+            ? erreur.message
+            : "Le fichier n'a pas pu être généré.",
+      })
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -132,15 +195,42 @@ export function AlertesClient({ alertes, stats, alertesTrend }: {
             Suivi en temps réel des anomalies détectées par le moteur IA
           </p>
         </div>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={exporter}
+          disabled={alertesAffichees.length === 0}
+          title="Exporter au format CSV les alertes correspondant aux filtres"
+          className="gap-2"
+        >
           <Download size={14} />
           Exporter
         </Button>
       </div>
 
+      {/* ── Modifications non transmises ── */}
+      {nombreModifs > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-blue-500/20 bg-blue-500/[0.06] px-4 py-2.5">
+          <span className="text-xs text-blue-300">
+            {nombreModifs} modification{nombreModifs > 1 ? "s" : ""} enregistrée
+            {nombreModifs > 1 ? "s" : ""} dans ce navigateur. En l'absence d'API de
+            détection, elles ne sont transmises à aucun serveur.
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={reinitialiser}
+            className="ml-auto h-7 gap-1.5 text-xs text-blue-300 hover:text-blue-200"
+          >
+            <RotateCcw size={12} />
+            Repartir du jeu d'origine
+          </Button>
+        </div>
+      )}
+
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {stats.map(stat => {
+        {statsAJour.map(stat => {
           const Icon  = statIconMap[stat.id]
           const color = statColorMap[stat.color] || statColorMap.total
           return (
@@ -264,8 +354,37 @@ export function AlertesClient({ alertes, stats, alertesTrend }: {
           </SelectContent>
         </Select>
 
+        {/* Le rôle était porté par le jeton sans rien conditionner : ce filtre est
+            le premier endroit où l'identité connectée sert à quelque chose. */}
+        <Button
+          variant={mesDossiers ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMesDossiers(v => !v)}
+          disabled={!utilisateur}
+          aria-pressed={mesDossiers}
+          className="h-9 gap-2 text-sm"
+        >
+          <UserCheck size={14} />
+          Mes dossiers
+        </Button>
+
+        {/* Le seuil est réglé sur l'écran Paramètres ; c'est ici qu'il agit. */}
+        <Button
+          variant={masquerSousLeSeuil ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMasquer(v => !v)}
+          disabled={nombreSousLeSeuil === 0}
+          aria-pressed={masquerSousLeSeuil}
+          title={`Seuil de déclenchement actuel : ${seuil} %. En dessous, l'alerte n'aurait pas été levée.`}
+          className="h-9 gap-2 text-sm"
+        >
+          <EyeOff size={14} />
+          Sous le seuil ({nombreSousLeSeuil})
+        </Button>
+
         <span className="text-xs text-muted-foreground ml-auto">
-          {alertesFiltrees.length} résultat{alertesFiltrees.length > 1 ? "s" : ""}
+          {alertesAffichees.length} résultat{alertesAffichees.length > 1 ? "s" : ""}
+          <span className="text-muted-foreground/60"> · seuil {seuil} %</span>
         </span>
       </div>
 
@@ -275,8 +394,8 @@ export function AlertesClient({ alertes, stats, alertesTrend }: {
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border/30">
-                {["ID","Type","Assuré","Établissement","Montant","Score IA","Risque","Date","Statut"].map(h => (
-                  <th key={h}
+                {["ID","Type","Assuré","Établissement","Montant","Score IA","Risque","Date","Assigné à","Statut"].map(h => (
+                  <th key={h} scope="col"
                     className="text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 px-4 py-3 whitespace-nowrap">
                     {h}
                   </th>
@@ -284,20 +403,19 @@ export function AlertesClient({ alertes, stats, alertesTrend }: {
               </tr>
             </thead>
             <tbody>
-              {alertesFiltrees.length === 0 ? (
+              {alertesAffichees.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-12 text-sm text-muted-foreground">
+                  <td colSpan={10} className="text-center py-12 text-sm text-muted-foreground">
                     Aucune alerte ne correspond aux filtres sélectionnés.
                   </td>
                 </tr>
               ) : (
-                alertesFiltrees.map((a, i) => {
-                  const statutConf = statutCfg[a.statut]
-                  const StatutIcon = statutConf?.icon
+                alertesAffichees.map((a) => {
+                  const sousLeSeuil = a.scoreIA < seuil
                   return (
                     <tr key={a.id}
-                      className="border-b border-border/20 hover:bg-white/[0.02] transition-colors cursor-pointer"
-                      style={{ animationDelay: `${i * 40}ms` }}
+                      className={`border-b border-border/20 hover:bg-white/[0.02] transition-colors
+                                  ${sousLeSeuil ? "opacity-50" : ""}`}
                     >
                       <td className="px-4 py-3.5">
                         <span className="font-mono text-xs text-emerald-400 font-semibold">
@@ -319,7 +437,18 @@ export function AlertesClient({ alertes, stats, alertesTrend }: {
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <ScoreBar score={a.scoreIA} />
+                        <div className="flex items-center gap-2">
+                          <ScoreBar score={a.scoreIA} />
+                          {sousLeSeuil && (
+                            <span
+                              title={`Sous le seuil de ${seuil} % : avec la configuration actuelle, cette alerte ne serait pas levée.`}
+                              className="text-[9px] font-semibold uppercase tracking-wide
+                                         text-muted-foreground/70 whitespace-nowrap"
+                            >
+                              &lt; seuil
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3.5">
                         <Badge variant="outline"
@@ -334,11 +463,10 @@ export function AlertesClient({ alertes, stats, alertesTrend }: {
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <Badge variant="outline"
-                          className={`text-[10px] whitespace-nowrap flex items-center gap-1 w-fit ${statutConf?.className}`}>
-                          {StatutIcon && <StatutIcon size={10} />}
-                          {a.statut}
-                        </Badge>
+                        <SelecteurAssignation id={a.id} assigneA={a.assigneA} />
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <SelecteurStatut id={a.id} statut={a.statut} />
                       </td>
                     </tr>
                   )

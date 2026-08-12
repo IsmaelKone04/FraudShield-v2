@@ -93,11 +93,47 @@ Mot de passe des trois comptes : **`Demo1234!`**
 |---------|------|
 | `admin@fraudshield.com` | Administrateur |
 | `superviseur@fraudshield.com` | Superviseur |
-| `analyste@fraudshield.com` | Analyste |
+| `analyste@fraudshield.com` | Agent d'analyse |
 
-Ces comptes ne donnent accès qu'aux données fictives décrites plus haut. Leurs mots de
-passe sont stockés sous forme d'**empreintes bcrypt** dans [`src/auth.ts`](src/auth.ts),
-jamais en clair — l'authentification définitive est destinée à être déléguée à l'API.
+Ces comptes ne donnent accès qu'aux données fictives décrites plus haut. Les identités
+sont décrites une seule fois, dans [`src/lib/utilisateurs.ts`](src/lib/utilisateurs.ts) —
+c'est le même annuaire qui sert à l'authentification, à l'assignation d'un dossier et à
+l'affichage d'un nom. Les mots de passe, eux, sont stockés sous forme d'**empreintes
+bcrypt** dans [`src/auth.ts`](src/auth.ts), jamais en clair, et volontairement à part :
+ce module-là n'est pas envoyé au navigateur. L'authentification définitive est destinée
+à être déléguée à l'API.
+
+## ✍️ Ce qui est réellement interactif
+
+La console **modifie** des données. Elle ne se contente plus d'afficher.
+
+| Geste | Où | Effet |
+|---|---|---|
+| Changer le statut d'une alerte | `/alertes` | Liste et cartes de KPI mises à jour |
+| Assigner une alerte, réassigner un dossier | `/alertes`, `/investigations` | Aux comptes ci-dessus, avec filtre « Mes dossiers » |
+| Clôturer ou rouvrir un dossier | `/investigations` | |
+| Exporter en CSV | `/alertes`, `/investigations`, `/rapports` | Fichier produit par le navigateur |
+| Régler le seuil de déclenchement | `/parametres` | Agit sur `/alertes` : les scores sous le seuil sont atténués, marqués, et masquables |
+
+**Où cela s'écrit.** En mode démonstration (`NEXT_PUBLIC_USE_MOCK=true`, celui du dépôt),
+les modifications vivent dans le `localStorage` **de ce navigateur** : elles survivent au
+rechargement, ne partent sur aucun serveur, et un bouton « Repartir du jeu d'origine » les
+efface. Les toasts le disent explicitement, et les exports CSV portent une colonne
+« Modifié localement ». En mode API, les mêmes gestes appellent le service de détection ;
+si l'appel échoue, la modification est **annulée** plutôt que laissée à l'écran.
+
+Le store ne mémorise que l'**écart** au jeu de données, jamais une copie de celui-ci — de
+sorte qu'une donnée changée côté serveur ne soit pas indéfiniment écrasée par une valeur
+locale. Le détail est dans [ADR-006](docs/DECISIONS.md).
+
+### Les boutons qui ne font rien le disent
+
+Cette console est un démonstrateur : certaines actions supposent une écriture qu'aucune
+API n'expose ici — créer un dossier, écrire une note, télécharger le PDF d'un rapport,
+administrer les comptes. **Ces commandes sont désactivées et portent leur motif en
+infobulle**, plutôt que d'afficher une confirmation pour une opération qui n'a pas lieu.
+Aucun bouton visible n'est décoratif ; le principe est consigné dans
+[ADR-009](docs/DECISIONS.md).
 
 ## 🧱 Structure
 
@@ -121,8 +157,12 @@ src/
 │   └── ...               # Sidebar, tableaux, graphiques, cartes de KPI
 ├── lib/
 │   ├── api/client.ts     # Bascule mock ↔ API, appel HTTP, validation
+│   ├── api/mutations.ts  # Le pendant en écriture, même bascule
 │   ├── schemas/          # Schémas Zod — définition unique du domaine
 │   ├── services/         # Une façade métier par domaine
+│   ├── store/            # Écarts au jeu de données (Zustand), persistés localement
+│   ├── csv.ts            # Génération CSV, exports.ts  # Colonnes des deux exports
+│   ├── utilisateurs.ts   # Annuaire unique des comptes
 │   └── types/            # Types déduits des schémas (point d'entrée commode)
 ├── auth.ts               # Configuration NextAuth (fournisseur, rôles, session)
 └── proxy.ts              # Contrôle d'accès aux routes (ex-`middleware`, Next.js 16)
@@ -152,23 +192,27 @@ n'existe pas encore** : elle est prévue en phase 4 pour accueillir le journal d
 | UI | React 19, Tailwind CSS 4, shadcn/ui sur Base UI |
 | Tableaux | `<table>` + composants `ui/table` (pas de tri ni de réordonnancement à ce jour) |
 | Validation | Zod 4, au runtime, sur les données locales comme distantes |
+| État client | Zustand 5, persistance `localStorage` versionnée |
 | Graphiques | Recharts |
 | Authentification | NextAuth v5 (Credentials), bcrypt, JWT |
-| Validation | Zod |
 | Langage | TypeScript |
 
 ## ⚠️ Limites connues
 
 - **Pas de backend dans ce dépôt** : le service de détection n'est pas inclus (voir plus haut).
 - **Données fictives** : aucun jeu de données réel, pour d'évidentes raisons de confidentialité.
-- **Répertoire d'utilisateurs local** : les trois comptes de démonstration sont codés dans
-  `src/auth.ts`. En production, l'authentification doit passer par l'API.
-- **Aucune écriture** : la console est en lecture seule. Changer le statut d'une alerte,
-  l'assigner ou enregistrer les paramètres n'est pas encore possible — plusieurs boutons
-  sont en place mais sans action derrière. C'est l'objet de la phase 2 de la feuille de
-  route.
-- **Accès en lecture seulement pour tous les rôles** : le rôle est bien porté par le JWT
-  et exposé dans la session, mais il ne conditionne encore aucune fonctionnalité.
+- **Répertoire d'utilisateurs local** : les trois comptes de démonstration sont décrits
+  dans `src/lib/utilisateurs.ts`. En production, l'authentification doit passer par l'API.
+- **Les modifications ne quittent pas le navigateur** en mode démonstration : elles sont
+  écrites dans le `localStorage`, jamais transmises. Rien n'est partagé entre deux
+  utilisateurs ni entre deux machines — c'est attendu tant que le service de détection
+  n'est pas branché (voir « Ce qui est réellement interactif »).
+- **Le rôle ne conditionne presque rien** : il est porté par le JWT, exposé dans la
+  session, et protège les routes via `proxy.ts` — mais il ne restreint aucune action.
+  Un analyste peut réassigner un dossier comme un superviseur. Décider qui a le droit de
+  quoi est une règle métier, traitée en phase 4 avec la piste d'audit.
+- **Pas encore d'écran de détail d'alerte** : les lignes s'ouvrent sur place, il n'y a pas
+  de route `/alertes/[id]`. C'est l'objet de la phase 3.
 
 ## 🗺️ Feuille de route
 
@@ -180,7 +224,7 @@ les arbitrages. Résumé :
 |---|---|---|
 | **P0** | Remise en marche : connexion, accueil, contrôle d'accès | ✅ terminée |
 | **P1** | Fondations : service généralisé, validation Zod, gestion d'erreurs | ✅ terminée |
-| **P2** | Interactions : statuts, assignation, export, paramètres persistés | à venir |
+| **P2** | Interactions : statuts, assignation, export, paramètres persistés | ✅ terminée |
 | **P3** | Détail d'alerte (`/alertes/[id]`) | à venir |
 | **P4** | Explicabilité du score · boucle de rétroaction · graphe de réseaux · simulateur de seuils · piste d'audit | à venir |
 | **P5** | Accessibilité, thème, tests, responsive, documentation finale | à venir |

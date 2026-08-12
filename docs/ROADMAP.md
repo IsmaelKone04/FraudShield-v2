@@ -152,22 +152,44 @@ passait par le service, et quatre méthodes sur cinq n'étaient jamais appelées
 
 ---
 
-### Phase 2 — Rendre la console vivante · **M2**
+### Phase 2 — Rendre la console vivante · **M2** ✅ terminée
 
 Les onze boutons morts. Règle : soit on câble, soit on retire. Rien ne reste décoratif.
 
-| # | Tâche | Est. |
-|---|---|---|
-| **P2-1** | Store client (Zustand ou `useReducer` + contexte) portant l'état mutable des alertes et investigations. Persistance `localStorage` en mode mock, appels API en mode réel. Fin des « écritures non persistées ». | 1 |
-| **P2-2** | **Changer le statut d'une alerte** (En cours / À vérifier / Résolu) depuis la liste, avec toast de confirmation. Le README l'annonce déjà : autant que ce soit vrai. | 0,5 |
-| **P2-3** | **Assigner une alerte** à un analyste. Filtre « mes dossiers ». Les rôles existent dans le JWT et ne servent à rien pour l'instant. | 0,5 |
-| **P2-4** | **Export CSV réel** pour les boutons « Exporter » / « Télécharger » (alertes, rapports) : génération côté client, aucun backend requis. | 0,5 |
-| **P2-5** | **Paramètres qui persistent.** `handleSave` affiche « Enregistré ! » pendant 2,5 s et n'écrit rien. Persister, recharger à l'ouverture, et que les seuils pilotent réellement l'affichage du risque. | 1 |
-| **P2-6** | Arbitrer les boutons restants (Aperçu, Nouvelle investigation, Ouvrir le dossier, Ajouter une note, Clôturer, Réassigner) : câbler ou supprimer. Aucun ne survit en l'état. | 1 |
-| **P2-7** | Remplacer le `<button>` brut de `dashboard/page.tsx` par le composant `Button` du design system. | 0,25 |
-| **P2-8** | **Documentation M2** : README « ce qui est réellement interactif », CHANGELOG, ROADMAP coché. | 0,5 |
+| # | Tâche | Est. | |
+|---|---|---|---|
+| **P2-1** | Store client (Zustand ou `useReducer` + contexte) portant l'état mutable des alertes et investigations. Persistance `localStorage` en mode mock, appels API en mode réel. Fin des « écritures non persistées ». | 1 | ✅ |
+| **P2-2** | **Changer le statut d'une alerte** (En cours / À vérifier / Résolu) depuis la liste, avec toast de confirmation. Le README l'annonce déjà : autant que ce soit vrai. | 0,5 | ✅ |
+| **P2-3** | **Assigner une alerte** à un analyste. Filtre « mes dossiers ». Les rôles existent dans le JWT et ne servent à rien pour l'instant. | 0,5 | ✅ |
+| **P2-4** | **Export CSV réel** pour les boutons « Exporter » / « Télécharger » (alertes, rapports) : génération côté client, aucun backend requis. | 0,5 | ✅ |
+| **P2-5** | **Paramètres qui persistent.** `handleSave` affiche « Enregistré ! » pendant 2,5 s et n'écrit rien. Persister, recharger à l'ouverture, et que les seuils pilotent réellement l'affichage du risque. | 1 | ✅ |
+| **P2-6** | Arbitrer les boutons restants (Aperçu, Nouvelle investigation, Ouvrir le dossier, Ajouter une note, Clôturer, Réassigner) : câbler ou supprimer. Aucun ne survit en l'état. | 1 | ✅ |
+| **P2-7** | Remplacer le `<button>` brut de `dashboard/page.tsx` par le composant `Button` du design system. | 0,25 | ✅ |
+| **P2-8** | **Documentation M2** : README « ce qui est réellement interactif », CHANGELOG, ROADMAP coché. | 0,5 | ✅ |
 
-**Total ≈ 5,25 j.**
+**Total ≈ 5,25 j.** Détail dans [`../CHANGELOG.md`](../CHANGELOG.md), arbitrages dans
+[`DECISIONS.md`](DECISIONS.md) (ADR-006 à ADR-010).
+
+#### Écarts constatés
+
+Trois choses n'étaient pas au plan et ont dû être traitées :
+
+- **Un troisième annuaire de personnes.** Le plan supposait deux listes de comptes ; il y
+  en avait trois, dont une en noms libres dans `investigations/data.json`. C'est ce qui
+  rendait un dossier non réassignable. Traité en P2-6, avec un contrôle de cohérence qui
+  fait échouer le build (ADR-010).
+- **P2-7 n'était pas qu'un problème de style.** Le `<button>` brut n'avait aucune action
+  et son libellé annonçait un traitement par lot inexistant : c'était aussi un cas P2-6.
+- **Une dépendance ajoutée** (`zustand`), ce qu'ADR-005 impose de justifier. Fait.
+
+#### Dette reportée
+
+| Constat | Vers |
+|---|---|
+| Les sections des Paramètres ne sont pas adressables : seule « Général » est rendue côté serveur, donc les autres commandes ne sont pas vérifiables sur le HTML servi. | P5 |
+| Les dossiers n'exposent que l'axe ouvert / clôturé, pas le sélecteur à trois états des alertes. | P3 |
+| Le rôle ne conditionne pas l'assignation : le raccourci du tableau de bord est réservé à l'encadrement, le sélecteur ne l'est pas. Règle métier à trancher. | P4 (avec D5) |
+| « Ajouter une note » attend son écran de destination. | P3-5 |
 
 ---
 
@@ -279,7 +301,7 @@ Unité : la demi-journée de travail effectif.
 |---|---|---|---|---|
 | P0 | Remise en marche | 1,75 | 1,75 | ✅ |
 | P1 | Fondations | 6,25 | 8 | ✅ |
-| P2 | Interactions | 5,25 | 13,25 | |
+| P2 | Interactions | 5,25 | 13,25 | ✅ |
 | P3 | Détail d'alerte | 2,75 | 16 | |
 | P4 | Différenciateurs | 16 | 32 | |
 | P5 | Finition | 7 | 39 | |

@@ -45,7 +45,8 @@
       "risque": "Élevé",
       "date": "2026-05-20",
       "dateFormate": "20/05/2026",
-      "statut": "En cours"
+      "statut": "En cours",
+      "assigneA": "analyste@fraudshield.com"
     },
     {
       "id": "A-2026-0124",
@@ -58,7 +59,8 @@
       "risque": "Élevé",
       "date": "2026-05-20",
       "dateFormate": "20/05/2026",
-      "statut": "En cours"
+      "statut": "En cours",
+      "assigneA": "admin@fraudshield.com"
     },
     {
       "id": "A-2026-0123",
@@ -71,7 +73,8 @@
       "risque": "Moyen",
       "date": "2026-05-19",
       "dateFormate": "19/05/2026",
-      "statut": "À vérifier"
+      "statut": "À vérifier",
+      "assigneA": "superviseur@fraudshield.com"
     },
     {
       "id": "A-2026-0122",
@@ -84,7 +87,8 @@
       "risque": "Élevé",
       "date": "2026-05-19",
       "dateFormate": "19/05/2026",
-      "statut": "En cours"
+      "statut": "En cours",
+      "assigneA": "analyste@fraudshield.com"
     },
     {
       "id": "A-2026-0121",
@@ -97,7 +101,8 @@
       "risque": "Faible",
       "date": "2026-05-18",
       "dateFormate": "18/05/2026",
-      "statut": "Résolu"
+      "statut": "Résolu",
+      "assigneA": "admin@fraudshield.com"
     },
     {
       "id": "A-2026-0120",
@@ -110,7 +115,8 @@
       "risque": "Moyen",
       "date": "2026-05-18",
       "dateFormate": "18/05/2026",
-      "statut": "À vérifier"
+      "statut": "À vérifier",
+      "assigneA": null
     },
     {
       "id": "A-2026-0119",
@@ -123,7 +129,8 @@
       "risque": "Faible",
       "date": "2026-05-17",
       "dateFormate": "17/05/2026",
-      "statut": "Résolu"
+      "statut": "Résolu",
+      "assigneA": null
     },
     {
       "id": "A-2026-0118",
@@ -136,7 +143,8 @@
       "risque": "Moyen",
       "date": "2026-05-17",
       "dateFormate": "17/05/2026",
-      "statut": "En cours"
+      "statut": "En cours",
+      "assigneA": null
     },
     {
       "id": "A-2026-0117",
@@ -149,7 +157,8 @@
       "risque": "Élevé",
       "date": "2026-05-16",
       "dateFormate": "16/05/2026",
-      "statut": "En cours"
+      "statut": "En cours",
+      "assigneA": null
     },
     {
       "id": "A-2026-0116",
@@ -162,7 +171,8 @@
       "risque": "Moyen",
       "date": "2026-05-15",
       "dateFormate": "15/05/2026",
-      "statut": "À vérifier"
+      "statut": "À vérifier",
+      "assigneA": null
     }
   ]
 }

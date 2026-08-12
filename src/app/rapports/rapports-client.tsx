@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef } from "react"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +17,14 @@ import {
   FileSpreadsheet, FilePieChart, RefreshCw,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { exporterAlertes, exporterInvestigations } from "@/lib/exports"
+import { alertesService, investigationsService } from "@/lib/services"
+import {
+  fusionnerAlerte,
+  fusionnerInvestigation,
+  useModificationsStore,
+} from "@/lib/store"
+import { cn } from "@/lib/utils"
 
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -53,18 +62,48 @@ const statColorMap: Record<string, string> = {
   success: "text-emerald-400",
 }
 
+/**
+ * Le catalogue décrit des rapports déjà produits ; aucun fichier n'accompagne ces
+ * fiches, et il n'y a pas de service de rendu à qui les demander. Ce que la
+ * console sait réellement produire tient dans « Génération rapide » (ADR-007).
+ */
+const SANS_FICHIER =
+  "Cette fiche décrit un rapport déjà produit ; le fichier lui-même n'est pas stocké dans la console. Les exports qu'elle sait produire sont dans « Génération rapide », en haut de l'écran."
+
 // ─── Composants utilitaires ───────────────────────────────────────────────────
 function QuickGenerateCard({
-  icon: Icon, label, description, color, format,
+  icon: Icon, label, description, color, format, action, indisponible,
 }: {
   icon: LucideIcon; label: string; description: string; color: string; format: string
+  /** Génération réellement effectuée au clic. Absente, le bouton est désactivé. */
+  action?: () => Promise<void>
+  /** Pourquoi la génération n'est pas possible, affiché en infobulle. */
+  indisponible?: string
 }) {
+  const [enCours, setEnCours] = useState(false)
+  const actif = action !== undefined
+
+  async function declencher() {
+    if (!action) return
+    setEnCours(true)
+    try {
+      await action()
+    } finally {
+      setEnCours(false)
+    }
+  }
+
   return (
-    <Card className="border-border/50 bg-card hover:border-emerald-500/20 transition-colors cursor-pointer group">
+    <Card className={cn(
+      "border-border/50 bg-card transition-colors group",
+      actif && "hover:border-emerald-500/20"
+    )}>
       <CardContent className="p-5">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4
-                        bg-white/5 border border-border/40 group-hover:border-emerald-500/20
-                        transition-colors`}>
+        <div className={cn(
+          "w-10 h-10 rounded-xl flex items-center justify-center mb-4",
+          "bg-white/5 border border-border/40 transition-colors",
+          actif && "group-hover:border-emerald-500/20"
+        )}>
           <Icon size={18} className={color} />
         </div>
         <div className="text-sm font-semibold text-foreground mb-1">{label}</div>
@@ -74,9 +113,14 @@ function QuickGenerateCard({
             {format}
           </Badge>
           <Button size="sm" variant="ghost"
+            onClick={declencher}
+            disabled={!actif || enCours}
+            title={indisponible}
             className="h-7 text-xs text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 gap-1.5">
-            <Plus size={12} />
-            Générer
+            {enCours
+              ? <><RefreshCw size={12} className="animate-spin" /> Génération...</>
+              : <><Plus size={12} /> Générer</>
+            }
           </Button>
         </div>
       </CardContent>
@@ -92,6 +136,22 @@ export function RapportsClient({ data }: { data: RapportsData }) {
   const [categorie,  setCategorie]  = useState("tous")
   const [filtreStatut, setStatut]   = useState("tous")
   const [filtreFormat, setFormat]   = useState("tous")
+  /** Fiche dépliée, une seule à la fois. */
+  const [detaille,   setDetaille]   = useState<string | null>(null)
+
+  /**
+   * « Nouveau rapport » n'ouvre pas de formulaire de création — il n'y a pas de
+   * service à qui soumettre la demande. Il conduit à ce que la console sait
+   * réellement produire, et le signale en soulignant brièvement la section.
+   */
+  const generationRapide = useRef<HTMLDivElement>(null)
+  const [surligne, setSurligne] = useState(false)
+
+  function allerALaGeneration() {
+    generationRapide.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    setSurligne(true)
+    setTimeout(() => setSurligne(false), 1600)
+  }
 
   const rapportsFiltres = useMemo(() => {
     return data.rapports.filter(r => {
@@ -108,6 +168,45 @@ export function RapportsClient({ data }: { data: RapportsData }) {
     })
   }, [recherche, categorie, filtreStatut, filtreFormat, data.rapports])
 
+  /**
+   * Les deux exports lisent les données au clic plutôt que de les recevoir en
+   * props : les charger au rendu ferait payer à chaque visite de l'écran deux
+   * appels dont on ne sait pas s'ils serviront.
+   *
+   * Les modifications locales sont lues hors du rendu (`getState`) : elles ne
+   * doivent pas provoquer de nouveau rendu de cet écran, seulement figurer dans
+   * le fichier produit.
+   */
+  async function exporterLesAlertes() {
+    try {
+      const alertes = await alertesService.getAlertes()
+      const modifications = useModificationsStore.getState().alertes
+      const nomFichier = exporterAlertes(
+        alertes.map((a) => fusionnerAlerte(a, modifications[a.id]))
+      )
+      toast.success(`${alertes.length} alertes exportées`, { description: nomFichier })
+    } catch (erreur) {
+      toast.error("Export des alertes impossible", {
+        description: erreur instanceof Error ? erreur.message : undefined,
+      })
+    }
+  }
+
+  async function exporterLesInvestigations() {
+    try {
+      const investigations = await investigationsService.getInvestigations()
+      const modifications = useModificationsStore.getState().investigations
+      const nomFichier = exporterInvestigations(
+        investigations.map((i) => fusionnerInvestigation(i, modifications[i.id]))
+      )
+      toast.success(`${investigations.length} dossiers exportés`, { description: nomFichier })
+    } catch (erreur) {
+      toast.error("Export des investigations impossible", {
+        description: erreur instanceof Error ? erreur.message : undefined,
+      })
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6 p-6">
 
@@ -120,6 +219,8 @@ export function RapportsClient({ data }: { data: RapportsData }) {
           </p>
         </div>
         <Button size="sm"
+          onClick={allerALaGeneration}
+          title="Conduit à « Génération rapide » : les rapports que cette console sait réellement produire."
           className="gap-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold">
           <Plus size={14} />
           Nouveau rapport
@@ -153,7 +254,13 @@ export function RapportsClient({ data }: { data: RapportsData }) {
       </div>
 
       {/* ── Génération rapide ── */}
-      <div>
+      <div
+        ref={generationRapide}
+        className={cn(
+          "scroll-mt-6 rounded-xl transition-all duration-500",
+          surligne && "ring-2 ring-emerald-500/40 ring-offset-4 ring-offset-background"
+        )}
+      >
         <h2 className="text-sm font-semibold text-foreground mb-3">
           Génération rapide
         </h2>
@@ -164,6 +271,7 @@ export function RapportsClient({ data }: { data: RapportsData }) {
             description="Synthèse complète du mois en cours avec KPIs et alertes"
             color="text-blue-400"
             format="PDF"
+            indisponible="La mise en page d'un PDF suppose un service de rendu côté serveur, hors du périmètre de cette console."
           />
           <QuickGenerateCard
             icon={FilePieChart}
@@ -171,20 +279,23 @@ export function RapportsClient({ data }: { data: RapportsData }) {
             description="Bilan stratégique du trimestre avec tendances et recommandations"
             color="text-purple-400"
             format="PDF"
+            indisponible="La mise en page d'un PDF suppose un service de rendu côté serveur, hors du périmètre de cette console."
           />
           <QuickGenerateCard
             icon={Database}
             label="Export alertes"
-            description="Toutes les alertes de la période au format CSV"
+            description="Toutes les alertes de la console au format CSV, modifications locales comprises"
             color="text-cyan-400"
             format="CSV"
+            action={exporterLesAlertes}
           />
           <QuickGenerateCard
             icon={FileSpreadsheet}
             label="Export investigations"
-            description="Données complètes des investigations au format Excel"
+            description="Tous les dossiers d'investigation au format CSV, ouvrable dans Excel"
             color="text-emerald-400"
-            format="Excel"
+            format="CSV"
+            action={exporterLesInvestigations}
           />
         </div>
       </div>
@@ -260,6 +371,7 @@ export function RapportsClient({ data }: { data: RapportsData }) {
             const statConf   = statutCfg[r.statut]
             const StatIcon   = statConf?.icon
             const isPret     = r.statut === "Prêt"
+            const estDetaille = detaille === r.id
 
             return (
               <Card key={r.id}
@@ -351,11 +463,11 @@ export function RapportsClient({ data }: { data: RapportsData }) {
                           <Button
                             size="sm"
                             variant="outline"
-                            disabled={!isPret}
-                            className={`h-7 text-xs gap-1.5 border-border/50
-                              ${isPret
-                                ? "hover:border-emerald-500/40 hover:text-emerald-400"
-                                : "opacity-40 cursor-not-allowed"}`}
+                            disabled
+                            title={isPret
+                              ? SANS_FICHIER
+                              : "Ce rapport est annoncé en cours de génération : il n'y a rien à télécharger."}
+                            className="h-7 text-xs gap-1.5 border-border/50 opacity-40 cursor-not-allowed"
                           >
                             {isPret
                               ? <><Download size={12} /> Télécharger</>
@@ -363,14 +475,67 @@ export function RapportsClient({ data }: { data: RapportsData }) {
                             }
                           </Button>
 
+                          {/* « Aperçu » laissait attendre le document ; il n'y en a
+                              pas. Le bouton déplie ce que la console connaît
+                              réellement de la fiche, et s'appelle donc « Détails ». */}
                           <Button size="sm" variant="ghost"
+                            onClick={() => setDetaille(v => v === r.id ? null : r.id)}
+                            aria-expanded={estDetaille}
                             className="h-7 text-xs gap-1.5 text-muted-foreground
                                        hover:text-foreground">
                             <Eye size={12} />
-                            Aperçu
+                            Détails
                           </Button>
                         </div>
                       </div>
+
+                      {/* ── Détails de la fiche ── */}
+                      {estDetaille && (
+                        <div className="mt-4 pt-4 border-t border-border/30 flex flex-col gap-3">
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            {r.description}
+                          </p>
+
+                          <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                            {[
+                              { label: "Format",           val: r.format },
+                              { label: "Taille",           val: r.taille },
+                              { label: "Pages",            val: r.pages ? String(r.pages) : "—" },
+                              { label: "Téléchargements",  val: String(r.telechargements) },
+                              { label: "Généré par",       val: r.generePar },
+                              { label: "Généré le",        val: r.dateFormate },
+                              { label: "Catégorie",        val: r.categorie },
+                              { label: "Statut",           val: r.statut },
+                            ].map(d => (
+                              <div key={d.label}
+                                className="bg-white/[0.02] border border-border/30 rounded-lg px-3 py-2">
+                                <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                                  {d.label}
+                                </div>
+                                <div className="text-xs font-semibold text-foreground mt-0.5 truncate">
+                                  {d.val}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {r.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {r.tags.map(tag => (
+                                <span key={tag}
+                                  className="text-[10px] bg-white/5 border border-border/30
+                                             rounded px-1.5 py-0.5 text-muted-foreground">
+                                  #{tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          <p className="text-[11px] text-muted-foreground/70 leading-relaxed">
+                            {SANS_FICHIER}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>

@@ -28,6 +28,13 @@ export const alerteSchema = z.object({
   /** Même date, en JJ/MM/AAAA. */
   dateFormate: z.string(),
   statut: statutAlerteSchema,
+  /**
+   * Adresse de l'analyste en charge, `null` si l'alerte n'est assignée à
+   * personne. Le champ est **obligatoire** dans le contrat : une API qui
+   * l'omettrait laisserait la console incapable de distinguer « personne » de
+   * « information absente ».
+   */
+  assigneA: z.email().nullable(),
 })
 export type Alerte = z.infer<typeof alerteSchema>
 

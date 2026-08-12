@@ -3,6 +3,8 @@ import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
 
+import { COMPTES } from "@/lib/utilisateurs"
+
 // L'import est nécessaire pour que TypeScript accepte d'augmenter le module
 // "next-auth/jwt" plus bas (sans lui : TS2664). Il paraît inutilisé à ESLint,
 // d'où la désactivation ciblée : le retirer casse la compilation.
@@ -38,34 +40,44 @@ declare module "next-auth/jwt" {
  * de bascule que `src/lib/services/dashboard.service.ts` : ce provider est alors
  * remplacé par un appel à `POST /auth/login`.
  *
- * Les mots de passe ne sont jamais stockés en clair, même pour une démonstration :
- * seules les empreintes bcrypt figurent ici. Mot de passe des trois comptes :
- * `Demo1234!` (documenté dans le README — ces comptes ne donnent accès qu'à des
- * données fictives).
+ * Les identités elles-mêmes viennent de `src/lib/utilisateurs.ts`, qui sert aussi
+ * à l'assignation des alertes : une seconde liste de comptes finirait par
+ * diverger de celle-ci. Seules les empreintes bcrypt restent ici — ce fichier
+ * n'est jamais envoyé au navigateur. Les mots de passe ne sont à aucun moment
+ * stockés en clair, même pour une démonstration. Mot de passe des trois
+ * comptes : `Demo1234!` (documenté dans le README — ces comptes ne donnent accès
+ * qu'à des données fictives).
  */
-const DEMO_USERS = [
-  {
-    id: "1",
-    name: "Diallo Admin",
-    email: "admin@fraudshield.com",
-    role: "ADMINISTRATEUR",
-    passwordHash: "$2b$12$0MYDQb4NjKNC1SkGNOkzEuSHtwNlBYu2Yl7OI9Ufqal/iOupMu5KO",
-  },
-  {
-    id: "2",
-    name: "Ndiaye Super",
-    email: "superviseur@fraudshield.com",
-    role: "SUPERVISEUR",
-    passwordHash: "$2b$12$FIM8LhwaEsWSlvENk2zaP.g0zwWdsBxD1YXW9Usd9Nm3J/OrJJyry",
-  },
-  {
-    id: "3",
-    name: "Sow Analyst",
-    email: "analyste@fraudshield.com",
-    role: "ANALYSTE",
-    passwordHash: "$2b$12$nntOX98jHttZa2txOVjj7uIl3JAeV0Jbi4cG8BOJLwi3MGCzYMkuC",
-  },
-] as const
+const EMPREINTES = new Map<string, string>([
+  [
+    "admin@fraudshield.com",
+    "$2b$12$0MYDQb4NjKNC1SkGNOkzEuSHtwNlBYu2Yl7OI9Ufqal/iOupMu5KO",
+  ],
+  [
+    "superviseur@fraudshield.com",
+    "$2b$12$FIM8LhwaEsWSlvENk2zaP.g0zwWdsBxD1YXW9Usd9Nm3J/OrJJyry",
+  ],
+  [
+    "analyste@fraudshield.com",
+    "$2b$12$nntOX98jHttZa2txOVjj7uIl3JAeV0Jbi4cG8BOJLwi3MGCzYMkuC",
+  ],
+])
+
+const DEMO_USERS = COMPTES.map((compte) => {
+  const passwordHash = EMPREINTES.get(compte.email)
+  // Un compte sans empreinte est une erreur de programmation : mieux vaut
+  // refuser de démarrer que laisser une identité sans moyen de connexion.
+  if (!passwordHash) {
+    throw new Error(`Aucune empreinte de mot de passe pour ${compte.email}`)
+  }
+  return {
+    id: compte.id,
+    name: compte.nom,
+    email: compte.email,
+    role: compte.role,
+    passwordHash,
+  }
+})
 
 const credentialsSchema = z.object({
   email: z.email(),

@@ -16,7 +16,13 @@ export const investigationSchema = z.object({
   id: z.string(),
   titre: z.string(),
   priorite: prioriteSchema,
-  assigne: z.string(),
+  /**
+   * Adresse du compte en charge, comme `assigneA` sur les alertes. Le jeu de
+   * données portait ici des noms libres (« Agent Sall »), sans rapport avec les
+   * comptes de la console : le dossier ne pouvait donc pas être réassigné.
+   * Contrairement à l'alerte, un dossier est toujours assigné à quelqu'un.
+   */
+  assigne: z.email(),
   dateOuverture: dateISOSchema,
   dateMaj: dateISOSchema,
   statut: statutInvestigationSchema,

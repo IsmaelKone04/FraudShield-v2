@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import { HydratationModifications } from "@/components/hydratation-modifications";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -39,6 +40,11 @@ export default function RootLayout({
       style={{ colorScheme: "dark" }}
     >
       <body className="bg-background text-foreground antialiased font-sans">
+        {/*
+          Restitue les modifications de la session précédente une fois le
+          navigateur en main. Ne rend rien — voir le commentaire du composant.
+        */}
+        <HydratationModifications />
         {children}
         {/*
           Point de sortie des notifications. Le composant existait déjà mais

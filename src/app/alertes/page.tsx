@@ -1,4 +1,5 @@
-import { alertesService, dashboardService } from "@/lib/services"
+import { auth } from "@/auth"
+import { alertesService, dashboardService, parametresService } from "@/lib/services"
 import { AlertesClient } from "./alertes-client"
 
 export const metadata = { title: "Alertes" }
@@ -10,11 +11,25 @@ export const metadata = { title: "Alertes" }
  * services.
  */
 export default async function AlertesPage() {
-  const [alertes, stats, alertesTrend] = await Promise.all([
+  const [session, alertes, stats, alertesTrend, parametres] = await Promise.all([
+    auth(),
     alertesService.getAlertes(),
     alertesService.getStats(),
     dashboardService.getAlertesTrend(),
+    parametresService.getParametresSysteme(),
   ])
 
-  return <AlertesClient alertes={alertes} stats={stats} alertesTrend={alertesTrend} />
+  return (
+    <AlertesClient
+      alertes={alertes}
+      stats={stats}
+      alertesTrend={alertesTrend}
+      // Valeur de référence du seuil : un réglage enregistré dans le navigateur
+      // la recouvre côté client.
+      seuilParDefaut={parametres.seuilAlerteIA}
+      // Sert au filtre « Mes dossiers ». La session est lue ici plutôt que côté
+      // client : cela évite de monter un `SessionProvider` pour une seule adresse.
+      utilisateur={session?.user?.email ?? null}
+    />
+  )
 }

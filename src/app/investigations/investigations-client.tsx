@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,9 +13,19 @@ import { Card, CardContent } from "@/components/ui/card"
 import {
   Search, Plus, ChevronDown, ChevronRight,
   AlertTriangle, Clock, Eye, CheckCircle,
-  User, Calendar, FileText, Building2,
+  User, Calendar, FileText, Building2, RotateCcw, Undo2,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { SelecteurAssignation } from "@/components/selecteur-assignation"
+import { USE_MOCK } from "@/lib/api/client"
+import type { StatutInvestigation } from "@/lib/schemas/investigations.schema"
+import {
+  useInvestigationsAvecModifications,
+  useModificationsStore,
+  useNombreModifications,
+} from "@/lib/store"
+import { appliquerEcartStatuts, CARTES_INVESTIGATIONS } from "@/lib/stats-statuts"
+import { nomDuCompte } from "@/lib/utilisateurs"
 
 
 // ─── Config badges ────────────────────────────────────────────────────────────
@@ -45,6 +56,17 @@ const statColorMap: Record<string, string> = {
   success: "text-emerald-400",
 }
 
+/**
+ * Le contrat d'un dossier ne porte ni notes ni création : ces deux boutons ne
+ * peuvent rien faire tant que l'API de détection n'expose pas de quoi les servir.
+ * Ils restent visibles — ils décrivent le dossier tel qu'il sera instruit — mais
+ * inertes, et le disent (voir ADR-009).
+ */
+const SANS_NOTES =
+  "Le contrat de données d'un dossier ne comporte pas de journal de notes : il n'y a nulle part où l'écrire."
+const SANS_CREATION =
+  "Ouvrir un dossier suppose une écriture côté service de détection. La console n'en crée pas : elle instruit ceux qu'elle reçoit."
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 import type { InvestigationsData } from "@/lib/schemas/investigations.schema"
 
@@ -57,18 +79,60 @@ export function InvestigationsClient({ data }: { data: InvestigationsData }) {
   const toggle = (id: string) =>
     setExpanded(prev => prev === id ? null : id)
 
+  // Les dossiers du serveur, augmentés des changements de l'utilisateur.
+  const investigations = useInvestigationsAvecModifications(data.investigations)
+  const changerStatut  = useModificationsStore(etat => etat.changerStatutInvestigation)
+  const nombreModifs   = useNombreModifications()
+  const reinitialiser  = useModificationsStore(etat => etat.reinitialiser)
+
+  // Les cartes décrivent 24 dossiers ouverts depuis janvier, la liste n'en montre
+  // que six : on reporte l'écart plutôt que de recompter (`lib/stats-statuts.ts`).
+  const statsAJour = useMemo(
+    () => appliquerEcartStatuts(
+      data.stats, data.investigations, investigations, CARTES_INVESTIGATIONS
+    ),
+    [data.stats, data.investigations, investigations]
+  )
+
   const filtrees = useMemo(() => {
-    return data.investigations.filter(inv => {
+    return investigations.filter(inv => {
+      const q = recherche.toLowerCase()
       const matchRecherche =
         recherche === "" ||
-        inv.id.toLowerCase().includes(recherche.toLowerCase()) ||
-        inv.titre.toLowerCase().includes(recherche.toLowerCase()) ||
-        inv.assigne.toLowerCase().includes(recherche.toLowerCase())
+        inv.id.toLowerCase().includes(q) ||
+        inv.titre.toLowerCase().includes(q) ||
+        // Le champ porte une adresse ; la recherche doit trouver le nom affiché.
+        nomDuCompte(inv.assigne).toLowerCase().includes(q) ||
+        inv.assigne.toLowerCase().includes(q)
       const matchPriorite = filtrePriorite === "tous" || inv.priorite === filtrePriorite
       const matchStatut   = filtreStatut   === "tous" || inv.statut   === filtreStatut
       return matchRecherche && matchPriorite && matchStatut
     })
-  }, [recherche, filtrePriorite, filtreStatut, data.investigations])
+  }, [recherche, filtrePriorite, filtreStatut, investigations])
+
+  /**
+   * Clôture un dossier, ou le rouvre. Même contrat optimiste que les alertes : le
+   * changement s'affiche aussitôt et revient en arrière si l'envoi échoue.
+   */
+  async function basculerCloture(id: string, statut: StatutInvestigation) {
+    const cible: StatutInvestigation =
+      statut === "Clôturée" ? "En cours" : "Clôturée"
+    try {
+      await changerStatut(id, cible)
+      toast.success(`${id} — dossier ${cible === "Clôturée" ? "clôturé" : "rouvert"}`, {
+        description: USE_MOCK
+          ? "Enregistré dans ce navigateur uniquement (mode démonstration)."
+          : undefined,
+      })
+    } catch (erreur) {
+      toast.error(`${id} — changement de statut refusé`, {
+        description:
+          erreur instanceof Error
+            ? erreur.message
+            : "Le statut précédent a été rétabli.",
+      })
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -81,15 +145,40 @@ export function InvestigationsClient({ data }: { data: InvestigationsData }) {
             Gestion des enquêtes de fraude en cours
           </p>
         </div>
-        <Button size="sm" className="gap-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold">
+        <Button
+          size="sm"
+          disabled
+          title={SANS_CREATION}
+          className="gap-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold"
+        >
           <Plus size={14} />
           Nouvelle investigation
         </Button>
       </div>
 
+      {/* ── Modifications non transmises ── */}
+      {nombreModifs > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-blue-500/20 bg-blue-500/[0.06] px-4 py-2.5">
+          <span className="text-xs text-blue-300">
+            {nombreModifs} modification{nombreModifs > 1 ? "s" : ""} enregistrée
+            {nombreModifs > 1 ? "s" : ""} dans ce navigateur. En l'absence d'API de
+            détection, elles ne sont transmises à aucun serveur.
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={reinitialiser}
+            className="ml-auto h-7 gap-1.5 text-xs text-blue-300 hover:text-blue-200"
+          >
+            <RotateCcw size={12} />
+            Repartir du jeu d&apos;origine
+          </Button>
+        </div>
+      )}
+
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {data.stats.map(stat => {
+        {statsAJour.map(stat => {
           const Icon  = statIconMap[stat.id]
           const color = statColorMap[stat.color] || statColorMap.default
           return (
@@ -203,6 +292,13 @@ export function InvestigationsClient({ data }: { data: InvestigationsData }) {
                           {StatutIcon && <StatutIcon size={10} />}
                           {inv.statut}
                         </Badge>
+                        {inv.estModifiee && (
+                          <Badge variant="outline"
+                            title="Modifié dans ce navigateur, transmis à aucun serveur."
+                            className="text-[10px] bg-blue-500/10 text-blue-300 border-blue-500/20">
+                            Modifié localement
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm font-semibold text-foreground truncate">
                         {inv.titre}
@@ -221,7 +317,7 @@ export function InvestigationsClient({ data }: { data: InvestigationsData }) {
                       </div>
                       <div className="text-right hidden lg:block">
                         <div className="text-xs text-foreground font-medium">
-                          {inv.assigne}
+                          {nomDuCompte(inv.assigne)}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           Màj {inv.dateMaj.slice(5).split("-").reverse().join("/")}
@@ -245,8 +341,28 @@ export function InvestigationsClient({ data }: { data: InvestigationsData }) {
 
                       {/* Détails en grille */}
                       <div className="grid grid-cols-2 gap-3 mb-5 lg:grid-cols-4">
+                        {/* Le seul champ modifiable de cette grille : il porte son
+                            propre contrôle plutôt qu'un texte figé. */}
+                        <div
+                          className="bg-white/[0.02] border border-border/30 rounded-lg p-3
+                                     flex items-center gap-3"
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <User size={14} className="text-muted-foreground shrink-0" />
+                          <div className="min-w-0">
+                            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                              Assigné à
+                            </div>
+                            <SelecteurAssignation
+                              id={inv.id}
+                              assigneA={inv.assigne}
+                              cible="investigation"
+                              className="-ml-2 h-6 text-xs font-semibold"
+                            />
+                          </div>
+                        </div>
+
                         {[
-                          { icon: User,      label: "Assigné à",     val: inv.assigne                           },
                           { icon: Calendar,  label: "Ouvert le",      val: inv.dateOuverture.split("-").reverse().join("/") },
                           { icon: AlertTriangle, label: "Cas liés",   val: `${inv.casLies} alertes`             },
                           { icon: FileText,  label: "Montant total",  val: inv.montantTotal                     },
@@ -306,22 +422,32 @@ export function InvestigationsClient({ data }: { data: InvestigationsData }) {
                         </div>
                       </div>
 
-                      {/* Actions */}
-                      <div className="flex gap-2 flex-wrap">
-                        <Button size="sm"
-                          className="gap-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold text-xs">
-                          <FileText size={13} />
-                          Ouvrir le dossier
+                      {/* Actions — hors du repli/dépli de la carte */}
+                      <div
+                        className="flex gap-2 flex-wrap"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        {/* « Ouvrir le dossier » a été retiré : c'est exactement ce
+                            que fait le clic sur la carte, et il n'existe pas d'écran
+                            de détail à ouvrir par ailleurs. */}
+                        <Button
+                          size="sm"
+                          onClick={() => basculerCloture(inv.id, inv.statut)}
+                          className={inv.statut === "Clôturée"
+                            ? "gap-2 text-xs bg-white/5 hover:bg-white/10 text-foreground border border-border/50"
+                            : "gap-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold text-xs"}
+                        >
+                          {inv.statut === "Clôturée"
+                            ? <><Undo2 size={13} /> Rouvrir le dossier</>
+                            : <><CheckCircle size={13} /> Clôturer</>
+                          }
                         </Button>
                         <Button size="sm" variant="outline"
+                          disabled
+                          title={SANS_NOTES}
                           className="gap-2 text-xs border-border/50">
                           <Plus size={13} />
                           Ajouter une note
-                        </Button>
-                        <Button size="sm" variant="outline"
-                          className="gap-2 text-xs border-border/50 text-muted-foreground">
-                          <CheckCircle size={13} />
-                          Clôturer
                         </Button>
                       </div>
                     </div>

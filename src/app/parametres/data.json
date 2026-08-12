@@ -2,63 +2,33 @@
   "utilisateurs": [
     {
       "id": "USR-001",
-      "nom": "Admin Diallo",
-      "email": "admin@fraudshield.sn",
+      "nom": "Diallo Admin",
+      "email": "admin@fraudshield.com",
       "role": "Administrateur",
       "statut": "Actif",
       "derniereCo": "20/05/2026 à 09:14",
-      "initiales": "AD",
+      "initiales": "DA",
       "color": "bg-emerald-500"
     },
     {
       "id": "USR-002",
-      "nom": "Ibou Sall",
-      "email": "isall@fraudshield.sn",
+      "nom": "Ndiaye Super",
+      "email": "superviseur@fraudshield.com",
       "role": "Superviseur",
       "statut": "Actif",
       "derniereCo": "20/05/2026 à 08:52",
-      "initiales": "IS",
+      "initiales": "NS",
       "color": "bg-blue-500"
     },
     {
       "id": "USR-003",
-      "nom": "Fatou Diop",
-      "email": "fdiop@fraudshield.sn",
+      "nom": "Sow Analyst",
+      "email": "analyste@fraudshield.com",
       "role": "Agent d'analyse",
       "statut": "Actif",
       "derniereCo": "19/05/2026 à 17:30",
-      "initiales": "FD",
+      "initiales": "SA",
       "color": "bg-purple-500"
-    },
-    {
-      "id": "USR-004",
-      "nom": "Moussa Niang",
-      "email": "mniang@fraudshield.sn",
-      "role": "Agent d'analyse",
-      "statut": "Actif",
-      "derniereCo": "19/05/2026 à 15:45",
-      "initiales": "MN",
-      "color": "bg-orange-500"
-    },
-    {
-      "id": "USR-005",
-      "nom": "Aminata Ba",
-      "email": "aba@fraudshield.sn",
-      "role": "Agent d'analyse",
-      "statut": "Inactif",
-      "derniereCo": "10/05/2026 à 11:20",
-      "initiales": "AB",
-      "color": "bg-slate-500"
-    },
-    {
-      "id": "USR-006",
-      "nom": "Cheikh Camara",
-      "email": "ccamara@fraudshield.sn",
-      "role": "Superviseur",
-      "statut": "Actif",
-      "derniereCo": "20/05/2026 à 10:05",
-      "initiales": "CC",
-      "color": "bg-cyan-500"
     }
   ],
   "modeles": [
