@@ -9,6 +9,7 @@ import {
   BarChart3,
   Search,
   FileText,
+  Gauge,
   Settings,
   Shield,
   Activity,
@@ -52,6 +53,12 @@ const navItems = [
         href: "/analyses",
         icon: BarChart3,
         description: "Performance IA",
+      },
+      {
+        title: "Qualité du modèle",
+        href: "/qualite",
+        icon: Gauge,
+        description: "Faux positifs & dérive",
       },
       {
         title: "Investigations",
@@ -143,7 +150,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <Link href={item.href} className="flex items-center w-full gap-2" />
                       }
                       isActive={isActive}
-                      tooltip={item.title}
+                      // Chaque entrée portait une `description` que rien
+                      // n'affichait. Elle sert ici d'infobulle en mode replié,
+                      // où le libellé seul disparaît — plutôt que de rester un
+                      // champ mort que la prochaine entrée recopierait.
+                      tooltip={`${item.title} — ${item.description}`}
                       className={`group/item transition-all duration-150 ${
                         isActive
                           ? "bg-emerald-500/10! text-emerald-400! border border-emerald-500/25!"

@@ -20,8 +20,13 @@ import { parametresSystemeSchema } from "./parametres.schema"
  *
  * À incrémenter dès que la forme d'une modification change : `zustand/persist`
  * écarte alors le contenu devenu illisible au lieu de le fusionner de travers.
+ *
+ * Passé à 2 quand le classement sans suite a exigé une cause : un classement
+ * enregistré avant, dépourvu de cause, ne satisfait plus le contrat. Plutôt que
+ * de laisser la validation jeter l'intégralité du contenu local, une migration
+ * défait ces décisions-là et conserve tout le reste (voir `modifications.store`).
  */
-export const VERSION_STOCKAGE = 1
+export const VERSION_STOCKAGE = 2
 
 /** Horodatage de la modification, pour l'afficher et pour départager plus tard. */
 const modifieLeSchema = z.iso.datetime()
@@ -30,10 +35,7 @@ const modifieLeSchema = z.iso.datetime()
  * Ce qu'un analyste peut conclure d'un dossier.
  *
  * Trois issues, et elles ne se recouvrent pas : la fraude est établie, elle ne
- * l'est pas, ou l'instruction ne peut pas se poursuivre en l'état. La phase 4
- * affinera « classée sans suite » en causes typées (seuil trop bas, contexte
- * médical légitime, doublon administratif) — c'est de cette qualification que
- * vivra le registre des faux positifs.
+ * l'est pas, ou l'instruction ne peut pas se poursuivre en l'état.
  */
 export const TYPES_DECISION = [
   "fraude_confirmee",
@@ -43,25 +45,76 @@ export const TYPES_DECISION = [
 export const typeDecisionSchema = z.enum(TYPES_DECISION)
 export type TypeDecision = z.infer<typeof typeDecisionSchema>
 
-export const decisionSchema = z.object({
-  type: typeDecisionSchema,
-  /**
-   * Obligatoire : une décision sans motif n'est pas opposable à
-   * l'établissement mis en cause, et ne vaut rien dans un contentieux.
-   */
-  motif: z.string().trim().min(1).max(1000),
-  /** Adresse du compte qui décide — le « qui » de la piste d'audit. */
-  acteur: z.email(),
-  horodatage: modifieLeSchema,
-  /**
-   * Statut du dossier juste avant la décision.
-   *
-   * Conservé pour deux raisons : revenir sur une décision doit rendre au
-   * dossier son état antérieur plutôt qu'un état deviné, et la piste d'audit
-   * de la phase 4 attend précisément un avant/après.
-   */
-  statutAnterieur: statutAlerteSchema,
-})
+/**
+ * Pourquoi l'alerte ne tenait pas.
+ *
+ * Un classement sans suite non qualifié ne compte pour rien : il disparaît dans
+ * un statut, et le modèle qui l'a produit continue de produire le même. C'est
+ * cette liste — et elle seule — qui alimente le registre des faux positifs.
+ *
+ * Les causes ne se valent pas. Certaines se corrigent en réglant le modèle,
+ * d'autres non : un doublon transmis deux fois par l'établissement est une
+ * anomalie réelle que le modèle a eu raison de relever. Les additionner dans un
+ * même « taux de faux positifs » produirait un chiffre qu'on ne saurait pas
+ * quoi corriger — d'où la distinction portée par `lib/decisions.ts`.
+ */
+export const CAUSES_FAUX_POSITIF = [
+  "seuil_trop_bas",
+  "contexte_medical",
+  "doublon_administratif",
+  "donnee_reference_erronee",
+  "regularisation_anterieure",
+] as const
+export const causeFauxPositifSchema = z.enum(CAUSES_FAUX_POSITIF)
+export type CauseFauxPositif = z.infer<typeof causeFauxPositifSchema>
+
+export const decisionSchema = z
+  .object({
+    type: typeDecisionSchema,
+    /**
+     * Obligatoire : une décision sans motif n'est pas opposable à
+     * l'établissement mis en cause, et ne vaut rien dans un contentieux.
+     */
+    motif: z.string().trim().min(1).max(1000),
+    /**
+     * Cause du faux positif — présente si et seulement si le dossier est classé
+     * sans suite. Le contrôle est plus bas : c'est une règle entre deux champs,
+     * qu'aucun des deux ne peut porter seul.
+     */
+    cause: causeFauxPositifSchema.optional(),
+    /** Adresse du compte qui décide — le « qui » de la piste d'audit. */
+    acteur: z.email(),
+    horodatage: modifieLeSchema,
+    /**
+     * Statut du dossier juste avant la décision.
+     *
+     * Conservé pour deux raisons : revenir sur une décision doit rendre au
+     * dossier son état antérieur plutôt qu'un état deviné, et la piste d'audit
+     * de la phase 4 attend précisément un avant/après.
+     */
+    statutAnterieur: statutAlerteSchema,
+  })
+  .superRefine((decision, ctx) => {
+    const doitEtreQualifiee = decision.type === "classee_sans_suite"
+
+    if (doitEtreQualifiee && decision.cause === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["cause"],
+        message:
+          "Un classement sans suite doit être qualifié : sans cause, il ne " +
+          "compte pour rien dans le registre des faux positifs.",
+      })
+    }
+    if (!doitEtreQualifiee && decision.cause !== undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["cause"],
+        message:
+          "Seul un classement sans suite porte une cause de faux positif.",
+      })
+    }
+  })
 export type Decision = z.infer<typeof decisionSchema>
 
 /** Un commentaire interne porté au dossier. */

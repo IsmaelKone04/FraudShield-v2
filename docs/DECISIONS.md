@@ -524,3 +524,139 @@ dialogue d'impression — cela ne se pilote pas depuis la page. Et le fichier
 n'est pas produit sans intervention : il n'y a pas d'« envoyer la note par
 courriel » automatisé. Le jour où un envoi automatique est demandé, c'est un
 rendu côté serveur qu'il faudra, et l'arbitrage sera à refaire.
+
+---
+
+## ADR-017 — Un classement sans suite non qualifié ne compte pour rien
+
+**Contexte.** La barre de décision de la phase 3 refermait un dossier avec un
+motif libre. Un motif libre ne s'agrège pas : cinquante clôtures produisent
+cinquante phrases, et le modèle qui a produit ces cinquante fausses alertes
+continue de produire les mêmes. C'est exactement ainsi qu'un faux positif
+disparaît dans un statut.
+
+**Décision : la cause est typée, et obligatoire — mais seulement là où elle a
+un sens.** Un classement sans suite porte une cause parmi cinq ; une fraude
+confirmée ou une demande de pièce n'en porte aucune. La règle est écrite dans le
+contrat (`decisionSchema`), pas dans l'écran : elle vaut donc aussi pour ce que
+le navigateur a enregistré hier et pour ce que l'API renverra demain. C'est une
+règle **entre deux champs**, qu'aucun des deux ne peut porter seul — un
+`superRefine` la tient, là où les contrôles croisés des ADR-010, ADR-011 et
+ADR-014 devaient vivre dans le service parce qu'ils portaient sur deux
+collections différentes.
+
+**Les causes ne se valent pas, et le champ qui le dit est le plus important.**
+`imputableAuModele` sépare ce qui se corrige en reprenant le modèle (seuil trop
+bas, contexte médical absent des variables) de ce qui se corrige ailleurs
+(doublon transmis deux fois par l'établissement, tarif de référence erroné,
+régularisation déjà intervenue). Un taux de faux positifs qui mélange les deux
+ne se corrige nulle part : il réclamerait un réentraînement pour un problème de
+saisie. Toute la mesure de D2 repose sur cette distinction.
+
+**Le contenu déjà enregistré est repris, pas jeté.** Un classement sans suite
+écrit avant ce changement ne porte pas de cause et ne satisfait plus le contrat.
+La validation d'entrée du store (ADR-002) aurait alors écarté **tout** le
+contenu local — statuts, assignations et notes compris — pour un champ manquant
+sur un seul dossier. `VERSION_STOCKAGE` passe donc à 2 et une migration défait
+ces décisions-là et rien d'autre, exactement comme le ferait « Revenir sur la
+décision » : le dossier retrouve son statut antérieur. Ce qui ne peut plus être
+représenté est annulé, jamais complété d'une cause qu'aucun analyste n'a
+choisie.
+
+**Ce que ça coûte.** Une clôture demande un clic de plus, et l'écran refuse
+d'enregistrer tant qu'il n'a pas été fait. C'est le prix de la seule chose qui
+rende le registre exploitable — et l'infobulle du bouton dit lequel des deux
+champs manque, plutôt que de laisser un bouton grisé sans explication.
+
+---
+
+## ADR-018 — La qualité se calcule à partir de comptages, et la boucle se referme à l'écran
+
+**Contexte.** Mesurer un détecteur, ce n'est pas mesurer la fraude. L'écran des
+analyses compte les cas suspects ; celui-ci juge ce que valaient les alertes une
+fois les dossiers refermés. Il fallait décider ce que le serveur envoie.
+
+**Décision : des comptages, jamais des taux.** Le contrat ne porte que des
+nombres de dossiers — clos, confirmés, écartés, non concluants, répartis par
+cause. Précision, rappel et taux de faux positifs se calculent dans
+`lib/qualite.ts`, à partir d'eux. Un taux servi tout fait ne se recoupe avec
+rien : c'est ainsi qu'un tableau de bord finit par afficher une précision qui ne
+correspond à aucune ligne du tableau juste en dessous. Ici, tout chiffre affiché
+se retrouve à la main depuis le tableau.
+
+**Le dénominateur est les dossiers *tranchés*, pas les dossiers clos.** Un
+dossier refermé sans conclusion n'est ni une réussite ni un échec du modèle. Le
+compter ferait baisser la précision à chaque dossier abandonné faute de pièces,
+ce qui n'apprend rien sur le détecteur.
+
+**Un taux absent s'écrit « — », jamais « 0 % ».** Un mois sans dossier tranché
+n'a pas une précision nulle : il n'en a pas. Les fonctions renvoient `null`, et
+la courbe laisse un trou plutôt que de plonger sans qu'il ne se soit rien passé.
+
+**Le rappel est estimé, et l'écran le dit à côté du chiffre.** On ne connaît pas
+les fraudes qu'on n'a pas signalées ; elles ne se mesurent que par sondage. Le
+jeu porte donc `manquesEstimes` **et** `baseEstimation` — « Sondage manuel sur
+500 demandes tirées au hasard en mai 2026 » — et le second est affiché sous le
+premier. Un rappel sans sa base d'estimation est un chiffre qu'on ne peut ni
+contester ni reproduire.
+
+**Deux contrôles, parce que le schéma ne peut rien en dire.** Chaque case est
+valide isolément et pourtant les trois issues peuvent ne pas redonner le nombre
+de dossiers clos, et la répartition par cause ne pas redonner le nombre de faux
+positifs. Le service refuse alors le jeu. Vérifié en le provoquant, sur les
+trois règles — dont *« Décembre 2025, Acte incohérent : 10 faux positifs
+répartis par cause pour 9 constatés »*. Une mesure fausse est pire qu'une mesure
+absente : on décide dessus. Un troisième contrôle refuse qu'un type de fraude
+soit mesuré sans seuil de dérive — là, c'est le silence qui serait dangereux.
+
+**La boucle se referme à l'écran.** Les décisions prises dans cette console
+entrent dans la mesure : classer un dossier sans suite déplace le registre et la
+courbe du mois. Sans cela, la qualification exigée à la clôture n'irait nulle
+part et cet écran ne serait qu'un tableau de plus. `piece_demandee` n'entre dans
+aucun compte — le dossier reste ouvert, il n'a rien tranché.
+
+**Conséquence assumée.** Ces décisions sont rattachées au dernier mois observé
+(mai 2026) et non au mois réel : le jeu de démonstration s'y arrête, et ouvrir
+un mois vide entre les deux ferait plonger toutes les courbes pour une raison
+qui n'a rien à voir avec le modèle. L'écran l'écrit, en toutes lettres, dès
+qu'une décision locale est comptée. Le tableau de bord, lui, ne les compte pas :
+il est rendu côté serveur, et les y mêler imposerait de le passer côté client
+pour un bandeau.
+
+---
+
+## ADR-019 — La dérive ne se signale que sur ce qui se corrige, et seulement quand elle porte
+
+**Contexte.** P4-9 demande un bandeau quand le taux de faux positifs d'un type
+de fraude dépasse son seuil. Trois façons de rater cet objet : crier pour du
+bruit qui ne regarde pas le modèle, crier sur trois dossiers, ou rester affiché
+en permanence jusqu'à ce que plus personne ne le lise.
+
+**Seuls les faux positifs imputables au modèle comptent.** Réclamer un
+réentraînement parce qu'un établissement a transmis deux fois la même demande
+n'aurait aucun sens : cette alerte-là était juste. Le taux qui déclenche le
+bandeau ne retient donc que les causes marquées `imputableAuModele` (ADR-017).
+L'écran affiche les deux — le taux brut et sa part corrigeable — parce que le
+premier intéresse le gestionnaire et le second l'équipe qui reprend le modèle.
+
+**Le seuil est propre à chaque type de fraude.** Un seuil unique ferait crier
+« Acte incohérent », dont la cohérence demande un avis médical que le moteur n'a
+pas, et dormir « Usurpation identité », dont le rapprochement est déterministe.
+Chaque seuil porte sa justification dans le jeu de données, et le bandeau
+l'affiche : sans elle, l'analyste n'a aucun moyen de juger s'il faut reprendre
+le modèle ou relever le seuil.
+
+**En deçà de dix dossiers tranchés, rien n'est signalé.** Deux dossiers écartés
+sur trois font 67 %, et ne disent rien. Le bandeau indique d'ailleurs toujours
+le nombre de dossiers sur lequel il se fonde.
+
+**Le bandeau ne s'affiche que lorsqu'il a quelque chose à dire.** Pas de version
+verte « tout va bien » : un bandeau permanent finit par ne plus être lu, et le
+jour où il vire au rouge personne ne le voit. Il est rendu côté serveur, sur le
+tableau de bord — là où l'analyste arrive — et sur l'écran de qualité, où il est
+suivi du registre qui permet d'agir.
+
+**Limite.** La dérive est mesurée sur le dernier mois observé, pas sur une
+fenêtre glissante de trente jours : le jeu est mensuel. Avec des dates de
+clôture réelles, la même fonction prendrait une fenêtre en paramètre — c'est le
+seuil et l'imputabilité qui font la décision, pas le découpage du calendrier.

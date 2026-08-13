@@ -4,6 +4,91 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 4 — Les différenciateurs · D2 — Boucle de rétroaction analyste → modèle
+
+Ailleurs, une alerte écartée disparaît dans un statut « clos », et le modèle qui l'a
+produite continue d'en produire de semblables. Ici, elle devient une mesure.
+
+### Ajouté
+
+- **La qualification obligatoire à la clôture.** Classer un dossier sans suite exige
+  désormais une cause parmi cinq ; le motif rédigé reste, mais il ne s'agrège pas — c'est
+  la cause qui remonte au registre. La règle est portée par le contrat, pas par l'écran :
+  une décision qualifiée là où elle ne doit pas l'être est refusée tout autant qu'une
+  décision qui ne l'est pas.
+- **La distinction qui donne sa valeur au registre** : chaque cause dit *où* elle se
+  corrige. « Seuil trop bas » et « contexte médical légitime » se règlent dans le modèle ;
+  « doublon administratif », « donnée de référence erronée » et « régularisation déjà
+  intervenue » se règlent ailleurs. Un taux de faux positifs qui mélange les deux
+  réclamerait un réentraînement pour un problème de saisie.
+- **`/qualite`**, l'écran qui juge le détecteur et non la fraude : précision, rappel
+  estimé et taux de faux positifs sur six mois, la courbe par mois, le tableau par type de
+  fraude avec son seuil, le registre des causes en deux blocs, et les établissements dont
+  les alertes finissent le plus souvent écartées.
+- **Le bandeau de dérive** : *« Le modèle décroche sur Double facturation — 32,4 % de faux
+  positifs imputables au modèle sur Mai 2026, pour un seuil de 25 % (71 dossiers
+  tranchés) »*, suivi de la justification du seuil. Affiché sur le tableau de bord, là où
+  l'analyste arrive, et sur l'écran de qualité, où il est suivi de quoi agir.
+- **La boucle, refermée à l'écran** : une décision prise dans la console entre dans la
+  mesure. Classer un dossier sans suite déplace le registre et la courbe du mois ; une
+  demande de pièce ne compte rien, puisqu'elle ne referme rien.
+- **Trois contrôles de cohérence** dans le service : les trois issues doivent redonner le
+  nombre de dossiers clos, la répartition par cause le nombre de faux positifs, et aucun
+  type de fraude ne peut être mesuré sans seuil de dérive. Prouvés en les provoquant tous
+  les trois — dont *« Décembre 2025, Acte incohérent : 10 faux positifs répartis par cause
+  pour 9 constatés »*.
+- **Le jeu de mesure** : trente-six cases (six mois × six types de fraude), écrites par
+  script comme en D1.
+
+### Modifié
+
+- Le format du contenu enregistré dans le navigateur passe à la **version 2**, avec une
+  migration. Un classement sans suite écrit avant ce changement ne porte pas de cause :
+  sans reprise, la validation d'entrée aurait écarté *tout* le contenu local — statuts,
+  assignations et notes compris — pour un champ manquant sur un seul dossier. La migration
+  défait ces décisions-là et rien d'autre, exactement comme « Revenir sur la décision ».
+- La chronologie du dossier consigne la cause avec la décision : « Décision : classée sans
+  suite (doublon administratif) ».
+- `lib/formats.ts` gagne `pourcentage()`, qui écrit « — » plutôt que « 0 % » quand il n'y
+  a rien à mesurer.
+- La barre latérale porte une entrée « Qualité du modèle ». Au passage, le champ
+  `description` que chaque entrée portait sans que rien ne l'affiche sert enfin
+  d'infobulle en mode replié.
+
+### Arbitrages
+
+| Décision | Pourquoi |
+|---|---|
+| Cause obligatoire, et seulement sur le classement sans suite | Un faux positif non qualifié ne compte pour rien ; une fraude confirmée « causée » serait un état impossible ([ADR-017](docs/DECISIONS.md)) |
+| Le contrat ne porte que des comptages, jamais des taux | Un taux servi tout fait ne se recoupe avec rien — c'est ainsi qu'un en-tête finit par contredire le tableau qu'il surmonte ([ADR-018](docs/DECISIONS.md)) |
+| Les dossiers non concluants sont hors du dénominateur | Ni réussite ni échec du modèle : les compter ferait baisser la précision à chaque dossier abandonné faute de pièces |
+| Un taux absent s'écrit « — », pas « 0 % » | Un mois sans dossier tranché n'a pas une précision nulle : il n'en a pas |
+| Le rappel est affiché avec sa base de sondage | On ne mesure pas les fraudes qu'on n'a pas signalées ; un rappel sans sa base ne se conteste pas |
+| La dérive ne compte que les causes imputables au modèle | Réclamer un réentraînement parce qu'un établissement a transmis deux fois la même demande n'aurait aucun sens ([ADR-019](docs/DECISIONS.md)) |
+| Un seuil par type de fraude, et rien sous dix dossiers tranchés | Un seuil unique ferait crier « Acte incohérent » et dormir « Usurpation identité » ; deux dossiers sur trois font 67 % et ne disent rien |
+| Pas de bandeau « tout va bien » | Un bandeau permanent finit par ne plus être lu, et le jour où il vire au rouge personne ne le voit |
+
+### Dette laissée sciemment
+
+- La dérive est mesurée sur le dernier mois observé, pas sur une fenêtre glissante de
+  trente jours : le jeu est mensuel.
+- Les décisions de la console sont rattachées à mai 2026, dernier mois du jeu, plutôt qu'au
+  mois réel — ouvrir un mois vide ferait plonger les courbes sans raison. L'écran le dit.
+- Le bandeau du tableau de bord ne compte pas les décisions locales : il est rendu côté
+  serveur.
+- « Non concluant » n'existe pas comme décision : les trois issues de la console restent
+  celles de la phase 3. Le jeu observé en porte, la console n'en produit pas.
+
+### Vérifié
+
+`typecheck` et `build` sans erreur (14 routes, `/qualite` comprise) ; `lint` inchangé à
+2 erreurs préexistantes. **51 vérifications** sur le HTML réellement servi, session
+ouverte, et **62 tests** sur les fonctions pures, le contrat de décision et les contrôles
+du service. Non-régression des phases 2, 3 et de D1 rejouée : 17/17, 8/8, 24/24, 45/45 et
+72/72.
+
+---
+
 ## Phase 4 — Les différenciateurs · D1 — Explicabilité du score
 
 Le premier des cinq différenciateurs, et celui au meilleur rapport valeur/effort. Le

@@ -1,5 +1,9 @@
 import type { StatutAlerte } from "@/lib/schemas/commun"
-import type { TypeDecision } from "@/lib/schemas/modifications.schema"
+import {
+  CAUSES_FAUX_POSITIF,
+  type CauseFauxPositif,
+  type TypeDecision,
+} from "@/lib/schemas/modifications.schema"
 
 /**
  * Ce qu'une décision d'analyste veut dire, et ce qu'elle entraîne.
@@ -41,7 +45,7 @@ export const DECISIONS: Record<TypeDecision, ConfigDecision> = {
   classee_sans_suite: {
     libelle: "Classer sans suite",
     resume: "Classée sans suite",
-    aide: "Referme le dossier. C'est ce que la phase 4 comptera en faux positif.",
+    aide: "Referme le dossier et le compte en faux positif, sous la cause retenue.",
     statut: "Résolu",
     invite:
       "Pourquoi l'alerte ne tient-elle pas ? C'est ce motif qui permettra de mesurer la dérive du modèle.",
@@ -64,3 +68,55 @@ export const ORDRE_DECISIONS: TypeDecision[] = [
   "piece_demandee",
   "classee_sans_suite",
 ]
+
+/**
+ * Ce que veut dire chaque cause de faux positif, et sur quoi elle porte.
+ *
+ * `imputableAuModele` est le champ qui donne sa valeur au registre. Un taux de
+ * faux positifs qui mélange « le seuil est trop bas » et « l'établissement a
+ * transmis deux fois la même demande » ne se corrige nulle part : le premier se
+ * règle en touchant au modèle, le second en parlant à l'établissement. Le
+ * registre les sépare, et l'alerte de dérive ne compte que les premiers — sans
+ * quoi elle réclamerait un réentraînement pour un problème de saisie.
+ */
+export type ConfigCause = {
+  libelle: string
+  /** Ce que l'analyste affirme en retenant cette cause. */
+  aide: string
+  /**
+   * Vrai quand la correction passe par le modèle (seuil, pondération, variable
+   * manquante), faux quand elle se joue en amont ou dans le référentiel.
+   */
+  imputableAuModele: boolean
+}
+
+export const CAUSES: Record<CauseFauxPositif, ConfigCause> = {
+  seuil_trop_bas: {
+    libelle: "Seuil trop bas",
+    aide: "Le dossier est régulier ; rien n'y justifiait une instruction.",
+    imputableAuModele: true,
+  },
+  contexte_medical: {
+    libelle: "Contexte médical légitime",
+    aide: "La répétition ou le montant s'expliquent par l'état du patient — une donnée que le modèle n'a pas.",
+    imputableAuModele: true,
+  },
+  doublon_administratif: {
+    libelle: "Doublon administratif",
+    aide: "La même demande a été transmise deux fois. L'anomalie est réelle, la fraude non.",
+    imputableAuModele: false,
+  },
+  donnee_reference_erronee: {
+    libelle: "Donnée de référence erronée",
+    aide: "Le tarif ou la nomenclature auxquels le dossier a été comparé étaient faux.",
+    imputableAuModele: false,
+  },
+  regularisation_anterieure: {
+    libelle: "Régularisation déjà intervenue",
+    aide: "L'établissement avait corrigé de lui-même avant l'instruction.",
+    imputableAuModele: false,
+  },
+}
+
+/** Ordre d'affichage : d'abord ce qui se corrige dans le modèle. */
+export const ORDRE_CAUSES: CauseFauxPositif[] = [...CAUSES_FAUX_POSITIF]

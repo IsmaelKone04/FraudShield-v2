@@ -19,12 +19,22 @@ import { SelecteurStatut } from "@/components/selecteur-statut"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { USE_MOCK } from "@/lib/api/client"
-import { DECISIONS, ORDRE_DECISIONS } from "@/lib/decisions"
+import { CAUSES, DECISIONS, ORDRE_CAUSES, ORDRE_DECISIONS } from "@/lib/decisions"
 import { formaterHorodatage, francs } from "@/lib/formats"
 import type { AlerteDetail } from "@/lib/schemas/alertes.schema"
-import type { TypeDecision } from "@/lib/schemas/modifications.schema"
+import type {
+  CauseFauxPositif,
+  TypeDecision,
+} from "@/lib/schemas/modifications.schema"
 import { useAlerteDetail, useModificationsStore } from "@/lib/store"
 import { nomDuCompte } from "@/lib/utilisateurs"
 
@@ -72,10 +82,13 @@ function construireChronologie(
   }
 
   if (dossier.decision) {
-    const { type, acteur, horodatage } = dossier.decision
+    const { type, cause, acteur, horodatage } = dossier.decision
+    // La cause fait partie de la décision : la taire dans le journal reviendrait
+    // à consigner « classée sans suite » sans dire ce qui a été reproché au modèle.
+    const qualification = cause ? ` (${CAUSES[cause].libelle.toLowerCase()})` : ""
     evenements.push({
       horodatage,
-      libelle: `Décision : ${DECISIONS[type].resume.toLowerCase()}`,
+      libelle: `Décision : ${DECISIONS[type].resume.toLowerCase()}${qualification}`,
       acteur,
       local: true,
     })
@@ -166,6 +179,7 @@ export function AlerteClient({
   const supprimerNote = useModificationsStore((etat) => etat.supprimerNote)
 
   const [typeChoisi, setTypeChoisi] = useState<TypeDecision | null>(null)
+  const [cause, setCause] = useState<CauseFauxPositif | null>(null)
   const [motif, setMotif] = useState("")
   const [texteNote, setTexteNote] = useState("")
   const [envoi, setEnvoi] = useState(false)
@@ -185,21 +199,40 @@ export function AlerteClient({
     ? "Enregistré dans ce navigateur uniquement (mode démonstration)."
     : undefined
 
+  /** Seul le classement sans suite se qualifie — c'est lui qui nourrit le registre. */
+  const causeRequise = typeChoisi === "classee_sans_suite"
+
+  function reinitialiserSaisie() {
+    setTypeChoisi(null)
+    setCause(null)
+    setMotif("")
+  }
+
+  /** Ce que la décision en cours de saisie exige encore, `null` si elle est complète. */
+  const manquant =
+    motif.trim() === ""
+      ? "Une décision sans motif n'est opposable à personne."
+      : causeRequise && cause === null
+        ? "Un classement sans suite non qualifié ne compte pour rien dans le registre."
+        : null
+
   async function enregistrerDecision() {
-    if (!typeChoisi || !utilisateur || motif.trim() === "") return
+    if (!typeChoisi || !utilisateur || manquant !== null) return
     setEnvoi(true)
     try {
       await decider(dossier.id, {
         type: typeChoisi,
         motif: motif.trim(),
+        // La cause n'accompagne que le classement sans suite : le contrat la
+        // refuse ailleurs, et l'état de l'écran ne doit pas la faire passer.
+        cause: causeRequise && cause !== null ? cause : undefined,
         acteur: utilisateur,
         statutAnterieur: dossier.statut,
       })
       toast.success(`${dossier.id} — ${DECISIONS[typeChoisi].resume}`, {
         description: enDemonstration,
       })
-      setTypeChoisi(null)
-      setMotif("")
+      reinitialiserSaisie()
     } catch (erreur) {
       toast.error(`${dossier.id} — décision refusée`, {
         description:
@@ -369,6 +402,15 @@ export function AlerteClient({
                 <span className="text-sm font-semibold text-foreground">
                   {DECISIONS[dossier.decision.type].resume}
                 </span>
+                {dossier.decision.cause && (
+                  <Badge
+                    variant="outline"
+                    className="border-border/60 text-[10px] font-medium text-muted-foreground"
+                    title={CAUSES[dossier.decision.cause].aide}
+                  >
+                    {CAUSES[dossier.decision.cause].libelle}
+                  </Badge>
+                )}
               </div>
               <p className="mt-2 max-w-prose text-sm text-muted-foreground">
                 {dossier.decision.motif}
@@ -404,8 +446,8 @@ export function AlerteClient({
                     aria-pressed={actif}
                     title={utilisateur ? config.aide : SANS_SESSION}
                     onClick={() => {
-                      setTypeChoisi(actif ? null : type)
-                      setMotif("")
+                      reinitialiserSaisie()
+                      if (!actif) setTypeChoisi(type)
                     }}
                     className={`${config.classes} ${actif ? "ring-2 ring-ring/40" : ""}`}
                   >
@@ -417,6 +459,60 @@ export function AlerteClient({
 
             {typeChoisi ? (
               <div className="mt-4">
+                {causeRequise && (
+                  <div className="mb-4 rounded-lg border border-border/50 bg-white/[0.02] p-3">
+                    <label
+                      htmlFor="cause"
+                      className="text-xs font-medium text-foreground"
+                    >
+                      Cause du faux positif — obligatoire
+                    </label>
+                    <p className="mb-2 mt-0.5 text-[11px] text-muted-foreground">
+                      C&apos;est cette qualification, et non le motif rédigé, qui
+                      remonte au registre des faux positifs.
+                    </p>
+                    <Select
+                      value={cause}
+                      onValueChange={(valeur) =>
+                        setCause(valeur as CauseFauxPositif | null)
+                      }
+                    >
+                      <SelectTrigger
+                        id="cause"
+                        size="sm"
+                        className="w-full sm:w-96"
+                      >
+                        <SelectValue placeholder="Choisir une cause…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ORDRE_CAUSES.map((valeur) => (
+                          <SelectItem
+                            key={valeur}
+                            value={valeur}
+                            className="text-xs"
+                          >
+                            {CAUSES[valeur].libelle}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      {cause ? (
+                        <>
+                          {CAUSES[cause].aide}{" "}
+                          <span className="text-muted-foreground/70">
+                            {CAUSES[cause].imputableAuModele
+                              ? "Compte dans la dérive du modèle."
+                              : "Ne compte pas dans la dérive : la correction est ailleurs."}
+                          </span>
+                        </>
+                      ) : (
+                        "Toutes les causes ne se corrigent pas au même endroit."
+                      )}
+                    </p>
+                  </div>
+                )}
+
                 <label
                   htmlFor="motif"
                   className="text-xs font-medium text-foreground"
@@ -438,12 +534,8 @@ export function AlerteClient({
                   <Button
                     size="sm"
                     onClick={enregistrerDecision}
-                    disabled={envoi || motif.trim() === ""}
-                    title={
-                      motif.trim() === ""
-                        ? "Une décision sans motif n'est opposable à personne."
-                        : undefined
-                    }
+                    disabled={envoi || manquant !== null}
+                    title={manquant ?? undefined}
                     className="gap-1.5"
                   >
                     <CheckCircle size={13} />
@@ -452,7 +544,7 @@ export function AlerteClient({
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => { setTypeChoisi(null); setMotif("") }}
+                    onClick={reinitialiserSaisie}
                   >
                     Annuler
                   </Button>

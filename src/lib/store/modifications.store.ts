@@ -47,6 +47,53 @@ const STOCKAGE_NEUTRE: StateStorage = {
   removeItem: () => {},
 }
 
+/**
+ * Migration v1 → v2 : le classement sans suite exige désormais une cause.
+ *
+ * Une décision enregistrée avant n'en porte pas et ne satisfait plus le
+ * contrat. Sans reprise, la validation d'entrée écarterait **tout** le contenu
+ * local — statuts, assignations et notes compris — pour un champ manquant sur
+ * un seul dossier. La migration défait ces décisions-là et rien d'autre,
+ * exactement comme le ferait « Revenir sur la décision » : le dossier retrouve
+ * le statut qu'il avait avant. Ce qui ne peut plus être représenté est annulé,
+ * pas complété d'une cause qu'aucun analyste n'a choisie.
+ */
+function defaireDecisionsNonQualifiees(contenu: unknown): unknown {
+  if (typeof contenu !== "object" || contenu === null) return contenu
+
+  const etat = contenu as Record<string, unknown>
+  const alertes = etat.alertes
+  if (typeof alertes !== "object" || alertes === null) return contenu
+
+  const reprises = Object.entries(alertes as Record<string, unknown>).map(
+    ([id, valeur]) => {
+      if (typeof valeur !== "object" || valeur === null) return [id, valeur]
+
+      const { decision, ...reste } = valeur as Record<string, unknown>
+      const conclusion = decision as Record<string, unknown> | undefined
+      if (
+        conclusion?.type !== "classee_sans_suite" ||
+        conclusion.cause !== undefined
+      ) {
+        return [id, valeur]
+      }
+
+      console.warn(
+        `[${CLE_STOCKAGE}] ${id} : classement sans suite enregistré sans ` +
+          `cause, décision annulée (le dossier redevient « ${conclusion.statutAnterieur} »).`
+      )
+      return [
+        id,
+        typeof conclusion.statutAnterieur === "string"
+          ? { ...reste, statut: conclusion.statutAnterieur }
+          : reste,
+      ]
+    }
+  )
+
+  return { ...etat, alertes: Object.fromEntries(reprises) }
+}
+
 type Actions = {
   changerStatutAlerte: (id: string, statut: StatutAlerte) => Promise<void>
   assignerAlerte: (id: string, analyste: string | null) => Promise<void>
@@ -231,6 +278,15 @@ export const useModificationsStore = create<StoreModifications>()(
     {
       name: CLE_STOCKAGE,
       version: VERSION_STOCKAGE,
+
+      /**
+       * Le contenu écrit par une version antérieure est repris, pas jeté.
+       *
+       * `migrate` s'exécute avant la validation : c'est le seul endroit où une
+       * forme périmée peut encore être rattrapée.
+       */
+      migrate: (contenu, version) =>
+        version >= 2 ? contenu : defaireDecisionsNonQualifiees(contenu),
       storage: createJSONStorage(() =>
         typeof window === "undefined" ? STOCKAGE_NEUTRE : window.localStorage
       ),

@@ -111,6 +111,7 @@ La console **modifie** des données. Elle ne se contente plus d'afficher.
 |---|---|---|
 | Changer le statut d'une alerte | `/alertes` | Liste et cartes de KPI mises à jour |
 | **Décider d'un dossier** | `/alertes/[id]` | Fraude confirmée, classée sans suite, ou pièce demandée — motif obligatoire, et c'est la décision qui fixe le statut |
+| **Qualifier un faux positif** | `/alertes/[id]` | Un classement sans suite exige sa cause : elle part au registre et déplace les mesures de `/qualite` |
 | **Écrire une note interne** | `/alertes/[id]` | Fil horodaté et signé, versé à la chronologie |
 | **Imprimer la note d'explication** | `/alertes/[id]/note` | Document autonome, à enregistrer en PDF depuis le navigateur |
 | Assigner une alerte, réassigner un dossier | `/alertes`, `/investigations` | Aux comptes ci-dessus, avec filtre « Mes dossiers » |
@@ -168,6 +169,34 @@ Le format des facteurs est celui d'une **valeur SHAP** — contribution signée 
 une valeur de base. Le jour où le service de détection renvoie de vraies valeurs, il
 remplit ce contrat sans qu'il bouge.
 
+## 🔁 Ce que devient un faux positif
+
+Deuxième différenciateur. Ailleurs, une alerte écartée disparaît dans un statut « clos » —
+et le modèle qui l'a produite continue d'en produire de semblables. Ici, elle devient une
+mesure.
+
+- **Une clôture sans suite est qualifiée.** Cinq causes typées, et l'écran refuse
+  d'enregistrer tant que l'une n'est pas retenue : un motif rédigé ne s'agrège pas
+  ([ADR-017](docs/DECISIONS.md)).
+- **Les causes sont séparées selon où elles se corrigent.** « Seuil trop bas » et
+  « contexte médical » se règlent dans le modèle ; « doublon administratif », « donnée de
+  référence erronée » et « régularisation déjà intervenue » se règlent ailleurs. Un taux de
+  faux positifs qui mélange les deux ne se corrige nulle part.
+- **`/qualite` juge le détecteur, pas la fraude** : précision, rappel estimé et taux de
+  faux positifs sur six mois, par mois et par type de fraude, le registre des causes, et
+  les établissements dont les alertes finissent le plus souvent écartées.
+- **Le rappel est présenté comme une estimation**, avec la base du sondage à côté du
+  chiffre — on ne mesure pas les fraudes qu'on n'a pas signalées.
+- **Un bandeau prévient quand le modèle décroche** : *« Le modèle décroche sur Double
+  facturation — 32,4 % de faux positifs imputables au modèle sur mai 2026, pour un seuil
+  de 25 % »*. Chaque type de fraude a son propre seuil, justifié ; rien n'est signalé sous
+  dix dossiers tranchés ([ADR-019](docs/DECISIONS.md)).
+- **La boucle se referme à l'écran** : classer un dossier sans suite dans la console
+  déplace le registre et la courbe du mois ([ADR-018](docs/DECISIONS.md)).
+
+Tout y est **calculé depuis des comptages** de dossiers, jamais lu comme un taux déjà
+fait : chaque pourcentage affiché se retrouve à la main depuis le tableau juste en dessous.
+
 ## 🧱 Structure
 
 Chaque écran suit le même découpage : `page.tsx` (serveur) charge via le service et
@@ -184,6 +213,7 @@ src/
 │   │       └── note/     # La note d'explication, mise en page pour l'impression
 │   ├── investigations/   # Dossiers en cours d'instruction
 │   ├── analyses/         # Analyses par type de fraude
+│   ├── qualite/          # Qualité du modèle : faux positifs, dérive, registre
 │   ├── rapports/         # Génération et export de rapports
 │   ├── parametres/       # Configuration (seuils, notifications, connexion API)
 │   └── login/            # Authentification
@@ -198,7 +228,9 @@ src/
 │   ├── store/            # Écarts au jeu de données (Zustand), persistés localement
 │   ├── csv.ts            # Génération CSV, exports.ts  # Colonnes des deux exports
 │   ├── explication.ts    # Des facteurs à la phrase en français (déterministe)
-│   ├── formats.ts        # Montants, horodatages, écarts — sans `toLocaleString`
+│   ├── qualite.ts        # Précision, rappel, dérive — calculés depuis des comptages
+│   ├── decisions.ts      # Ce qu'une décision entraîne, et les causes de faux positif
+│   ├── formats.ts        # Montants, horodatages, taux — sans `toLocaleString`
 │   ├── utilisateurs.ts   # Annuaire unique des comptes
 │   └── types/            # Types déduits des schémas (point d'entrée commode)
 ├── auth.ts               # Configuration NextAuth (fournisseur, rôles, session)
@@ -256,6 +288,14 @@ n'existe pas encore** : elle est prévue en phase 4 pour accueillir le journal d
   valeurs mesurées. Fabriquer une proposition française correcte (accords, élisions) à
   partir de nombres bruts est un problème à part entière ; en cible, c'est l'API qui les
   fournit.
+- **La dérive est mesurée sur le dernier mois observé**, pas sur une fenêtre glissante de
+  trente jours : le jeu de données est mensuel. Les décisions prises dans la console y sont
+  rattachées (mai 2026) plutôt qu'au mois réel — ouvrir un mois vide entre les deux ferait
+  plonger toutes les courbes sans que le modèle y soit pour rien. L'écran l'écrit dès
+  qu'une décision locale est comptée.
+- **Le bandeau de dérive du tableau de bord ne compte pas les décisions locales**, celui de
+  `/qualite` si. Le tableau de bord est rendu côté serveur, et les y mêler imposerait de le
+  passer côté client pour un seul bandeau.
 - **404 souple sur un identifiant d'alerte inconnu** : la page « introuvable » s'affiche
   bien, mais la réponse porte le statut 200. La frontière de streaming posée par
   `src/app/loading.tsx` envoie l'en-tête avant que `notFound()` ne soit atteint — cause
@@ -273,7 +313,7 @@ les arbitrages. Résumé :
 | **P1** | Fondations : service généralisé, validation Zod, gestion d'erreurs | ✅ terminée |
 | **P2** | Interactions : statuts, assignation, export, paramètres persistés | ✅ terminée |
 | **P3** | Détail d'alerte (`/alertes/[id]`) | ✅ terminée |
-| **P4** | Explicabilité du score ✅ · boucle de rétroaction · graphe de réseaux · simulateur de seuils · piste d'audit | en cours |
+| **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · graphe de réseaux · simulateur de seuils · piste d'audit | en cours |
 | **P5** | Accessibilité, thème, tests, responsive, documentation finale | à venir |
 
 La phase 4 porte le parti pris du projet : **mettre l'analyste au centre plutôt que le

@@ -1,0 +1,1185 @@
+{
+  "periodeObservee": "Décembre 2025 – mai 2026, sur les dossiers refermés",
+  "periodes": [
+    {
+      "mois": "2025-12",
+      "moisLibelle": "Décembre 2025",
+      "typeFraude": "Acte incohérent",
+      "clos": 33,
+      "confirmes": 19,
+      "fauxPositifs": 8,
+      "nonConcluants": 6,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 5
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+    },
+    {
+      "mois": "2025-12",
+      "moisLibelle": "Décembre 2025",
+      "typeFraude": "Double facturation",
+      "clos": 61,
+      "confirmes": 45,
+      "fauxPositifs": 11,
+      "nonConcluants": 5,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 3
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 6
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 4,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+    },
+    {
+      "mois": "2025-12",
+      "moisLibelle": "Décembre 2025",
+      "typeFraude": "Fréquence anormale",
+      "clos": 48,
+      "confirmes": 28,
+      "fauxPositifs": 12,
+      "nonConcluants": 8,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 3
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 6
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+    },
+    {
+      "mois": "2025-12",
+      "moisLibelle": "Décembre 2025",
+      "typeFraude": "Service non fourni",
+      "clos": 47,
+      "confirmes": 34,
+      "fauxPositifs": 7,
+      "nonConcluants": 6,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 2
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 2
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+    },
+    {
+      "mois": "2025-12",
+      "moisLibelle": "Décembre 2025",
+      "typeFraude": "Surfacturation",
+      "clos": 85,
+      "confirmes": 62,
+      "fauxPositifs": 14,
+      "nonConcluants": 9,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 5
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 2
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 2
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 4
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+    },
+    {
+      "mois": "2025-12",
+      "moisLibelle": "Décembre 2025",
+      "typeFraude": "Usurpation identité",
+      "clos": 18,
+      "confirmes": 12,
+      "fauxPositifs": 3,
+      "nonConcluants": 3,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 4,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+    },
+    {
+      "mois": "2026-01",
+      "moisLibelle": "Janvier 2026",
+      "typeFraude": "Acte incohérent",
+      "clos": 34,
+      "confirmes": 21,
+      "fauxPositifs": 8,
+      "nonConcluants": 5,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 5
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+    },
+    {
+      "mois": "2026-01",
+      "moisLibelle": "Janvier 2026",
+      "typeFraude": "Double facturation",
+      "clos": 63,
+      "confirmes": 44,
+      "fauxPositifs": 13,
+      "nonConcluants": 6,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 4
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 6
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 4,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+    },
+    {
+      "mois": "2026-01",
+      "moisLibelle": "Janvier 2026",
+      "typeFraude": "Fréquence anormale",
+      "clos": 50,
+      "confirmes": 30,
+      "fauxPositifs": 13,
+      "nonConcluants": 7,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 3
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 7
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+    },
+    {
+      "mois": "2026-01",
+      "moisLibelle": "Janvier 2026",
+      "typeFraude": "Service non fourni",
+      "clos": 49,
+      "confirmes": 36,
+      "fauxPositifs": 8,
+      "nonConcluants": 5,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 3
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 2
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+    },
+    {
+      "mois": "2026-01",
+      "moisLibelle": "Janvier 2026",
+      "typeFraude": "Surfacturation",
+      "clos": 89,
+      "confirmes": 68,
+      "fauxPositifs": 13,
+      "nonConcluants": 8,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 5
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 2
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 4
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+    },
+    {
+      "mois": "2026-01",
+      "moisLibelle": "Janvier 2026",
+      "typeFraude": "Usurpation identité",
+      "clos": 19,
+      "confirmes": 14,
+      "fauxPositifs": 3,
+      "nonConcluants": 2,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+    },
+    {
+      "mois": "2026-02",
+      "moisLibelle": "Février 2026",
+      "typeFraude": "Acte incohérent",
+      "clos": 32,
+      "confirmes": 18,
+      "fauxPositifs": 7,
+      "nonConcluants": 7,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 4
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+    },
+    {
+      "mois": "2026-02",
+      "moisLibelle": "Février 2026",
+      "typeFraude": "Double facturation",
+      "clos": 67,
+      "confirmes": 46,
+      "fauxPositifs": 16,
+      "nonConcluants": 5,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 6
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 7
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 4,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+    },
+    {
+      "mois": "2026-02",
+      "moisLibelle": "Février 2026",
+      "typeFraude": "Fréquence anormale",
+      "clos": 47,
+      "confirmes": 27,
+      "fauxPositifs": 11,
+      "nonConcluants": 9,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 2
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 6
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+    },
+    {
+      "mois": "2026-02",
+      "moisLibelle": "Février 2026",
+      "typeFraude": "Service non fourni",
+      "clos": 47,
+      "confirmes": 33,
+      "fauxPositifs": 7,
+      "nonConcluants": 7,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 2
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 2
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+    },
+    {
+      "mois": "2026-02",
+      "moisLibelle": "Février 2026",
+      "typeFraude": "Surfacturation",
+      "clos": 93,
+      "confirmes": 71,
+      "fauxPositifs": 12,
+      "nonConcluants": 10,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 4
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 2
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 4
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+    },
+    {
+      "mois": "2026-02",
+      "moisLibelle": "Février 2026",
+      "typeFraude": "Usurpation identité",
+      "clos": 16,
+      "confirmes": 11,
+      "fauxPositifs": 2,
+      "nonConcluants": 3,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 4,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+    },
+    {
+      "mois": "2026-03",
+      "moisLibelle": "Mars 2026",
+      "typeFraude": "Acte incohérent",
+      "clos": 37,
+      "confirmes": 22,
+      "fauxPositifs": 9,
+      "nonConcluants": 6,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 5
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+    },
+    {
+      "mois": "2026-03",
+      "moisLibelle": "Mars 2026",
+      "typeFraude": "Double facturation",
+      "clos": 70,
+      "confirmes": 42,
+      "fauxPositifs": 21,
+      "nonConcluants": 7,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 9
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 2
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 7
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 2
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 3,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+    },
+    {
+      "mois": "2026-03",
+      "moisLibelle": "Mars 2026",
+      "typeFraude": "Fréquence anormale",
+      "clos": 52,
+      "confirmes": 31,
+      "fauxPositifs": 13,
+      "nonConcluants": 8,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 3
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 7
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+    },
+    {
+      "mois": "2026-03",
+      "moisLibelle": "Mars 2026",
+      "typeFraude": "Service non fourni",
+      "clos": 52,
+      "confirmes": 38,
+      "fauxPositifs": 8,
+      "nonConcluants": 6,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 3
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 2
+        }
+      ],
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+    },
+    {
+      "mois": "2026-03",
+      "moisLibelle": "Mars 2026",
+      "typeFraude": "Surfacturation",
+      "clos": 95,
+      "confirmes": 74,
+      "fauxPositifs": 12,
+      "nonConcluants": 9,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 4
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 2
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 4
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+    },
+    {
+      "mois": "2026-03",
+      "moisLibelle": "Mars 2026",
+      "typeFraude": "Usurpation identité",
+      "clos": 20,
+      "confirmes": 15,
+      "fauxPositifs": 3,
+      "nonConcluants": 2,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+    },
+    {
+      "mois": "2026-04",
+      "moisLibelle": "Avril 2026",
+      "typeFraude": "Acte incohérent",
+      "clos": 34,
+      "confirmes": 20,
+      "fauxPositifs": 8,
+      "nonConcluants": 6,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 5
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+    },
+    {
+      "mois": "2026-04",
+      "moisLibelle": "Avril 2026",
+      "typeFraude": "Double facturation",
+      "clos": 72,
+      "confirmes": 40,
+      "fauxPositifs": 26,
+      "nonConcluants": 6,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 14
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 2
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 7
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 2
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 3,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+    },
+    {
+      "mois": "2026-04",
+      "moisLibelle": "Avril 2026",
+      "typeFraude": "Fréquence anormale",
+      "clos": 49,
+      "confirmes": 29,
+      "fauxPositifs": 13,
+      "nonConcluants": 7,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 3
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 7
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+    },
+    {
+      "mois": "2026-04",
+      "moisLibelle": "Avril 2026",
+      "typeFraude": "Service non fourni",
+      "clos": 49,
+      "confirmes": 37,
+      "fauxPositifs": 7,
+      "nonConcluants": 5,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 2
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 2
+        }
+      ],
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+    },
+    {
+      "mois": "2026-04",
+      "moisLibelle": "Avril 2026",
+      "typeFraude": "Surfacturation",
+      "clos": 101,
+      "confirmes": 79,
+      "fauxPositifs": 11,
+      "nonConcluants": 11,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 4
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 2
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 3
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 8,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+    },
+    {
+      "mois": "2026-04",
+      "moisLibelle": "Avril 2026",
+      "typeFraude": "Usurpation identité",
+      "clos": 19,
+      "confirmes": 13,
+      "fauxPositifs": 3,
+      "nonConcluants": 3,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+    },
+    {
+      "mois": "2026-05",
+      "moisLibelle": "Mai 2026",
+      "typeFraude": "Acte incohérent",
+      "clos": 37,
+      "confirmes": 23,
+      "fauxPositifs": 9,
+      "nonConcluants": 5,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 5
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+    },
+    {
+      "mois": "2026-05",
+      "moisLibelle": "Mai 2026",
+      "typeFraude": "Double facturation",
+      "clos": 77,
+      "confirmes": 38,
+      "fauxPositifs": 33,
+      "nonConcluants": 6,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 20
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 3
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 6
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 2
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 2
+        }
+      ],
+      "manquesEstimes": 3,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+    },
+    {
+      "mois": "2026-05",
+      "moisLibelle": "Mai 2026",
+      "typeFraude": "Fréquence anormale",
+      "clos": 54,
+      "confirmes": 32,
+      "fauxPositifs": 14,
+      "nonConcluants": 8,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 3
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 7
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 2
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+    },
+    {
+      "mois": "2026-05",
+      "moisLibelle": "Mai 2026",
+      "typeFraude": "Service non fourni",
+      "clos": 54,
+      "confirmes": 40,
+      "fauxPositifs": 8,
+      "nonConcluants": 6,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 3
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 2
+        }
+      ],
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+    },
+    {
+      "mois": "2026-05",
+      "moisLibelle": "Mai 2026",
+      "typeFraude": "Surfacturation",
+      "clos": 104,
+      "confirmes": 83,
+      "fauxPositifs": 11,
+      "nonConcluants": 10,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 4
+        },
+        {
+          "cause": "contexte_medical",
+          "quantite": 2
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 3
+        },
+        {
+          "cause": "regularisation_anterieure",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 8,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+    },
+    {
+      "mois": "2026-05",
+      "moisLibelle": "Mai 2026",
+      "typeFraude": "Usurpation identité",
+      "clos": 21,
+      "confirmes": 16,
+      "fauxPositifs": 3,
+      "nonConcluants": 2,
+      "fauxPositifsParCause": [
+        {
+          "cause": "seuil_trop_bas",
+          "quantite": 1
+        },
+        {
+          "cause": "doublon_administratif",
+          "quantite": 1
+        },
+        {
+          "cause": "donnee_reference_erronee",
+          "quantite": 1
+        }
+      ],
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+    }
+  ],
+  "seuils": [
+    {
+      "typeFraude": "Surfacturation",
+      "seuil": 0.2,
+      "justification": "Le tarif de référence est opposable : au-delà d'un dossier écarté sur cinq, c'est la pondération du montant qu'il faut revoir."
+    },
+    {
+      "typeFraude": "Service non fourni",
+      "seuil": 0.25,
+      "justification": "La preuve tient au dossier médical ; une part d'écartés est normale, un quart ne l'est plus."
+    },
+    {
+      "typeFraude": "Double facturation",
+      "seuil": 0.25,
+      "justification": "Deux lignes identiques se tranchent sur pièces : passé un quart de dossiers écartés pour une cause imputable au modèle, c'est la règle de rapprochement qui est en cause."
+    },
+    {
+      "typeFraude": "Usurpation identité",
+      "seuil": 0.2,
+      "justification": "Le rapprochement d'identité est déterministe : il se trompe peu, ou il est mal réglé."
+    },
+    {
+      "typeFraude": "Fréquence anormale",
+      "seuil": 0.35,
+      "justification": "Le modèle ignore l'état du patient : une part de faux positifs est structurelle, et le seuil en tient compte."
+    },
+    {
+      "typeFraude": "Acte incohérent",
+      "seuil": 0.4,
+      "justification": "La cohérence d'un acte demande un avis médical que le moteur n'a pas ; le seuil est volontairement haut."
+    }
+  ],
+  "etablissementsBruyants": [
+    {
+      "nom": "Clinique Matlaboul",
+      "alertes": 47,
+      "fauxPositifs": 34,
+      "causePrincipale": "doublon_administratif"
+    },
+    {
+      "nom": "Polyclinique Liberté",
+      "alertes": 38,
+      "fauxPositifs": 22,
+      "causePrincipale": "donnee_reference_erronee"
+    },
+    {
+      "nom": "Cabinet Dr Sall",
+      "alertes": 29,
+      "fauxPositifs": 21,
+      "causePrincipale": "contexte_medical"
+    },
+    {
+      "nom": "Centre Médical Yoff",
+      "alertes": 41,
+      "fauxPositifs": 18,
+      "causePrincipale": "seuil_trop_bas"
+    },
+    {
+      "nom": "Clinique du Plateau",
+      "alertes": 33,
+      "fauxPositifs": 12,
+      "causePrincipale": "regularisation_anterieure"
+    }
+  ]
+}

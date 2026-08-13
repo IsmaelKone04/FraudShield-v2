@@ -3,22 +3,37 @@ import { UserCog } from "lucide-react"
 
 import { auth } from "@/auth"
 import { AppSidebar } from "@/components/app-sidebar"
+import { BandeauDerive } from "@/components/bandeau-derive"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { DernieresAlertes } from "@/components/dernieres-alertes"
 import { SectionCards } from "@/components/section-cards"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { dashboardService } from "@/lib/services"
+import { derivesConstatees, dernierMois } from "@/lib/qualite"
+import { dashboardService, qualiteService } from "@/lib/services"
 import { libelleDuRole } from "@/lib/utilisateurs"
 
 export default async function Page() {
   const session = await auth()
   const role = session?.user?.role // Contient "ADMINISTRATEUR", "SUPERVISEUR" ou "ANALYSTE"
-  const [dernieresAlertes, alertesTrend] = await Promise.all([
+  const [dernieresAlertes, alertesTrend, qualite] = await Promise.all([
     dashboardService.getDernieresAlertes(),
     dashboardService.getAlertesTrend(),
+    qualiteService.getQualite(),
   ])
+
+  /*
+    La dérive est signalée ici sur le seul jeu du serveur, sans les décisions
+    prises dans cette console : le tableau de bord est rendu côté serveur, et
+    les y mêler imposerait de le rendre client pour un bandeau. L'écran de
+    qualité, lui, les compte — c'est là qu'on vient vérifier.
+  */
+  const derives = derivesConstatees(qualite.periodes, qualite.seuils)
+  const moisObserve =
+    qualite.periodes.find(
+      (periode) => periode.mois === dernierMois(qualite.periodes)
+    )?.moisLibelle ?? ""
 
   return (
     <SidebarProvider
@@ -65,6 +80,16 @@ export default async function Page() {
                   </Button>
                 )}
               </div>
+
+              {derives.length > 0 && (
+                <div className="px-4 lg:px-6">
+                  <BandeauDerive
+                    derives={derives}
+                    mois={moisObserve}
+                    avecLien
+                  />
+                </div>
+              )}
 
               <SectionCards />
               <div className="px-4 lg:px-6">

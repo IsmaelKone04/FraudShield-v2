@@ -51,6 +51,19 @@ export function signe(valeur: number): string {
 }
 
 /**
+ * Une proportion écrite en pourcentage : « 32,4 % », « 25 % ».
+ *
+ * `null` donne « — » plutôt que « 0 % » : un mois sans dossier tranché n'a pas
+ * une précision nulle, il n'en a pas. La virgule est française et l'arrondi
+ * fait à la main, pour la raison qui vaut pour tout ce fichier.
+ */
+export function pourcentage(part: number | null, decimales = 0): string {
+  if (part === null) return "—"
+  const valeur = (part * 100).toFixed(decimales)
+  return `${decimales > 0 ? valeur.replace(".", ",") : valeur} %`
+}
+
+/**
  * L'écart relatif entre deux valeurs, arrondi au point : « +154 % ».
  *
  * `null` quand la référence est nulle — un écart rapporté à zéro n'a pas de

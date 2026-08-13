@@ -232,7 +232,7 @@ les captures sont déjà prévues.
 | Constat | Vers |
 |---|---|
 | 404 souple sur un identifiant inconnu : bonne page, statut 200. Cause mesurée (ADR-013). | P5, si un robot ou un test de bout en bout l'exige |
-| « Classée sans suite » n'est pas qualifiée par cause. | P4-6 |
+| ~~« Classée sans suite » n'est pas qualifiée par cause.~~ Réglé en D2. | ~~P4-6~~ ✅ |
 | ~~Le score n'est pas décomposé — les signaux par acte en tiennent lieu.~~ Réglé en D1. | ~~P4-1 à P4-4~~ ✅ |
 | Captures d'écran de la documentation. | P5-8 |
 
@@ -284,16 +284,57 @@ la phrase).
 | Le score reste celui du jeu de données : rien ne le recalcule à partir des facteurs. | D4, où le rejeu à seuil variable en aura besoin |
 | Pas de capture d'écran (toujours aucun outil de navigateur). | P5-8 |
 
-#### D2 — Boucle de rétroaction analyste → modèle
+#### D2 — Boucle de rétroaction analyste → modèle ✅ terminé
 
 > *Ailleurs* : le faux positif disparaît dans un statut. *Ici* : il devient une mesure.
 
-| # | Tâche | Est. |
-|---|---|---|
-| **P4-6** | À la clôture, motif obligatoire et typé : fraude confirmée / faux positif (avec cause : seuil trop bas, contexte médical légitime, doublon administratif…) / non concluant. | 0,5 |
-| **P4-7** | **Registre des faux positifs** : écran dédié, motifs agrégés, établissements les plus générateurs de bruit. | 1 |
-| **P4-8** | **Qualité du modèle dans le temps** : précision, rappel estimé, taux de faux positifs par mois et par type de fraude. Recharts est déjà là. | 1 |
-| **P4-9** | Alerte de dérive : bandeau quand le taux de faux positifs d'un type de fraude dépasse son seuil sur 30 jours — « le modèle décroche sur *Double facturation* ». | 0,5 |
+| # | Tâche | Est. | |
+|---|---|---|---|
+| **P4-6** | À la clôture, motif obligatoire et typé : fraude confirmée / faux positif (avec cause : seuil trop bas, contexte médical légitime, doublon administratif…) / non concluant. | 0,5 | ✅ * |
+| **P4-7** | **Registre des faux positifs** : écran dédié, motifs agrégés, établissements les plus générateurs de bruit. | 1 | ✅ |
+| **P4-8** | **Qualité du modèle dans le temps** : précision, rappel estimé, taux de faux positifs par mois et par type de fraude. Recharts est déjà là. | 1 | ✅ |
+| **P4-9** | Alerte de dérive : bandeau quand le taux de faux positifs d'un type de fraude dépasse son seuil sur 30 jours — « le modèle décroche sur *Double facturation* ». | 0,5 | ✅ |
+
+**Total D2 ≈ 3 j.** Arbitrages en [`DECISIONS.md`](DECISIONS.md), ADR-017 à ADR-019.
+
+\* **« Non concluant » n'est pas une décision de la console.** Les trois issues de la barre
+de décision restent celles de P3-4 : fraude confirmée, classement sans suite, demande de
+pièce. La cause typée qualifie le seul classement sans suite — c'est lui, et lui seul, qui
+nourrit le registre. Le jeu observé porte bien des dossiers refermés sans conclusion, mais
+la console ne sait pas en produire : ils viennent d'ailleurs, et le dire vaut mieux que
+d'ajouter un quatrième bouton qui ne mène nulle part.
+
+#### Écarts constatés — D2
+
+- **Les causes sont séparées selon *où* elles se corrigent.** Le plan ne demandait qu'une
+  liste de causes. Sans le champ `imputableAuModele`, le taux de faux positifs mélangerait
+  « le seuil est trop bas » et « l'établissement a transmis deux fois la même demande » —
+  un chiffre qu'on ne saurait corriger nulle part. Toute la mesure de D2 en dépend, et
+  l'alerte de dérive ne compte que la première famille (ADR-017, ADR-019).
+- **La boucle se referme à l'écran.** Une décision prise dans la console déplace le
+  registre et la courbe du mois. Le plan décrivait deux écrans ; sans ce lien, la
+  qualification exigée à la clôture n'irait nulle part.
+- **Trois contrôles de cohérence** ajoutés au service, sur le modèle des ADR-010/011/014 :
+  les trois issues doivent redonner le nombre de dossiers clos, la répartition par cause
+  le nombre de faux positifs, et aucun type de fraude ne peut être mesuré sans seuil de
+  dérive. Prouvés en les provoquant tous les trois.
+- **Le format de stockage local passe à la version 2**, avec une migration. Exiger une
+  cause invalidait les classements sans suite déjà enregistrés dans le navigateur : sans
+  reprise, la validation d'entrée aurait écarté *tout* le contenu local pour un champ
+  manquant sur un dossier (ADR-017).
+- **Le jeu de données a été écrit par script**, comme en D1 : trente-six cases dont trois
+  sommes doivent tomber juste.
+- **`description` de la barre latérale n'était affichée nulle part.** Elle sert désormais
+  d'infobulle en mode replié, plutôt que de rester un champ mort que chaque nouvelle entrée
+  recopierait.
+
+#### Dette reportée — D2
+
+| Constat | Vers |
+|---|---|
+| La dérive est mesurée sur le dernier mois observé, pas sur une fenêtre glissante de 30 jours : le jeu est mensuel. | Dates de clôture réelles ; la fonction prendrait la fenêtre en paramètre |
+| Le tableau de bord affiche la dérive du seul jeu serveur : les décisions locales n'y sont pas comptées (il est rendu côté serveur). | P5, si le tableau de bord passe côté client pour d'autres raisons |
+| Les décisions de la console sont rattachées à mai 2026, dernier mois du jeu, et non au mois réel. | Jeu de données glissant, ou API réelle |
 
 #### D3 — Graphe de réseaux de fraude
 
@@ -359,7 +400,7 @@ Unité : la demi-journée de travail effectif.
 | P1 | Fondations | 6,25 | 8 | ✅ |
 | P2 | Interactions | 5,25 | 13,25 | ✅ |
 | P3 | Détail d'alerte | 2,75 | 16 | ✅ |
-| P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) |
+| P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) · D2 ✅ (3) |
 | P5 | Finition | 7 | 39 | |
 
 **≈ 39 demi-journées**, soit une vingtaine de jours pleins. Les phases 0 à 3 (16 demi-journées)
@@ -381,6 +422,6 @@ Si le temps manque, deux découpes tiennent debout :
 
 | Risque | Parade |
 |---|---|
-| La phase 4 s'appuie sur des données fictives enrichies à la main ; le volume peut devenir la vraie contrainte (graphe, historiques, rejeu). | Écrire un générateur de jeu de données scripté dès P4-10, pas du JSON à la main. |
+| La phase 4 s'appuie sur des données fictives enrichies à la main ; le volume peut devenir la vraie contrainte (graphe, historiques, rejeu). | Écrire un générateur de jeu de données scripté dès P4-10, pas du JSON à la main. **Appliqué dès D1, puis en D2** : dix décompositions et trente-six cases de mesure, toutes écrites par script et recoupées par le service. |
 | Sur-promesse : présenter des capacités d'interface comme des performances de détection. | Mention explicite dans le README et sur l'écran de simulation. Non négociable. |
 | Le contrat d'API diverge de ce que produira le coéquipier. | `docs/API-CONTRACT.md` en P5-8 — à lui montrer plus tôt si possible. |
