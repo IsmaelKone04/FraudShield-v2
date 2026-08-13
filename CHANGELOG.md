@@ -4,6 +4,90 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 4 — Les différenciateurs · D4 — Simulateur de seuils
+
+Ailleurs, on change le seuil de déclenchement et on attend un mois pour savoir ce
+qu'on a cassé. Ici, on le voit avant.
+
+### Ajouté
+
+- **`/simulation`** : un curseur de seuil, et en regard — alertes levées, fraudes
+  interceptées, montant couvert, charge de travail induite, chacun avec son écart au
+  seuil en vigueur. La courbe précision/rappel porte les vingt points de
+  fonctionnement, le seuil simulé et la limite du mesurable.
+- **La population de rejeu** (`simulation/data.json`) : les 5 240 demandes de mai 2026,
+  **alertées ou non**, distribuées par tranches de 5 points. C'est le point de départ de
+  tout l'écran — « qu'aurait donné un seuil plus bas ? » est une question sur les
+  demandes qui n'ont pas déclenché d'alerte, et qui ne figurent dans aucune liste
+  d'alertes.
+- **La frontière entre ce qui est mesuré et ce qui est estimé**, portée dans les données
+  et affichée partout : sous le seuil de collecte, rien n'a été instruit. Les compteurs
+  distinguent « établies » et « estimées », le montant couvert dit la part qui repose sur
+  une estimation, et un trait sur le graphique marque la limite.
+- **Le point de fonctionnement recommandé, avec sa règle écrite** : le meilleur équilibre
+  précision/rappel parmi les seuils que la cellule peut absorber. La capacité n'est pas
+  supposée — elle est constatée sur les 347 dossiers refermés en mai.
+- **« Appliquer ce seuil »**, qui écrit le réglage là où il se lit déjà, et le lien
+  inverse depuis les Paramètres : « Simuler avant d'appliquer ». Le curseur des réglages
+  se déplaçait jusqu'ici à l'aveugle.
+- **Quatre contrôles de service**, dont celui de couverture : les tranches doivent
+  s'enchaîner de 0 à 100 sans trou ni recouvrement. Il a mordu au premier `build` — les
+  tranches s'arrêtaient à 99, et une demande scorée exactement 100 n'aurait été comptée
+  nulle part.
+
+### Modifié
+
+- **Le jeu de qualité de D2 a été régénéré.** Le nombre de fraudes manquées qu'il affiche
+  **sort** désormais de la population de rejeu, au lieu d'être posé séparément : les deux
+  écrans parlent de la même quantité, et il ne peut y en avoir qu'un chiffre.
+- **Aucune fraude n'est estimée au-dessus du seuil de collecte.** Les demandes sans
+  verdict y sont des dossiers instruits mais pas encore tranchés ; anticiper leur verdict
+  reviendrait à compter comme interceptée une fraude que personne n'a établie. Cette
+  correction est ce qui fait coïncider exactement les deux écrans.
+- `Section` quitte les écrans pour `components/section.tsx` : le dossier d'alerte, la
+  qualité et le simulateur la portaient à l'identique. Extraite au moment où la troisième
+  copie allait apparaître, comme `lib/formats.ts` en D1.
+- `lib/formats.ts` gagne `pourcentage()` — déjà introduit en D2, désormais partagé par
+  les deux écrans de mesure.
+
+### Arbitrages
+
+| Décision | Pourquoi |
+|---|---|
+| Le rejeu porte sur toute la population, pas sur les alertes | Un rejeu bâti sur les alertes ne peut que retrancher : il montrerait la moitié haute de la courbe en laissant croire que c'est toute la courbe ([ADR-020](docs/DECISIONS.md)) |
+| Distribution par tranches de 5 points, pas au score près | Vingt lignes au lieu de cinq mille, et c'est la forme sous laquelle un entrepôt rend une distribution. Le pas de simulation est dit à l'écran |
+| Une tranche sans fraude trouvée n'en estime aucune | Zéro trouvé sur huit sondées ne prouve pas zéro fraude, mais extrapoler à partir de rien serait pire. Le rappel affiché est donc une borne haute, et le dit |
+| La capacité de la cellule entre dans la recommandation | Un seuil qui produit trois fois plus de dossiers que la cellule n'en instruit ne recommande rien : il déplace le problème vers une file d'attente ([ADR-021](docs/DECISIONS.md)) |
+| La capacité est constatée, pas supposée | 347 dossiers refermés en mai / 22 jours ouvrés ≈ 16. Une capacité supposée plus basse ferait déclarer intenable un seuil tenu depuis un mois |
+| Le contrôle de couverture refuse trou et recouvrement | Sans lui, des demandes disparaîtraient de tous les totaux sans que rien ne le signale, et le simulateur répondrait avec aplomb en ayant tort |
+
+### Ce que l'écran finit par dire
+
+Le meilleur équilibre absolu se trouve à **75 %** — le seuil en vigueur — mais il demande
+21,3 dossiers par jour pour une capacité de 16. La recommandation retient donc **80 %**,
+en ajoutant la nuance qui compte : un seuil plus bas ferait mieux, mais **le frein est le
+nombre d'analystes, pas le modèle**. C'est le genre de conclusion qu'un tableau de bord ne
+produit jamais, faute de connaître la charge.
+
+### Dette laissée sciemment
+
+- La capacité de la cellule est une constante : ni effectif variable, ni temps
+  d'instruction par type de fraude.
+- Le pas de simulation est de 5 points, celui de la distribution fournie.
+- Le simulateur ne rejoue que mai 2026.
+
+### Vérifié
+
+`typecheck` et `build` sans erreur (15 routes, `/simulation` comprise) ; `lint` inchangé à
+2 erreurs préexistantes. **34 vérifications** sur le HTML servi et **62 tests** unitaires,
+dont les neuf contrôles du service prouvés en les provoquant un à un. Le plus important
+tient en deux assertions : au seuil en vigueur, le simulateur retrouve **74,8 % de
+précision et 81,4 % de rappel** — exactement les chiffres de l'écran de qualité, calculés
+depuis un autre jeu de données par un autre chemin. Non-régression des phases 2, 3, de D1
+et de D2 rejouée : 17/17, 8/8, 24/24, 45/45, 51/51, 72/72, 62/62 et 16/16.
+
+---
+
 ## Phase 4 — Les différenciateurs · D2 — Boucle de rétroaction analyste → modèle
 
 Ailleurs, une alerte écartée disparaît dans un statut « clos », et le modèle qui l'a

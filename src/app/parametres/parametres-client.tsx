@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -13,7 +14,7 @@ import {
 import {
   Bell, Database, Users, Settings,
   Save, Plus, RefreshCw, Clock, CheckCircle,
-  AlertTriangle, Key, Globe, HardDrive, RotateCcw,
+  AlertTriangle, Key, Globe, HardDrive, RotateCcw, SlidersHorizontal,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { API_URL, USE_MOCK } from "@/lib/api/client"
@@ -293,16 +294,30 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                     label="Seuil d'alerte IA"
                     description={`Score minimum pour déclencher une alerte — les alertes en dessous sont signalées comme telles dans la liste`}
                   >
-                    <div className="flex items-center gap-3 w-64">
-                      <input
-                        type="range" min={0} max={100} value={seuil}
-                        aria-label="Seuil d'alerte IA, en pourcentage"
-                        onChange={e => modifier("seuilAlerteIA", Number(e.target.value))}
-                        className="flex-1 accent-emerald-500"
-                      />
-                      <span className="text-sm font-bold text-emerald-400 w-10 text-right font-mono">
-                        {seuil}%
-                      </span>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <div className="flex items-center gap-3 w-64">
+                        <input
+                          type="range" min={0} max={100} value={seuil}
+                          aria-label="Seuil d'alerte IA, en pourcentage"
+                          onChange={e => modifier("seuilAlerteIA", Number(e.target.value))}
+                          className="flex-1 accent-emerald-500"
+                        />
+                        <span className="text-sm font-bold text-emerald-400 w-10 text-right font-mono">
+                          {seuil}%
+                        </span>
+                      </div>
+                      {/*
+                        Ce curseur se règle autrement à l'aveugle : rien n'y dit
+                        combien d'alertes le déplacement ajoute ou retire, ni ce
+                        qu'il coûte en dossiers à instruire. Le simulateur le dit.
+                      */}
+                      <Link
+                        href="/simulation"
+                        className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 hover:text-emerald-300"
+                      >
+                        <SlidersHorizontal size={11} />
+                        Simuler avant d&apos;appliquer
+                      </Link>
                     </div>
                   </SettingRow>
 

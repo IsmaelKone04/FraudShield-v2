@@ -11,6 +11,7 @@ import {
   FileText,
   Gauge,
   Settings,
+  SlidersHorizontal,
   Shield,
   Activity,
   ChevronRight,
@@ -59,6 +60,12 @@ const navItems = [
         href: "/qualite",
         icon: Gauge,
         description: "Faux positifs & dérive",
+      },
+      {
+        title: "Simulateur de seuils",
+        href: "/simulation",
+        icon: SlidersHorizontal,
+        description: "Rejeu à seuil variable",
       },
       {
         title: "Investigations",

@@ -347,16 +347,58 @@ d'ajouter un quatrième bouton qui ne mène nulle part.
 | **P4-12** | Indicateurs de collusion : densité anormale de liens, assurés partagés entre établissements, praticiens présents dans plusieurs dossiers signalés. | 1 |
 | **P4-13** | Depuis le détail d'alerte : « voir le réseau de ce dossier » — le lien entre le cas isolé et le schéma organisé. | 0,5 |
 
-#### D4 — Simulateur de seuils
+#### D4 — Simulateur de seuils ✅ terminé
 
 > *Ailleurs* : on change le seuil et on attend un mois pour savoir ce qu'on a cassé.
 
-| # | Tâche | Est. |
-|---|---|---|
-| **P4-14** | Rejeu des alertes historiques à seuil variable, calculé côté client. | 1 |
-| **P4-15** | Écran de simulation : curseur de seuil, et en regard, en direct — alertes retenues, montant couvert, faux positifs attendus, charge de travail induite en dossiers/jour. | 1 |
-| **P4-16** | Courbe précision/rappel et point de fonctionnement recommandé, argumenté. | 0,5 |
-| **P4-17** | « Appliquer ce seuil » relié aux Paramètres de P2-5 — la boucle pilotage → configuration se referme. | 0,25 |
+| # | Tâche | Est. | |
+|---|---|---|---|
+| **P4-14** | Rejeu des alertes historiques à seuil variable, calculé côté client. | 1 | ✅ * |
+| **P4-15** | Écran de simulation : curseur de seuil, et en regard, en direct — alertes retenues, montant couvert, faux positifs attendus, charge de travail induite en dossiers/jour. | 1 | ✅ |
+| **P4-16** | Courbe précision/rappel et point de fonctionnement recommandé, argumenté. | 0,5 | ✅ |
+| **P4-17** | « Appliquer ce seuil » relié aux Paramètres de P2-5 — la boucle pilotage → configuration se referme. | 0,25 | ✅ |
+
+**Total D4 ≈ 2,75 j.** Arbitrages en [`DECISIONS.md`](DECISIONS.md), ADR-020 et ADR-021.
+
+* **Le rejeu ne porte pas sur les alertes historiques, mais sur toute la population.**
+La tâche demandait de rejouer les alertes ; or « qu'aurait donné un seuil plus bas ? » est
+une question sur les demandes qui **n'ont pas** déclenché d'alerte, et qui ne figurent donc
+dans aucune liste d'alertes. Un rejeu bâti sur les dix alertes n'aurait pu que retrancher,
+jamais ajouter : il aurait montré la moitié haute de la courbe en laissant croire que
+c'était toute la courbe.
+
+#### Écarts constatés — D4
+
+- **Une population de rejeu a été introduite** (`simulation/data.json`) : les 5 240 demandes
+  de mai 2026, alertées ou non, distribuées par tranches de 5 points. Vingt lignes plutôt
+  que cinq mille, et le rejeu n'est qu'une somme cumulée (ADR-020).
+- **La frontière entre mesuré et estimé est portée dans les données et affichée partout.**
+  Sous le seuil de collecte, rien n'a été instruit : tout ce que le simulateur avance y est
+  une estimation, issue du sondage mensuel de D2. La convention retenue est conservatrice —
+  une tranche où le sondage n'a rien trouvé n'estime rien — d'où un rappel qui est une borne
+  **haute**, dit comme tel.
+- **La capacité de la cellule entre dans la recommandation**, et elle est constatée, pas
+  supposée : 347 dossiers refermés en mai / 22 jours ouvrés ≈ 16 par jour. Le résultat est
+  la conclusion la plus intéressante de l'écran — le seuil optimal absolu (75 %) dépasse la
+  capacité, donc le frein est le nombre d'analystes, pas le modèle (ADR-021).
+- **Trois grandeurs ont été reprises de D2 plutôt que posées deux fois.** Le nombre de
+  fraudes manquées affiché par l'écran de qualité **sort** désormais de cette population ;
+  le jeu de D2 a été régénéré en conséquence. Au seuil en vigueur, les deux écrans donnent
+  le même couple précision/rappel — 74,8 % et 81,4 % — par deux chemins de calcul distincts,
+  et un test le vérifie au chiffre près.
+- **Le contrôle de couverture a mordu au premier `build`** : les tranches s'arrêtaient à 99,
+  et une demande scorée exactement 100 n'aurait été comptée nulle part.
+- **`Section` a été extraite** dans `components/section.tsx` — le dossier d'alerte, la
+  qualité et le simulateur la portaient à l'identique. Même discipline qu'en D1 pour
+  `lib/formats.ts` : au moment où la troisième copie allait apparaître.
+
+#### Dette reportée — D4
+
+| Constat | Vers |
+|---|---|
+| La capacité de la cellule est une constante du jeu : ni effectif variable, ni temps d'instruction par type de fraude. | `capaciteJour` est le paramètre par lequel un modèle de charge plus fin entrerait |
+| Le pas de simulation est de 5 points, celui de la distribution fournie. | Données au score près, si l'API en rend |
+| Le simulateur ne rejoue que mai 2026. | Population glissante, ou choix de la période |
 
 #### D5 — Piste d'audit
 
@@ -400,7 +442,7 @@ Unité : la demi-journée de travail effectif.
 | P1 | Fondations | 6,25 | 8 | ✅ |
 | P2 | Interactions | 5,25 | 13,25 | ✅ |
 | P3 | Détail d'alerte | 2,75 | 16 | ✅ |
-| P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) · D2 ✅ (3) |
+| P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) · D2 ✅ (3) · D4 ✅ (2,75) |
 | P5 | Finition | 7 | 39 | |
 
 **≈ 39 demi-journées**, soit une vingtaine de jours pleins. Les phases 0 à 3 (16 demi-journées)

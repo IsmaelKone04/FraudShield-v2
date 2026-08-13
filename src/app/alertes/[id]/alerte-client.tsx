@@ -14,6 +14,7 @@ import {
   DecompositionScore,
 } from "@/components/decomposition-score"
 import { ScoreIA, couleurScore } from "@/components/score-ia"
+import { Section } from "@/components/section"
 import { SelecteurAssignation } from "@/components/selecteur-assignation"
 import { SelecteurStatut } from "@/components/selecteur-statut"
 import { Badge } from "@/components/ui/badge"
@@ -125,37 +126,6 @@ function Champ({
         )}
       </div>
     </div>
-  )
-}
-
-function Section({
-  titre,
-  icone: Icone,
-  compte,
-  action,
-  children,
-}: {
-  titre: string
-  icone: typeof User
-  compte?: string
-  /** Commande propre à la section, alignée à droite de son titre. */
-  action?: React.ReactNode
-  children: React.ReactNode
-}) {
-  return (
-    <Card className="border-border/50 bg-card">
-      <CardContent className="p-5">
-        <div className="mb-4 flex flex-wrap items-baseline gap-2">
-          <Icone size={15} className="translate-y-0.5 text-muted-foreground/70" />
-          <h2 className="text-sm font-semibold text-foreground">{titre}</h2>
-          {compte && (
-            <span className="text-xs text-muted-foreground">{compte}</span>
-          )}
-          {action && <div className="ms-auto self-center">{action}</div>}
-        </div>
-        {children}
-      </CardContent>
-    </Card>
   )
 }
 

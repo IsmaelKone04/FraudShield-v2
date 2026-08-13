@@ -117,6 +117,7 @@ La console **modifie** des données. Elle ne se contente plus d'afficher.
 | Assigner une alerte, réassigner un dossier | `/alertes`, `/investigations` | Aux comptes ci-dessus, avec filtre « Mes dossiers » |
 | Clôturer ou rouvrir un dossier | `/investigations` | |
 | Exporter en CSV | `/alertes`, `/investigations`, `/rapports` | Fichier produit par le navigateur |
+| **Simuler puis appliquer un seuil** | `/simulation` | Curseur, effets en direct sur les alertes et la charge, puis écriture du réglage |
 | Régler le seuil de déclenchement | `/parametres` | Agit sur `/alertes` : les scores sous le seuil sont atténués, marqués, et masquables |
 
 **Où cela s'écrit.** En mode démonstration (`NEXT_PUBLIC_USE_MOCK=true`, celui du dépôt),
@@ -197,6 +198,41 @@ mesure.
 Tout y est **calculé depuis des comptages** de dossiers, jamais lu comme un taux déjà
 fait : chaque pourcentage affiché se retrouve à la main depuis le tableau juste en dessous.
 
+## 🎚️ Ce qu'un autre seuil aurait donné
+
+Troisième différenciateur. Le seuil de déclenchement est le réglage le plus lourd de
+conséquences de toute la chaîne, et c'est presque partout un curseur qu'on déplace à
+l'aveugle : on change, et on attend un mois pour savoir ce qu'on a cassé.
+
+Sur `/simulation`, le curseur affiche en regard, pour chaque seuil : les alertes levées,
+les fraudes interceptées, le montant couvert, la charge de travail induite en dossiers par
+jour — chacun avec son **écart au seuil en vigueur**.
+
+- **Le rejeu porte sur toute la population**, pas sur la liste des alertes : 5 240 demandes
+  de mai 2026, alertées ou non. « Qu'aurait donné un seuil plus bas ? » est une question sur
+  les demandes qui n'ont **pas** déclenché d'alerte ([ADR-020](docs/DECISIONS.md)).
+- **Ce qui est mesuré et ce qui est estimé ne sont jamais mélangés.** Sous le seuil de
+  collecte, aucun de ces dossiers n'a été instruit : les compteurs distinguent « établies »
+  et « estimées », et un trait sur la courbe marque la limite.
+- **Le rappel est une borne haute, et le dit.** Une tranche de score où le sondage n'a
+  trouvé aucune fraude n'en fait estimer aucune — ce qui n'est pas la même chose que
+  d'affirmer qu'il n'y en a pas.
+- **Le point recommandé vient avec sa règle**, écrite à l'écran : le meilleur équilibre
+  précision/rappel *parmi les seuils que la cellule peut absorber*
+  ([ADR-021](docs/DECISIONS.md)).
+- **« Appliquer ce seuil »** écrit le réglage là où il se lit, et les Paramètres renvoient
+  au simulateur. La boucle pilotage → configuration se referme.
+
+Ce que l'écran finit par dire est plus intéressant que le seuil qu'il désigne : le meilleur
+équilibre absolu est à **75 %**, le seuil en vigueur — mais il demande 21,3 dossiers par
+jour pour une capacité constatée de 16. La recommandation retient donc **80 %**, en disant
+pourquoi : *le frein est le nombre d'analystes, pas le modèle.*
+
+> **Point de contrôle.** Au seuil en vigueur, le simulateur retrouve **74,8 % de précision
+> et 81,4 % de rappel** — exactement les chiffres de `/qualite` pour mai 2026, calculés
+> depuis un autre jeu de données par un autre chemin. Deux écrans, un seul résultat ; un
+> test le vérifie au chiffre près.
+
 ## 🧱 Structure
 
 Chaque écran suit le même découpage : `page.tsx` (serveur) charge via le service et
@@ -214,6 +250,7 @@ src/
 │   ├── investigations/   # Dossiers en cours d'instruction
 │   ├── analyses/         # Analyses par type de fraude
 │   ├── qualite/          # Qualité du modèle : faux positifs, dérive, registre
+│   ├── simulation/       # Simulateur de seuils : rejeu de la population
 │   ├── rapports/         # Génération et export de rapports
 │   ├── parametres/       # Configuration (seuils, notifications, connexion API)
 │   └── login/            # Authentification
@@ -229,6 +266,7 @@ src/
 │   ├── csv.ts            # Génération CSV, exports.ts  # Colonnes des deux exports
 │   ├── explication.ts    # Des facteurs à la phrase en français (déterministe)
 │   ├── qualite.ts        # Précision, rappel, dérive — calculés depuis des comptages
+│   ├── simulation.ts     # Rejeu à seuil variable, courbe, point recommandé
 │   ├── decisions.ts      # Ce qu'une décision entraîne, et les causes de faux positif
 │   ├── formats.ts        # Montants, horodatages, taux — sans `toLocaleString`
 │   ├── utilisateurs.ts   # Annuaire unique des comptes
@@ -296,6 +334,9 @@ n'existe pas encore** : elle est prévue en phase 4 pour accueillir le journal d
 - **Le bandeau de dérive du tableau de bord ne compte pas les décisions locales**, celui de
   `/qualite` si. Le tableau de bord est rendu côté serveur, et les y mêler imposerait de le
   passer côté client pour un seul bandeau.
+- **Le simulateur ne rejoue que mai 2026**, par tranches de 5 points de score — la
+  finesse à laquelle la distribution est fournie. La capacité de la cellule y est une
+  constante : ni effectif variable, ni temps d'instruction par type de fraude.
 - **404 souple sur un identifiant d'alerte inconnu** : la page « introuvable » s'affiche
   bien, mais la réponse porte le statut 200. La frontière de streaming posée par
   `src/app/loading.tsx` envoie l'en-tête avant que `notFound()` ne soit atteint — cause
@@ -313,7 +354,7 @@ les arbitrages. Résumé :
 | **P1** | Fondations : service généralisé, validation Zod, gestion d'erreurs | ✅ terminée |
 | **P2** | Interactions : statuts, assignation, export, paramètres persistés | ✅ terminée |
 | **P3** | Détail d'alerte (`/alertes/[id]`) | ✅ terminée |
-| **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · graphe de réseaux · simulateur de seuils · piste d'audit | en cours |
+| **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · simulateur de seuils ✅ · graphe de réseaux · piste d'audit | en cours |
 | **P5** | Accessibilité, thème, tests, responsive, documentation finale | à venir |
 
 La phase 4 porte le parti pris du projet : **mettre l'analyste au centre plutôt que le

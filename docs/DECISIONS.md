@@ -596,9 +596,14 @@ la courbe laisse un trou plutôt que de plonger sans qu'il ne se soit rien pass�
 **Le rappel est estimé, et l'écran le dit à côté du chiffre.** On ne connaît pas
 les fraudes qu'on n'a pas signalées ; elles ne se mesurent que par sondage. Le
 jeu porte donc `manquesEstimes` **et** `baseEstimation` — « Sondage manuel sur
-500 demandes tirées au hasard en mai 2026 » — et le second est affiché sous le
-premier. Un rappel sans sa base d'estimation est un chiffre qu'on ne peut ni
-contester ni reproduire.
+500 demandes de mai 2026, tirées parmi celles qui n'ont pas déclenché
+d'alerte » — et le second est affiché sous le premier. Un rappel sans sa base
+d'estimation est un chiffre qu'on ne peut ni contester ni reproduire.
+
+> **Complété en D4.** `manquesEstimes` n'est plus posé ici : il **sort** de la
+> population de rejeu (`simulation/data.json`), où le sondage de mai est
+> détaillé tranche de score par tranche de score. Les deux écrans parlent de la
+> même quantité, et il ne peut y en avoir qu'un chiffre (ADR-020).
 
 **Deux contrôles, parce que le schéma ne peut rien en dire.** Chaque case est
 valide isolément et pourtant les trois issues peuvent ne pas redonner le nombre
@@ -660,3 +665,97 @@ suivi du registre qui permet d'agir.
 fenêtre glissante de trente jours : le jeu est mensuel. Avec des dates de
 clôture réelles, la même fonction prendrait une fenêtre en paramètre — c'est le
 seuil et l'imputabilité qui font la décision, pas le découpage du calendrier.
+
+---
+
+## ADR-020 — Le rejeu porte sur toute la population, et ce qu'on n'a pas instruit est estimé, jamais mesuré
+
+**Contexte.** « Qu'aurait donné un seuil plus bas ? » est une question sur les
+demandes qui **n'ont pas** déclenché d'alerte. Elles ne figurent donc nulle part
+dans la liste des alertes, et un simulateur bâti dessus ne pourrait que
+retrancher — jamais ajouter. Il montrerait la moitié haute de la courbe et
+laisserait croire que c'est toute la courbe.
+
+**Décision : une population de rejeu, distribuée par tranches de 5 points.**
+`simulation/data.json` porte les 5 240 demandes de mai 2026, alertées ou non,
+regroupées par tranche de score. Vingt lignes plutôt que cinq mille : c'est la
+forme sous laquelle un entrepôt de données rend une distribution, et le rejeu
+n'est qu'une somme cumulée. Le pas de simulation est donc de 5 points, et
+l'écran le dit — découper une tranche au jugé donnerait un chiffre que rien ne
+soutient. Le service refuse d'ailleurs un seuil en vigueur qui ne tomberait pas
+sur une borne.
+
+**La frontière du mesurable est portée dans les données.** Au-dessus du seuil
+qui était en vigueur pendant la collecte, les issues sont **mesurées** : ces
+dossiers ont été instruits. En dessous, personne n'a rien regardé, sauf le
+sondage mensuel de 500 demandes — le même que celui dont l'écran de qualité
+affiche déjà la base. Tout ce que le simulateur avance sous cette barre est donc
+une **estimation**, distinguée partout : dans les compteurs (« 232 établies ·
+17 estimées »), dans le montant couvert, et par un trait sur le graphique.
+
+**Rien n'est estimé au-dessus du seuil.** Les demandes sans verdict y sont des
+dossiers instruits mais pas encore tranchés : leur verdict viendra. L'anticiper
+reviendrait à compter comme interceptée une fraude que personne n'a établie.
+
+**La convention d'estimation est délibérément conservatrice.** Une tranche où le
+sondage n'a trouvé aucune fraude n'en fait estimer aucune. Zéro trouvé sur huit
+sondées ne prouve pas zéro fraude, mais extrapoler à partir de rien serait pire.
+Conséquence assumée et écrite à l'écran : le nombre de fraudes manquées est une
+borne **basse**, et le rappel affiché une borne **haute**.
+
+**Le contrôle de couverture est le plus important du lot.** Un trou entre deux
+tranches ferait disparaître des demandes de tous les totaux *sans que rien ne le
+signale*, et un recouvrement les compterait deux fois ; dans les deux cas le
+simulateur répondrait avec aplomb, et il aurait tort. Le service vérifie donc que
+les tranches s'enchaînent sans trou ni recouvrement, de 0 à 100. Il a mordu dès
+le premier `build` : les tranches s'arrêtaient à 99, et une demande scorée
+exactement 100 n'était comptée nulle part.
+
+**Les deux écrans se recoupent, et c'est vérifié.** La population de rejeu et le
+jeu de qualité de D2 décrivent le même mois par deux chemins entièrement
+distincts. Ils doivent donc dire la même chose, et ils le disent : au seuil en
+vigueur, le simulateur retrouve **74,8 % de précision et 81,4 % de rappel**,
+exactement les chiffres de mai 2026 sur l'écran de qualité. Trois grandeurs sont
+d'ailleurs reprises de l'un à l'autre plutôt que posées deux fois — les fraudes
+établies, les alertes écartées, et les fraudes manquées, dont le nombre affiché
+par D2 **sort** désormais de cette population. Un test le vérifie au chiffre
+près : si l'un des deux dérive, on l'apprend là, pas en réunion.
+
+---
+
+## ADR-021 — « Recommandé » exige une règle énoncée, et la capacité de la cellule en fait partie
+
+**Contexte.** P4-16 demande un point de fonctionnement recommandé, « argumenté ».
+Un seuil désigné sans règle n'est qu'une opinion présentée comme un résultat :
+l'utilisateur ne peut ni la contester, ni savoir ce qu'elle a optimisé.
+
+**Décision : le meilleur équilibre précision/rappel parmi les seuils que la
+cellule peut absorber.** La règle est calculée, affichée en toutes lettres sous
+la recommandation, et les deux moitiés comptent. Un seuil qui maximise le F1 en
+produisant trois fois plus de dossiers que la cellule n'en instruit ne
+recommande rien : il déplace le problème vers une file d'attente, et une alerte
+instruite trois semaines trop tard ne vaut guère mieux qu'une alerte jamais
+levée.
+
+**La capacité n'est pas posée, elle est constatée.** Le jeu de qualité compte
+347 dossiers refermés en mai 2026, soit 16 par jour ouvré. C'est ce chiffre-là
+qui sert de capacité. Une capacité supposée plus basse ferait déclarer intenable
+un seuil que la cellule tient depuis un mois ; supposée plus haute, elle
+autoriserait une recommandation que personne ne pourrait suivre.
+
+**Ce que la règle donne ici est plus intéressant que le seuil qu'elle désigne.**
+Le meilleur équilibre absolu se trouve à 75 % — le seuil en vigueur — mais il
+demande 21,3 dossiers par jour pour une capacité de 16. La recommandation
+retient donc 80 %, et l'écran ajoute la nuance qui compte : un seuil plus bas
+ferait mieux, mais le frein est le nombre d'analystes, pas le modèle. C'est le
+genre de conclusion qu'un tableau de bord ne produit jamais, parce qu'il ne
+connaît pas la charge.
+
+**Si aucun seuil n'est tenable, la fonction le dit.** Elle retient le plus haut
+— le moins coûteux — et l'annonce comme tel plutôt que de présenter un pis-aller
+comme un optimum.
+
+**Limite.** La capacité est une constante du jeu de données. Une cellule dont
+l'effectif varie, ou dont le temps d'instruction dépend du type de fraude,
+demanderait un modèle de charge plus fin ; `capaciteJour` est le paramètre par
+lequel il entrerait.

@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 
 import { BandeauDerive } from "@/components/bandeau-derive"
+import { Section } from "@/components/section"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -497,32 +498,5 @@ function BlocCauses({
         </ul>
       )}
     </div>
-  )
-}
-
-function Section({
-  titre,
-  icone: Icone,
-  compte,
-  children,
-}: {
-  titre: string
-  icone: typeof Gauge
-  compte?: string
-  children: React.ReactNode
-}) {
-  return (
-    <Card className="border-border/50 bg-card">
-      <CardContent className="p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <Icone size={15} className="text-muted-foreground" />
-          <h2 className="text-sm font-semibold text-foreground">{titre}</h2>
-          {compte && (
-            <span className="text-[11px] text-muted-foreground">· {compte}</span>
-          )}
-        </div>
-        {children}
-      </CardContent>
-    </Card>
   )
 }

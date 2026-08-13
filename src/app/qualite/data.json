@@ -27,8 +27,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 5,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes de décembre 2025, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2025-12",
@@ -56,8 +56,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 4,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes de décembre 2025, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2025-12",
@@ -89,8 +89,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+      "manquesEstimes": 8,
+      "baseEstimation": "Sondage manuel sur 500 demandes de décembre 2025, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2025-12",
@@ -122,8 +122,8 @@
           "quantite": 2
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+      "manquesEstimes": 9,
+      "baseEstimation": "Sondage manuel sur 500 demandes de décembre 2025, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2025-12",
@@ -155,8 +155,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+      "manquesEstimes": 9,
+      "baseEstimation": "Sondage manuel sur 500 demandes de décembre 2025, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2025-12",
@@ -180,8 +180,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 4,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en décembre 2025"
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes de décembre 2025, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-01",
@@ -209,8 +209,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 5,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+      "manquesEstimes": 8,
+      "baseEstimation": "Sondage manuel sur 500 demandes de janvier 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-01",
@@ -242,8 +242,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 4,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes de janvier 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-01",
@@ -275,8 +275,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+      "manquesEstimes": 9,
+      "baseEstimation": "Sondage manuel sur 500 demandes de janvier 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-01",
@@ -308,8 +308,8 @@
           "quantite": 2
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+      "manquesEstimes": 10,
+      "baseEstimation": "Sondage manuel sur 500 demandes de janvier 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-01",
@@ -341,8 +341,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 7,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+      "manquesEstimes": 10,
+      "baseEstimation": "Sondage manuel sur 500 demandes de janvier 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-01",
@@ -366,8 +366,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 5,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en janvier 2026"
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes de janvier 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-02",
@@ -395,8 +395,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 5,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes de février 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-02",
@@ -428,8 +428,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 4,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes de février 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-02",
@@ -461,8 +461,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 5,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+      "manquesEstimes": 8,
+      "baseEstimation": "Sondage manuel sur 500 demandes de février 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-02",
@@ -494,8 +494,8 @@
           "quantite": 2
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+      "manquesEstimes": 9,
+      "baseEstimation": "Sondage manuel sur 500 demandes de février 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-02",
@@ -527,8 +527,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 7,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+      "manquesEstimes": 10,
+      "baseEstimation": "Sondage manuel sur 500 demandes de février 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-02",
@@ -548,8 +548,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 4,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en février 2026"
+      "manquesEstimes": 6,
+      "baseEstimation": "Sondage manuel sur 500 demandes de février 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-03",
@@ -581,8 +581,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+      "manquesEstimes": 8,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mars 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-03",
@@ -614,8 +614,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 3,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mars 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-03",
@@ -647,8 +647,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+      "manquesEstimes": 9,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mars 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-03",
@@ -680,8 +680,8 @@
           "quantite": 2
         }
       ],
-      "manquesEstimes": 7,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+      "manquesEstimes": 10,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mars 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-03",
@@ -713,8 +713,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 7,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+      "manquesEstimes": 11,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mars 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-03",
@@ -738,8 +738,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 5,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mars 2026"
+      "manquesEstimes": 8,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mars 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-04",
@@ -767,8 +767,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 5,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes de avril 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-04",
@@ -800,8 +800,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 3,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+      "manquesEstimes": 5,
+      "baseEstimation": "Sondage manuel sur 500 demandes de avril 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-04",
@@ -833,8 +833,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+      "manquesEstimes": 9,
+      "baseEstimation": "Sondage manuel sur 500 demandes de avril 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-04",
@@ -866,8 +866,8 @@
           "quantite": 2
         }
       ],
-      "manquesEstimes": 7,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+      "manquesEstimes": 10,
+      "baseEstimation": "Sondage manuel sur 500 demandes de avril 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-04",
@@ -899,8 +899,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 8,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+      "manquesEstimes": 12,
+      "baseEstimation": "Sondage manuel sur 500 demandes de avril 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-04",
@@ -924,8 +924,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 5,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en avril 2026"
+      "manquesEstimes": 7,
+      "baseEstimation": "Sondage manuel sur 500 demandes de avril 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-05",
@@ -957,8 +957,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+      "manquesEstimes": 8,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mai 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-05",
@@ -990,8 +990,8 @@
           "quantite": 2
         }
       ],
-      "manquesEstimes": 3,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+      "manquesEstimes": 4,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mai 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-05",
@@ -1023,8 +1023,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+      "manquesEstimes": 9,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mai 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-05",
@@ -1056,8 +1056,8 @@
           "quantite": 2
         }
       ],
-      "manquesEstimes": 7,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+      "manquesEstimes": 11,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mai 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-05",
@@ -1089,8 +1089,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 8,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+      "manquesEstimes": 13,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mai 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     },
     {
       "mois": "2026-05",
@@ -1114,8 +1114,8 @@
           "quantite": 1
         }
       ],
-      "manquesEstimes": 6,
-      "baseEstimation": "Sondage manuel sur 500 demandes tirées au hasard en mai 2026"
+      "manquesEstimes": 8,
+      "baseEstimation": "Sondage manuel sur 500 demandes de mai 2026, tirées parmi celles qui n'ont pas déclenché d'alerte"
     }
   ],
   "seuils": [
