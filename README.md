@@ -112,6 +112,7 @@ La console **modifie** des données. Elle ne se contente plus d'afficher.
 | Changer le statut d'une alerte | `/alertes` | Liste et cartes de KPI mises à jour |
 | **Décider d'un dossier** | `/alertes/[id]` | Fraude confirmée, classée sans suite, ou pièce demandée — motif obligatoire, et c'est la décision qui fixe le statut |
 | **Écrire une note interne** | `/alertes/[id]` | Fil horodaté et signé, versé à la chronologie |
+| **Imprimer la note d'explication** | `/alertes/[id]/note` | Document autonome, à enregistrer en PDF depuis le navigateur |
 | Assigner une alerte, réassigner un dossier | `/alertes`, `/investigations` | Aux comptes ci-dessus, avec filtre « Mes dossiers » |
 | Clôturer ou rouvrir un dossier | `/investigations` | |
 | Exporter en CSV | `/alertes`, `/investigations`, `/rapports` | Fichier produit par le navigateur |
@@ -137,6 +138,36 @@ infobulle**, plutôt que d'afficher une confirmation pour une opération qui n'a
 Aucun bouton visible n'est décoratif ; le principe est consigné dans
 [ADR-009](docs/DECISIONS.md).
 
+## 🔍 Pourquoi ce score — et pas seulement « 94 »
+
+C'est le premier des cinq différenciateurs du projet, et le reproche n° 1 fait aux outils
+du marché : ils affichent un score et s'arrêtent là. Un analyste ne peut alors ni le
+défendre devant un établissement, ni le contester devant son responsable.
+
+Sur `/alertes/[id]`, le score est **décomposé facteur par facteur** :
+
+- chaque facteur porte une **contribution signée en points**, ce qui aggrave comme ce qui
+  atténue, avec la valeur observée, la valeur attendue et **la source de la mesure** ;
+- les contributions **referment le score** — valeur de base plus contributions égale le
+  score affiché, et le service refuse de servir un dossier où ce n'est pas vrai
+  ([ADR-014](docs/DECISIONS.md)) ;
+- une **phrase en français** est composée depuis les facteurs dominants, à l'identique d'un
+  affichage à l'autre : *« Score très élevé (94/100), principalement parce que le montant
+  facturé représente 2,5 fois le tarif de la nomenclature pour les mêmes actes… »* — aucun
+  modèle de langue n'intervient, et c'est délibéré ([ADR-015](docs/DECISIONS.md)) ;
+- le dossier est **replacé face à trois références** : l'établissement, l'acte, la période,
+  chacune avec son effectif ;
+- **ce qui joue en faveur du dossier est dit.** L'alerte `A-2026-0119` ne reste à 22 que
+  parce que le cabinet a déclaré son erreur de codage avant tout contrôle.
+
+Le tout se réunit dans une **note d'explication imprimable** (`/alertes/[id]/note`) : la
+pièce qu'un gestionnaire joint à une contestation. Le navigateur en produit le PDF ;
+aucune bibliothèque de génération n'est embarquée ([ADR-016](docs/DECISIONS.md)).
+
+Le format des facteurs est celui d'une **valeur SHAP** — contribution signée rapportée à
+une valeur de base. Le jour où le service de détection renvoie de vraies valeurs, il
+remplit ce contrat sans qu'il bouge.
+
 ## 🧱 Structure
 
 Chaque écran suit le même découpage : `page.tsx` (serveur) charge via le service et
@@ -149,7 +180,8 @@ src/
 │   ├── error.tsx  loading.tsx  not-found.tsx
 │   ├── dashboard/        # Vue d'ensemble : KPIs, tendances, dernières alertes
 │   ├── alertes/          # Liste des alertes, filtres, statuts
-│   │   └── [id]/         # Le dossier : actes facturés, chronologie, décision, notes
+│   │   └── [id]/         # Le dossier : score expliqué, actes, chronologie, décision, notes
+│   │       └── note/     # La note d'explication, mise en page pour l'impression
 │   ├── investigations/   # Dossiers en cours d'instruction
 │   ├── analyses/         # Analyses par type de fraude
 │   ├── rapports/         # Génération et export de rapports
@@ -165,6 +197,8 @@ src/
 │   ├── services/         # Une façade métier par domaine
 │   ├── store/            # Écarts au jeu de données (Zustand), persistés localement
 │   ├── csv.ts            # Génération CSV, exports.ts  # Colonnes des deux exports
+│   ├── explication.ts    # Des facteurs à la phrase en français (déterministe)
+│   ├── formats.ts        # Montants, horodatages, écarts — sans `toLocaleString`
 │   ├── utilisateurs.ts   # Annuaire unique des comptes
 │   └── types/            # Types déduits des schémas (point d'entrée commode)
 ├── auth.ts               # Configuration NextAuth (fournisseur, rôles, session)
@@ -214,9 +248,14 @@ n'existe pas encore** : elle est prévue en phase 4 pour accueillir le journal d
   session, et protège les routes via `proxy.ts` — mais il ne restreint aucune action.
   Un analyste peut réassigner un dossier comme un superviseur. Décider qui a le droit de
   quoi est une règle métier, traitée en phase 4 avec la piste d'audit.
-- **Le score n'est pas encore expliqué** : le dossier affiche les signaux relevés sur
-  chaque acte, mais pas la décomposition du score facteur par facteur. C'est le
-  différenciateur D1, en phase 4.
+- **Le score n'est pas recalculé depuis ses facteurs** : la décomposition explique le score
+  du jeu de données, elle ne le produit pas. Modifier une contribution ne changera donc pas
+  le score — le contrôle de cohérence refusera simplement le dossier. Le rejeu à seuil
+  variable (D4) est ce qui rendra le calcul vivant.
+- **Les énoncés des facteurs sont écrits dans le jeu de données**, pas composés depuis les
+  valeurs mesurées. Fabriquer une proposition française correcte (accords, élisions) à
+  partir de nombres bruts est un problème à part entière ; en cible, c'est l'API qui les
+  fournit.
 - **404 souple sur un identifiant d'alerte inconnu** : la page « introuvable » s'affiche
   bien, mais la réponse porte le statut 200. La frontière de streaming posée par
   `src/app/loading.tsx` envoie l'en-tête avant que `notFound()` ne soit atteint — cause
@@ -234,7 +273,7 @@ les arbitrages. Résumé :
 | **P1** | Fondations : service généralisé, validation Zod, gestion d'erreurs | ✅ terminée |
 | **P2** | Interactions : statuts, assignation, export, paramètres persistés | ✅ terminée |
 | **P3** | Détail d'alerte (`/alertes/[id]`) | ✅ terminée |
-| **P4** | Explicabilité du score · boucle de rétroaction · graphe de réseaux · simulateur de seuils · piste d'audit | à venir |
+| **P4** | Explicabilité du score ✅ · boucle de rétroaction · graphe de réseaux · simulateur de seuils · piste d'audit | en cours |
 | **P5** | Accessibilité, thème, tests, responsive, documentation finale | à venir |
 
 La phase 4 porte le parti pris du projet : **mettre l'analyste au centre plutôt que le

@@ -5,10 +5,14 @@ import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import {
   AlertTriangle, ArrowLeft, Building2, Calendar, CheckCircle,
-  FileText, History, MessageSquare, Receipt, Send, ShieldAlert,
-  Trash2, Undo2, User,
+  FileText, History, MessageSquare, Printer, Receipt, Scale, Send,
+  ShieldAlert, Trash2, Undo2, User,
 } from "lucide-react"
 
+import {
+  ComparatifContextuel,
+  DecompositionScore,
+} from "@/components/decomposition-score"
 import { ScoreIA, couleurScore } from "@/components/score-ia"
 import { SelecteurAssignation } from "@/components/selecteur-assignation"
 import { SelecteurStatut } from "@/components/selecteur-statut"
@@ -18,6 +22,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { USE_MOCK } from "@/lib/api/client"
 import { DECISIONS, ORDRE_DECISIONS } from "@/lib/decisions"
+import { formaterHorodatage, francs } from "@/lib/formats"
 import type { AlerteDetail } from "@/lib/schemas/alertes.schema"
 import type { TypeDecision } from "@/lib/schemas/modifications.schema"
 import { useAlerteDetail, useModificationsStore } from "@/lib/store"
@@ -31,32 +36,6 @@ const risqueCfg: Record<string, string> = {
 
 const SANS_SESSION =
   "Une décision engage son auteur : elle ne peut être enregistrée sans compte connecté."
-
-/**
- * Horodatage lisible, sans conversion de fuseau.
- *
- * `toLocaleString` donnerait un rendu différent sur le serveur et dans le
- * navigateur, donc un avertissement d'hydratation. Les horodatages sont en
- * UTC, qui est aussi l'heure de Dakar : les découper suffit, et le résultat
- * est identique des deux côtés.
- */
-function formaterHorodatage(iso: string): string {
-  const [date, heure] = iso.split("T")
-  const [annee, mois, jour] = date.split("-")
-  return `${jour}/${mois}/${annee} à ${heure.slice(0, 5)}`
-}
-
-/**
- * « 963 000 FCFA ».
- *
- * Écrit à la main plutôt qu'avec `toLocaleString` : celui-ci sépare les
- * milliers par une espace insécable étroite dont la présence dépend de la
- * version d'ICU, donc du serveur et du navigateur. Le rendu différerait entre
- * les deux, et les montants déjà mis en forme dans le jeu de données emploient
- * une espace ordinaire.
- */
-const francs = (montant: number) =>
-  `${montant.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} FCFA`
 
 // ─── Chronologie ──────────────────────────────────────────────────────────────
 
@@ -140,22 +119,26 @@ function Section({
   titre,
   icone: Icone,
   compte,
+  action,
   children,
 }: {
   titre: string
   icone: typeof User
   compte?: string
+  /** Commande propre à la section, alignée à droite de son titre. */
+  action?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
     <Card className="border-border/50 bg-card">
       <CardContent className="p-5">
-        <div className="mb-4 flex items-baseline gap-2">
+        <div className="mb-4 flex flex-wrap items-baseline gap-2">
           <Icone size={15} className="translate-y-0.5 text-muted-foreground/70" />
           <h2 className="text-sm font-semibold text-foreground">{titre}</h2>
           {compte && (
             <span className="text-xs text-muted-foreground">{compte}</span>
           )}
+          {action && <div className="ms-auto self-center">{action}</div>}
         </div>
         {children}
       </CardContent>
@@ -334,20 +317,47 @@ export function AlerteClient({
                 {dossier.scoreIA} / 100
               </div>
               <ScoreIA score={dossier.scoreIA} className="mt-1.5 max-w-[140px]" />
-              {/*
-                La décomposition du score est le différenciateur D1, en phase 4.
-                Le dire ici vaut mieux que de laisser croire que « 94 » se
-                suffit à lui-même : c'est précisément ce reproche qui est fait
-                aux outils du marché.
-              */}
               <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground/70">
-                Le détail facteur par facteur arrive en phase 4. Les signaux
-                relevés sur chaque acte sont ci-dessous.
+                {dossier.explication.facteurs.length} facteurs, détaillés
+                ci-dessous.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* ── Pourquoi ce score ── */}
+      <Section
+        titre="Pourquoi ce score"
+        icone={Scale}
+        compte={`${dossier.explication.facteurs.length} facteurs · calculé le ${formaterHorodatage(dossier.explication.calculeLe)}`}
+        action={
+          <Button
+            size="sm"
+            variant="outline"
+            render={<Link href={`/alertes/${dossier.id}/note`} />}
+            title="Ouvre la note d'explication, mise en page pour être imprimée ou enregistrée en PDF et jointe au dossier."
+            className="gap-1.5"
+          >
+            <Printer size={13} />
+            Note d'explication
+          </Button>
+        }
+      >
+        <DecompositionScore
+          score={dossier.scoreIA}
+          explication={dossier.explication}
+        />
+      </Section>
+
+      {/* ── Comparatif contextuel ── */}
+      <Section
+        titre="Ce dossier face aux autres"
+        icone={Receipt}
+        compte="établissement · acte · période"
+      >
+        <ComparatifContextuel comparatifs={dossier.comparatifs} />
+      </Section>
 
       {/* ── Décision ── */}
       <Section titre="Décision" icone={ShieldAlert}>

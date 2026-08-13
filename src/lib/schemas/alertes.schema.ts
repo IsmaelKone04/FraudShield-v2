@@ -86,6 +86,77 @@ export const evenementSchema = z.object({
 export type Evenement = z.infer<typeof evenementSchema>
 
 /**
+ * Un facteur ayant pesé sur le score, avec ce qu'il a pesé.
+ *
+ * La forme est calquée sur une valeur SHAP : une contribution **signée**, en
+ * points de score, rapportée à une valeur de base commune à tous les dossiers.
+ * Un vrai modèle en produit exactement cela ; le jour où l'API en renvoie, elle
+ * remplira ce contrat sans qu'il bouge.
+ *
+ * Il n'y a **pas** de champ « sens » : le signe de `contribution` le porte déjà.
+ * Un aggravant à contribution négative serait un état impossible, et c'est
+ * précisément le genre de contradiction que deux champs redondants finissent
+ * par produire.
+ */
+export const facteurRisqueSchema = z.object({
+  /** Identifiant stable du facteur, pour le rapprocher d'un dossier à l'autre. */
+  code: z.string(),
+  libelle: z.string(),
+  /** Points de score ajoutés (> 0) ou retirés (< 0) par ce facteur. */
+  contribution: z.number().int(),
+  /** Ce qui a été mesuré sur ce dossier, déjà mis en forme. */
+  valeurObservee: z.string(),
+  /** Ce à quoi cette mesure a été comparée. */
+  valeurAttendue: z.string(),
+  /** D'où vient la mesure — la question que pose tout établissement mis en cause. */
+  source: z.string(),
+  /**
+   * Le facteur formulé en proposition insérable dans une phrase, sans
+   * majuscule ni point final : « le montant facturé représente 2,5 fois le
+   * tarif de la nomenclature ». C'est de ces énoncés qu'est composée la note
+   * d'explication.
+   */
+  enonce: z.string(),
+})
+export type FacteurRisque = z.infer<typeof facteurRisqueSchema>
+
+/**
+ * La décomposition du score, telle qu'elle est opposable.
+ *
+ * `valeurDeBase` est le score moyen de l'ensemble des demandes analysées : le
+ * point de départ commun à tous les dossiers, et non une propriété de
+ * celui-ci. La somme des contributions l'amène au score affiché — le service
+ * refuse de servir un dossier où ce n'est pas le cas.
+ */
+export const decompositionSchema = z.object({
+  valeurDeBase: scoreSchema,
+  facteurs: z.array(facteurRisqueSchema).min(1),
+  /** Version du moteur ayant produit ce score, pour l'audit. */
+  modele: z.string(),
+  calculeLe: z.iso.datetime(),
+})
+export type Decomposition = z.infer<typeof decompositionSchema>
+
+/**
+ * Le dossier replacé face à une population de référence.
+ *
+ * Un chiffre seul ne se conteste pas : « 2 400 000 FCFA » ne devient un
+ * argument que comparé à ce que facture habituellement l'établissement, à ce
+ * que coûte l'acte ailleurs, et à ce que la période laissait attendre.
+ */
+export const comparatifSchema = z.object({
+  /** À quoi le dossier est comparé : « L'établissement », « L'acte »… */
+  cohorte: z.string(),
+  libelle: z.string(),
+  valeurDossier: z.number().nonnegative(),
+  valeurCohorte: z.number().nonnegative(),
+  /** Sur quoi la moyenne est calculée — sans quoi elle ne vaut rien. */
+  effectif: z.string(),
+  unite: z.enum(["FCFA", "actes", "jours"]),
+})
+export type Comparatif = z.infer<typeof comparatifSchema>
+
+/**
  * Le dossier complet, tel que le rend `GET /alertes/{id}`.
  *
  * La liste ne transporte que le résumé : demander à `GET /alertes` de renvoyer
@@ -103,6 +174,8 @@ export const alerteDetailSchema = alerteSchema.extend({
   praticien: z.string(),
   actes: z.array(acteSchema).min(1),
   chronologie: z.array(evenementSchema).min(1),
+  explication: decompositionSchema,
+  comparatifs: z.array(comparatifSchema).min(1),
 })
 export type AlerteDetail = z.infer<typeof alerteDetailSchema>
 

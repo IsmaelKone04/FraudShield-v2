@@ -406,3 +406,121 @@ référencement à préserver.
 robot, un test de bout en bout, une supervision — verrait 200 là où il attend
 404. Le jour où l'un de ces trois apparaît, le groupe de routes devient
 justifié. D'ici là, l'utilisateur voit la bonne page, ce qui est ce qui compte.
+
+---
+
+## ADR-014 — Le score s'explique par une décomposition additive, et elle doit refermer le score
+
+**Contexte.** L'écran du dossier affichait « 94 / 100 » et s'arrêtait là. C'est
+le reproche n° 1 fait aux outils du marché : un analyste ne peut ni défendre ce
+chiffre devant un établissement, ni le contester devant son responsable. Il
+fallait dire *pourquoi* 94.
+
+**Décision : la forme d'une valeur SHAP, dès maintenant.** Chaque facteur porte
+une **contribution signée en points de score**, rapportée à une `valeurDeBase`
+commune à tous les dossiers — le score moyen de l'ensemble des demandes
+analysées, et non une propriété de celui-ci. C'est exactement ce que produit un
+modèle expliqué par valeurs de Shapley. Le jour où l'API renvoie de vraies
+valeurs, elle remplit ce contrat sans qu'il bouge ; d'ici là un moteur de règles
+pondérées l'alimente, et rien à l'écran ne dépend duquel des deux il s'agit.
+
+**Il n'y a pas de champ `sens`.** La feuille de route en prévoyait un
+(aggravant / atténuant) à côté de la contribution. Deux représentations du même
+fait finissent par se contredire — un « aggravant » à contribution négative
+serait un état impossible que rien n'empêcherait d'écrire. Le signe suffit, et
+l'écran en déduit la couleur, la flèche et le côté de l'axe.
+
+**Le contrôle, parce que le schéma ne peut rien en dire.** Chaque facteur est
+valide isolément et pourtant leur somme peut ne pas faire le score affiché.
+L'explication expliquerait alors *un autre* chiffre que celui montré — c'est
+pire que pas d'explication du tout, puisqu'elle se présente comme opposable en
+ne l'étant pas. `alertesService.getAlerte()` vérifie donc que
+`valeurDeBase + Σ contributions === scoreIA` et refuse le dossier sinon.
+Vérifié en le provoquant : ramener une contribution de 34 à 33 fait échouer le
+chargement sur *« Les facteurs de A-2026-0125 totalisent 93 points (base 18)
+alors que le score est de 94 »*, au lieu d'afficher une décomposition qui ne
+tombe pas juste. Même raisonnement que l'ADR-010 et l'ADR-011.
+
+**Conséquence assumée.** Enrichir le jeu de données coûte plus cher : ajouter un
+facteur oblige à en retirer les points ailleurs, ou à bouger le score. C'est
+voulu. Les dix décompositions ont d'ailleurs été écrites par script plutôt qu'à
+la main, précisément parce qu'une somme fausse ne se voit pas dans neuf cents
+lignes de JSON.
+
+**Pas de bibliothèque de visualisation.** Cinq barres divergentes à axe centré
+se font avec deux `div` et une largeur en pourcentage. Recharts, déjà présent,
+n'a pas de barre divergente ; en importer une autre coûterait des kilo-octets
+pour faire moins bien.
+
+---
+
+## ADR-015 — La phrase d'explication est composée, pas générée
+
+**Contexte.** Les barres disent le poids de chaque facteur, mais ce n'est pas ce
+qu'on recopie dans un courrier. Il fallait une phrase en français : « Score très
+élevé (94/100), principalement parce que le montant facturé représente 2,5 fois
+le tarif de la nomenclature… ».
+
+**Décision : un assemblage déterministe, aucun modèle de langue.** Chaque
+facteur porte un `enonce` — une proposition insérable dans une phrase — et
+`phraseExplicative()` enchaîne les trois aggravants dominants après « parce
+que », puis au plus deux atténuants après « En sens inverse ». La même
+décomposition donne toujours la même phrase, mot pour mot.
+
+C'est la condition pour qu'elle figure dans une pièce de dossier. Une phrase
+reformulée à chaque affichage rendrait deux impressions du même dossier
+différentes, et il n'y aurait plus rien à opposer à qui que ce soit. Un appel à
+un modèle ajouterait par-dessus une latence, un coût, une dépendance réseau et
+un risque d'invention — sur le document dont la fonction est précisément de
+n'avancer que ce qui est mesuré.
+
+**Ce qui joue en faveur du dossier est dit.** Les atténuants apparaissent dans
+la phrase, dans les barres et dans la note. Les taire produirait un
+réquisitoire, pas une explication — et le cas est réel : l'alerte A-2026-0119 ne
+reste à 22 que parce que le cabinet a déclaré son erreur de codage avant tout
+contrôle. Le cas limite où un dossier n'a *aucun* aggravant est traité
+explicitement : la phrase le dit, plutôt que de lui inventer une charge.
+
+**Limite.** Les énoncés sont écrits à la main dans le jeu de données. En cible,
+c'est l'API qui les fournira, ou une table de gabarits par code de facteur — les
+`code` sont là pour ça. Composer une proposition française correcte à partir de
+valeurs brutes (accords, élisions, nombres en lettres) n'est pas un problème
+d'affichage, et le résoudre à moitié se verrait immédiatement.
+
+---
+
+## ADR-016 — La note d'explication est imprimée par le navigateur, pas fabriquée par une bibliothèque
+
+**Contexte.** P4-5 demande la pièce qu'un gestionnaire joint à un dossier de
+contestation : objet, décomposition du score, actes et tarifs de référence,
+comparaisons, décision. En PDF.
+
+**Décision : une route à part, rendue en clair, imprimée par le navigateur.**
+`/alertes/{id}/note` est une page autonome — une adresse se transmet, se met en
+favori et s'imprime, un bloc caché dans l'écran du dossier ne fait aucun des
+trois. Elle se rend en noir sur blanc **à l'écran comme sur le papier** : la
+page affichée est exactement la page imprimée. Une note sombre qu'une feuille de
+style redresserait au moment d'imprimer se découvrirait cassée après coup, sur
+du papier.
+
+**Aucune dépendance de génération de PDF.** `jsPDF`, `pdfmake` ou un rendu
+serveur par navigateur sans interface pèsent de quelques centaines de kilo-octets
+à plusieurs dizaines de mégaoctets, et refont moins bien ce que « Enregistrer au
+format PDF » fait déjà : pagination correcte, polices embarquées, texte
+sélectionnable, accessible et recherchable. Le seul travail restant était le
+`@media print` de `globals.css` et quelques `break-inside-avoid` — une section
+coupée en deux par un saut de page se relit mal, et une note de contestation se
+lit une fois.
+
+**Le document dit d'où il vient.** En mode démonstration, un bandeau
+« données fictives, sans valeur probante » est imprimé en tête, et
+`print-color-adjust: exact` empêche le navigateur de le supprimer avec les
+aplats. Produire un document d'apparence officielle à partir de données
+inventées sans le dire serait le seul vrai défaut possible de cet écran.
+
+**Ce que ça coûte.** L'en-tête et le pied de page du navigateur (URL, date,
+numéro de page) s'ajoutent au document et ne se désactivent que dans la boîte de
+dialogue d'impression — cela ne se pilote pas depuis la page. Et le fichier
+n'est pas produit sans intervention : il n'y a pas d'« envoyer la note par
+courriel » automatisé. Le jour où un envoi automatique est demandé, c'est un
+rendu côté serveur qu'il faudra, et l'arbitrage sera à refaire.

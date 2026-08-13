@@ -4,6 +4,86 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 4 — Les différenciateurs · D1 — Explicabilité du score
+
+Le premier des cinq différenciateurs, et celui au meilleur rapport valeur/effort. Le
+reproche n° 1 fait aux outils du marché tient en un mot : ils affichent « 94 » et
+s'arrêtent là. Un analyste ne peut alors ni défendre ce chiffre devant un établissement,
+ni le contester devant son responsable.
+
+### Ajouté
+
+- **La décomposition du score**, sur `/alertes/[id]`. Chaque facteur porte une
+  contribution **signée en points**, la valeur observée, la valeur attendue et **la source
+  de la mesure** — c'est cette dernière colonne que réclame tout établissement mis en
+  cause. Les barres sont à axe centré : à droite ce qui aggrave, à gauche ce qui atténue,
+  à la même échelle des deux côtés.
+- **La propriété qui fait toute la valeur d'une explication** : `valeurDeBase +
+  Σ contributions = scoreIA`. La valeur de base est le score moyen de l'ensemble des
+  demandes analysées — un point de départ commun, pas une propriété du dossier. Le format
+  est celui d'une valeur SHAP, de sorte qu'un vrai modèle remplisse ce contrat sans qu'il
+  bouge.
+- **Un contrôle qui refuse un dossier dont les facteurs ne referment pas le score.** Une
+  explication qui ne totalise pas est pire que pas d'explication : elle se présente comme
+  opposable en ne l'étant pas. Prouvé en le provoquant — ramener une contribution de 34 à
+  33 fait échouer le chargement sur *« Les facteurs de A-2026-0125 totalisent 93 points
+  (base 18) alors que le score est de 94 »*.
+- **La phrase d'explication en français**, composée depuis les trois facteurs dominants et
+  au plus deux atténuants : *« Score très élevé (94/100), principalement parce que le
+  montant facturé représente 2,5 fois le tarif de la nomenclature pour les mêmes actes,
+  que deux IRM cardiaques ont été facturées le même jour pour le même assuré et que
+  l'établissement concentre 6 dossiers signalés en douze mois, contre 0,8 pour un
+  établissement comparable. En sens inverse, le contrat est actif depuis sept ans sans
+  aucun litige. »* Assemblage déterministe, aucun modèle de langue.
+- **Le comparatif contextuel** : le dossier face à l'établissement, à l'acte et à la
+  période, chaque référence donnée avec son effectif — une moyenne sans effectif ne se
+  conteste pas.
+- **La note d'explication imprimable** (`/alertes/[id]/note`) : objet, décomposition
+  chiffrée, actes et tarifs de référence, comparaisons, décision. Rendue en noir sur blanc
+  à l'écran comme sur le papier, et portant en tête, en mode démonstration, un bandeau
+  « données fictives, sans valeur probante ».
+- **Le jeu de données** porte les facteurs et les comparatifs des dix alertes, écrits par
+  script — une somme fausse ne se voit pas dans neuf cents lignes de JSON.
+
+### Modifié
+
+- L'encart du score ne renvoie plus la décomposition à « la phase 4 » : il annonce le
+  nombre de facteurs et les donne juste dessous.
+- `francs()` et `formaterHorodatage()` quittent l'écran du dossier pour `lib/formats.ts`,
+  rejointes par `separerMilliers()`, `signe()`, `ecartRelatif()` et `valeurAvecUnite()`.
+  Trois écrans en avaient besoin ; une troisième copie aurait fini par séparer les
+  milliers autrement que les deux premières.
+- `globals.css` porte une règle `@media print` et un `@page`. C'est tout ce qu'il a fallu
+  côté impression.
+
+### Arbitrages
+
+| Décision | Pourquoi |
+|---|---|
+| Pas de champ `sens` à côté de `contribution`, contrairement au plan | Le signe le porte déjà ; un « aggravant » à contribution négative serait un état impossible que rien n'empêcherait d'écrire ([ADR-014](docs/DECISIONS.md)) |
+| Aucun modèle de langue pour la phrase | Une phrase reformulée à chaque affichage rendrait deux impressions du même dossier différentes — il n'y aurait plus rien à opposer ([ADR-015](docs/DECISIONS.md)) |
+| Aucune bibliothèque de PDF | Le navigateur pagine mieux, embarque les polices et rend le texte sélectionnable ; 500 ko pour faire moins bien ([ADR-016](docs/DECISIONS.md)) |
+| Aucune bibliothèque de graphiques pour les barres | Cinq barres divergentes, deux `div` et une largeur en pourcentage. Recharts, déjà présent, n'a pas de barre divergente à axe centré |
+| Les atténuants sont affichés et dits dans la phrase | Les taire produirait un réquisitoire, pas une explication |
+
+### Dette laissée sciemment
+
+- Les `enonce` sont écrits dans le jeu de données plutôt que composés depuis les valeurs.
+- Le score n'est pas recalculé depuis ses facteurs : la décomposition l'explique, elle ne
+  le produit pas. Ce sera l'affaire de D4.
+- Toujours aucune capture d'écran — le projet n'embarque pas d'outil de navigateur
+  ([ADR-005](docs/DECISIONS.md)), et les captures sont prévues en P5-8.
+
+### Vérifié
+
+`typecheck` et `build` sans erreur (13 routes, `/alertes/[id]/note` comprise) ; `lint`
+inchangé à 2 erreurs préexistantes. **45 assertions** sur le HTML réellement servi, session
+ouverte, et **72 tests** sur les fonctions pures et le contrat du service — dont les dix
+dossiers passés au contrôle de cohérence. Non-régression des phases 2 et 3 rejouée :
+17/17, 8/8 et 24/24.
+
+---
+
 ## Phase 3 — Le détail d'alerte · jalon M3
 
 L'écran qui manquait au produit. L'analyste cliquait sur une alerte à 94 et il ne se

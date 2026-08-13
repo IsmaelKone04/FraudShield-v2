@@ -69,7 +69,9 @@ export const alertesService = {
         )
       }
 
-      return verifierTotalDesActes({ ...alerte, ...complement })
+      return verifierDecomposition(
+        verifierTotalDesActes({ ...alerte, ...complement })
+      )
     }
     return fetchFromAPI(
       `/alertes/${encodeURIComponent(id)}`,
@@ -93,6 +95,36 @@ function verifierTotalDesActes(dossier: AlerteDetail): AlerteDetail {
     throw new ApiError(
       `Le total des actes de ${dossier.id} (${total}) ne correspond pas au ` +
         `montant de l'alerte (${dossier.montant}) — ${ORIGINE}`,
+      ORIGINE
+    )
+  }
+  return dossier
+}
+
+/**
+ * Vérifie que les facteurs expliquent bien le score affiché.
+ *
+ * C'est la propriété qui fait toute la valeur d'une décomposition : la valeur
+ * de base plus les contributions doit **redonner** le score, sinon
+ * l'explication n'explique pas ce chiffre-là mais un autre. Une explication
+ * qui ne totalise pas est pire que pas d'explication du tout — elle se
+ * présente comme opposable en ne l'étant pas.
+ *
+ * Le contrôle vaut aussi pour l'API : un modèle dont les valeurs SHAP ne
+ * referment pas le score est mal intégré, et il vaut mieux le voir tout de
+ * suite qu'à l'audience.
+ */
+function verifierDecomposition(dossier: AlerteDetail): AlerteDetail {
+  const { valeurDeBase, facteurs } = dossier.explication
+  const total = facteurs.reduce(
+    (somme, facteur) => somme + facteur.contribution,
+    valeurDeBase
+  )
+  if (total !== dossier.scoreIA) {
+    throw new ApiError(
+      `Les facteurs de ${dossier.id} totalisent ${total} points ` +
+        `(base ${valeurDeBase}) alors que le score est de ${dossier.scoreIA} ` +
+        `— ${ORIGINE}`,
       ORIGINE
     )
   }

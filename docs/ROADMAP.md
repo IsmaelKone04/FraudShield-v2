@@ -233,7 +233,7 @@ les captures sont déjà prévues.
 |---|---|
 | 404 souple sur un identifiant inconnu : bonne page, statut 200. Cause mesurée (ADR-013). | P5, si un robot ou un test de bout en bout l'exige |
 | « Classée sans suite » n'est pas qualifiée par cause. | P4-6 |
-| Le score n'est pas décomposé — les signaux par acte en tiennent lieu. | P4-1 à P4-4 |
+| ~~Le score n'est pas décomposé — les signaux par acte en tiennent lieu.~~ Réglé en D1. | ~~P4-1 à P4-4~~ ✅ |
 | Captures d'écran de la documentation. | P5-8 |
 
 ---
@@ -242,17 +242,47 @@ les captures sont déjà prévues.
 
 Le cœur de la valeur. Rien ici n'est cosmétique.
 
-#### D1 — Explicabilité du score
+#### D1 — Explicabilité du score ✅ terminé
 
 > *Ailleurs* : « Score 94 ». *Ici* : pourquoi 94, et qu'est-ce qui ferait bouger ce chiffre.
 
-| # | Tâche | Est. |
-|---|---|---|
-| **P4-1** | Modèle de données `FacteurDeRisque { libelle, contribution, sens, valeurObservee, valeurAttendue, source }`. Compatible d'emblée avec des valeurs SHAP renvoyées par la vraie API. | 0,5 |
-| **P4-2** | Composant « décomposition du score » : barres de contribution signées (ce qui aggrave en rouge, ce qui atténue en vert), triées par poids. | 1 |
-| **P4-3** | **Phrase d'explication en français** générée depuis les 3 facteurs dominants : « Score élevé principalement parce que le montant dépasse de 340 % la moyenne de l'établissement pour cet acte, et que 4 actes identiques ont été facturés le même jour. » C'est ce qui rend le dossier opposable à l'établissement. | 0,5 |
-| **P4-4** | Comparatif contextuel : positionnement du dossier face à la moyenne de l'établissement, de l'acte, de la période. | 0,5 |
-| **P4-5** | **Export de la note d'explication en PDF** — la pièce qu'un gestionnaire joint au dossier de contestation. Aucun concurrent grand public ne la produit prête à l'emploi. | 1 |
+| # | Tâche | Est. | |
+|---|---|---|---|
+| **P4-1** | Modèle de données `FacteurDeRisque { libelle, contribution, sens, valeurObservee, valeurAttendue, source }`. Compatible d'emblée avec des valeurs SHAP renvoyées par la vraie API. | 0,5 | ✅ * |
+| **P4-2** | Composant « décomposition du score » : barres de contribution signées (ce qui aggrave en rouge, ce qui atténue en vert), triées par poids. | 1 | ✅ |
+| **P4-3** | **Phrase d'explication en français** générée depuis les 3 facteurs dominants : « Score élevé principalement parce que le montant dépasse de 340 % la moyenne de l'établissement pour cet acte, et que 4 actes identiques ont été facturés le même jour. » C'est ce qui rend le dossier opposable à l'établissement. | 0,5 | ✅ |
+| **P4-4** | Comparatif contextuel : positionnement du dossier face à la moyenne de l'établissement, de l'acte, de la période. | 0,5 | ✅ |
+| **P4-5** | **Export de la note d'explication en PDF** — la pièce qu'un gestionnaire joint au dossier de contestation. Aucun concurrent grand public ne la produit prête à l'emploi. | 1 | ✅ |
+
+**Total D1 ≈ 3,5 j.** Arbitrages en [`DECISIONS.md`](DECISIONS.md), ADR-014 à ADR-016.
+
+\* **Sans le champ `sens`.** Le signe de `contribution` le porte déjà ; deux représentations
+du même fait finissent par se contredire. Ajoutés en revanche : `code` (identifiant stable
+du facteur, d'un dossier à l'autre) et `enonce` (la proposition française dont P4-3 compose
+la phrase).
+
+#### Écarts constatés — D1
+
+- **La décomposition est additive et vérifiée.** Le plan ne demandait qu'un modèle de
+  données ; il manquait la propriété qui en fait une explication —
+  `valeurDeBase + Σ contributions = scoreIA`. Le service refuse désormais un dossier où
+  elle est fausse (ADR-014), contrôle prouvé en le provoquant.
+- **Le jeu de données a été écrit par script**, pas à la main. La parade prévue au registre
+  des risques pour P4-10 s'est imposée dès P4-1 : dix décompositions, une somme fausse
+  invisible dans 900 lignes de JSON.
+- **P4-5 rend une page imprimable, pas un fichier PDF fabriqué.** Le navigateur produit le
+  PDF ; aucune bibliothèque n'est embarquée (ADR-016).
+- **Trois fonctions de mise en forme ont été extraites** dans `lib/formats.ts` — l'écran du
+  dossier, la décomposition et la note en avaient besoin, et une troisième copie aurait
+  fini par séparer les milliers autrement que les deux premières.
+
+#### Dette reportée — D1
+
+| Constat | Vers |
+|---|---|
+| Les `enonce` sont écrits dans le jeu de données, pas composés depuis les valeurs. | API réelle, ou table de gabarits par `code` de facteur |
+| Le score reste celui du jeu de données : rien ne le recalcule à partir des facteurs. | D4, où le rejeu à seuil variable en aura besoin |
+| Pas de capture d'écran (toujours aucun outil de navigateur). | P5-8 |
 
 #### D2 — Boucle de rétroaction analyste → modèle
 
@@ -329,7 +359,7 @@ Unité : la demi-journée de travail effectif.
 | P1 | Fondations | 6,25 | 8 | ✅ |
 | P2 | Interactions | 5,25 | 13,25 | ✅ |
 | P3 | Détail d'alerte | 2,75 | 16 | ✅ |
-| P4 | Différenciateurs | 16 | 32 | |
+| P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) |
 | P5 | Finition | 7 | 39 | |
 
 **≈ 39 demi-journées**, soit une vingtaine de jours pleins. Les phases 0 à 3 (16 demi-journées)
@@ -344,7 +374,8 @@ Si le temps manque, deux découpes tiennent debout :
   sans différenciateur. ≈ 16 demi-journées, dont 1,75 déjà faites.
 - **Maximum d'impact à effort contenu** — P0 → P3 + **D1 seul** + P5-8 : l'explicabilité
   est le différenciateur au meilleur rapport valeur/effort, 3,5 demi-journées pour
-  l'argument le plus fort du lot. ≈ 21 demi-journées.
+  l'argument le plus fort du lot. ≈ 21 demi-journées. **→ atteint** : il ne reste que
+  P5-8 pour tenir cette découpe.
 
 ### Risques identifiés
 

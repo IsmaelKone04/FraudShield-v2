@@ -60,3 +60,29 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
 }
+
+/*
+  Impression.
+
+  Seule la note d’explication est destinée au papier ; elle se rend déjà en
+  clair à l’écran, de sorte que la page imprimée soit exactement celle que
+  l’on voit. Il reste à neutraliser le fond sombre de l’application, que le
+  navigateur reprendrait autour de la feuille.
+*/
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  /* Sans quoi les navigateurs suppriment les aplats — dont le bandeau
+     « données fictives », qui doit précisément rester lisible sur papier. */
+  #note-explication {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+@page {
+  margin: 15mm;
+}

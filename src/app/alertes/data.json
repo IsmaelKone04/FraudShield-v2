@@ -227,6 +227,84 @@
           "libelle": "Dossier assigné pour instruction",
           "acteur": "admin@fraudshield.com"
         }
+      ],
+      "explication": {
+        "valeurDeBase": 18,
+        "facteurs": [
+          {
+            "code": "ecart_tarif",
+            "libelle": "Écart au tarif de référence",
+            "contribution": 34,
+            "valeurObservee": "2 400 000 FCFA facturés",
+            "valeurAttendue": "963 000 FCFA au tarif",
+            "source": "Nomenclature générale des actes professionnels, édition 2026",
+            "enonce": "le montant facturé représente 2,5 fois le tarif de la nomenclature pour les mêmes actes"
+          },
+          {
+            "code": "repetition_acte",
+            "libelle": "Répétition d'un acte lourd le même jour",
+            "contribution": 18,
+            "valeurObservee": "2 IRM cardiaques le 18/05",
+            "valeurAttendue": "1 examen par épisode de soins",
+            "source": "Lignes d'actes de la demande",
+            "enonce": "deux IRM cardiaques ont été facturées le même jour pour le même assuré"
+          },
+          {
+            "code": "historique_etablissement",
+            "libelle": "Antécédents de l'établissement",
+            "contribution": 15,
+            "valeurObservee": "6 dossiers signalés sur douze mois",
+            "valeurAttendue": "0,8 dossier en moyenne pour un établissement comparable",
+            "source": "Registre des alertes, douze derniers mois",
+            "enonce": "l'établissement concentre 6 dossiers signalés en douze mois, contre 0,8 pour un établissement comparable"
+          },
+          {
+            "code": "depense_assure",
+            "libelle": "Montant inhabituel pour l'assuré",
+            "contribution": 12,
+            "valeurObservee": "2 400 000 FCFA sur une demande",
+            "valeurAttendue": "216 000 FCFA de dépense annuelle moyenne",
+            "source": "Historique de remboursement de l'assuré",
+            "enonce": "le montant dépasse de onze fois la dépense annuelle moyenne de l'assuré"
+          },
+          {
+            "code": "anciennete_contrat",
+            "libelle": "Ancienneté du contrat sans incident",
+            "contribution": -3,
+            "valeurObservee": "7 ans, aucun litige",
+            "valeurAttendue": "3 ans en moyenne",
+            "source": "Référentiel des contrats",
+            "enonce": "le contrat est actif depuis sept ans sans aucun litige"
+          }
+        ],
+        "modele": "Moteur de détection v2.4 — règles pondérées",
+        "calculeLe": "2026-05-20T06:12:00.000Z"
+      },
+      "comparatifs": [
+        {
+          "cohorte": "L'établissement",
+          "libelle": "Montant moyen d'un dossier — Clinique Pasteur",
+          "valeurDossier": 2400000,
+          "valeurCohorte": 415000,
+          "effectif": "38 dossiers réglés sur douze mois",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "L'acte",
+          "libelle": "Montant moyen facturé pour IMG-220 — IRM cardiaque avec injection",
+          "valeurDossier": 1700000,
+          "valeurCohorte": 920000,
+          "effectif": "214 facturations du code depuis janvier 2026",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "La période",
+          "libelle": "Montant moyen d'une demande — mai 2026",
+          "valeurDossier": 2400000,
+          "valeurCohorte": 168000,
+          "effectif": "4 812 demandes traitées en mai 2026",
+          "unite": "FCFA"
+        }
       ]
     },
     "A-2026-0124": {
@@ -268,6 +346,84 @@
           "horodatage": "2026-05-20T09:05:00.000Z",
           "libelle": "Dossier assigné pour instruction",
           "acteur": "admin@fraudshield.com"
+        }
+      ],
+      "explication": {
+        "valeurDeBase": 18,
+        "facteurs": [
+          {
+            "code": "absence_registre",
+            "libelle": "Absence au registre d'admission",
+            "contribution": 38,
+            "valeurObservee": "aucun séjour enregistré du 12 au 16/05",
+            "valeurAttendue": "un séjour pour 4 journées facturées",
+            "source": "Registre d'admission de l'établissement, transmis le 21/05",
+            "enonce": "aucun séjour n'est enregistré au registre d'admission de l'établissement sur la période facturée"
+          },
+          {
+            "code": "dates_incoherentes",
+            "libelle": "Dates postérieures à la sortie",
+            "contribution": 22,
+            "valeurObservee": "3 séances après la date de sortie",
+            "valeurAttendue": "aucune",
+            "source": "Lignes d'actes rapprochées du bulletin de sortie",
+            "enonce": "trois séances de kinésithérapie sont facturées à des dates postérieures à la sortie déclarée"
+          },
+          {
+            "code": "praticien_signale",
+            "libelle": "Praticien déjà mis en cause",
+            "contribution": 8,
+            "valeurObservee": "2 dossiers signalés sur douze mois",
+            "valeurAttendue": "0,3 dossier en moyenne",
+            "source": "Registre des alertes, douze derniers mois",
+            "enonce": "le praticien apparaît dans deux autres dossiers signalés en douze mois"
+          },
+          {
+            "code": "delai_transmission",
+            "libelle": "Délai de transmission",
+            "contribution": 7,
+            "valeurObservee": "46 jours après l'acte",
+            "valeurAttendue": "9 jours en moyenne",
+            "source": "Horodatage de dépôt de la demande",
+            "enonce": "la demande a été transmise 46 jours après l'acte, contre 9 jours en moyenne"
+          },
+          {
+            "code": "tarifs_conformes",
+            "libelle": "Tarifs conformes à la nomenclature",
+            "contribution": -5,
+            "valeurObservee": "0 % d'écart au tarif",
+            "valeurAttendue": "0 %",
+            "source": "Nomenclature générale des actes professionnels, édition 2026",
+            "enonce": "les montants facturés sont exactement ceux de la nomenclature"
+          }
+        ],
+        "modele": "Moteur de détection v2.4 — règles pondérées",
+        "calculeLe": "2026-05-20T05:48:00.000Z"
+      },
+      "comparatifs": [
+        {
+          "cohorte": "L'établissement",
+          "libelle": "Montant moyen d'un dossier — CHU de Dakar",
+          "valeurDossier": 850000,
+          "valeurCohorte": 268000,
+          "effectif": "412 dossiers réglés sur douze mois",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "L'acte",
+          "libelle": "Montant moyen facturé pour HOS-010 — Journée d'hospitalisation — médecine interne",
+          "valeurDossier": 640000,
+          "valeurCohorte": 288000,
+          "effectif": "1 906 facturations du code depuis janvier 2026",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "La période",
+          "libelle": "Montant moyen d'une demande — mai 2026",
+          "valeurDossier": 850000,
+          "valeurCohorte": 168000,
+          "effectif": "4 812 demandes traitées en mai 2026",
+          "unite": "FCFA"
         }
       ]
     },
@@ -316,6 +472,75 @@
           "libelle": "Statut porté à « À vérifier » — pièces demandées à l'établissement",
           "acteur": "superviseur@fraudshield.com"
         }
+      ],
+      "explication": {
+        "valeurDeBase": 18,
+        "facteurs": [
+          {
+            "code": "acte_deja_rembourse",
+            "libelle": "Acte identique déjà remboursé",
+            "contribution": 31,
+            "valeurObservee": "CHIR-307 déjà réglé le 14/05",
+            "valeurAttendue": "aucun doublon",
+            "source": "Historique des règlements de l'assuré",
+            "enonce": "un acte identique a déjà été remboursé cinq jours plus tôt pour le même assuré"
+          },
+          {
+            "code": "meme_praticien",
+            "libelle": "Même praticien sur les deux facturations",
+            "contribution": 9,
+            "valeurObservee": "Dr Serigne Fall dans les deux cas",
+            "valeurAttendue": "praticiens distincts en cas de reprise",
+            "source": "Lignes d'actes des deux demandes",
+            "enonce": "les deux facturations émanent du même praticien"
+          },
+          {
+            "code": "historique_etablissement",
+            "libelle": "Antécédents de l'établissement",
+            "contribution": 7,
+            "valeurObservee": "2 dossiers signalés sur douze mois",
+            "valeurAttendue": "0,8 dossier en moyenne",
+            "source": "Registre des alertes, douze derniers mois",
+            "enonce": "l'établissement compte deux dossiers signalés en douze mois"
+          },
+          {
+            "code": "tarifs_conformes",
+            "libelle": "Tarifs conformes à la nomenclature",
+            "contribution": -4,
+            "valeurObservee": "0 % d'écart au tarif",
+            "valeurAttendue": "0 %",
+            "source": "Nomenclature générale des actes professionnels, édition 2026",
+            "enonce": "les montants facturés sont ceux de la nomenclature"
+          }
+        ],
+        "modele": "Moteur de détection v2.4 — règles pondérées",
+        "calculeLe": "2026-05-19T07:20:00.000Z"
+      },
+      "comparatifs": [
+        {
+          "cohorte": "L'établissement",
+          "libelle": "Montant moyen d'un dossier — Polyclinique El Hadj",
+          "valeurDossier": 320000,
+          "valeurCohorte": 176000,
+          "effectif": "129 dossiers réglés sur douze mois",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "L'acte",
+          "libelle": "Montant moyen facturé pour CHIR-307 — Ablation de kyste sébacé",
+          "valeurDossier": 160000,
+          "valeurCohorte": 155000,
+          "effectif": "87 facturations du code depuis janvier 2026",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "La période",
+          "libelle": "Montant moyen d'une demande — mai 2026",
+          "valeurDossier": 320000,
+          "valeurCohorte": 168000,
+          "effectif": "4 812 demandes traitées en mai 2026",
+          "unite": "FCFA"
+        }
       ]
     },
     "A-2026-0122": {
@@ -357,6 +582,84 @@
           "horodatage": "2026-05-19T08:15:00.000Z",
           "libelle": "Dossier assigné pour instruction",
           "acteur": "admin@fraudshield.com"
+        }
+      ],
+      "explication": {
+        "valeurDeBase": 18,
+        "facteurs": [
+          {
+            "code": "presence_simultanee",
+            "libelle": "Présence simultanée en deux lieux",
+            "contribution": 41,
+            "valeurObservee": "Dakar et Ziguinchor le 17/05 à 10 h",
+            "valeurAttendue": "un seul lieu",
+            "source": "Rapprochement des demandes déposées le même jour",
+            "enonce": "l'assurée est enregistrée en consultation dans deux régions à la même heure"
+          },
+          {
+            "code": "signature_non_concordante",
+            "libelle": "Signature non concordante",
+            "contribution": 24,
+            "valeurObservee": "registre de l'établissement ≠ contrat",
+            "valeurAttendue": "signatures concordantes",
+            "source": "Registre de l'établissement rapproché du dossier de souscription",
+            "enonce": "la signature portée au registre de l'établissement ne concorde pas avec celle du contrat"
+          },
+          {
+            "code": "contrat_dormant",
+            "libelle": "Contrat sans demande depuis trois ans",
+            "contribution": 9,
+            "valeurObservee": "première demande depuis 2023",
+            "valeurAttendue": "2,4 demandes par an",
+            "source": "Historique de remboursement de l'assuré",
+            "enonce": "c'est la première demande déposée sur ce contrat depuis trois ans"
+          },
+          {
+            "code": "depense_assure",
+            "libelle": "Montant inhabituel pour l'assuré",
+            "contribution": 8,
+            "valeurObservee": "1 100 000 FCFA sur une demande",
+            "valeurAttendue": "94 000 FCFA de dépense annuelle moyenne",
+            "source": "Historique de remboursement de l'assuré",
+            "enonce": "le montant est sans commune mesure avec les dépenses habituelles de l'assurée"
+          },
+          {
+            "code": "assure_sans_antecedent",
+            "libelle": "Assuré sans antécédent de fraude",
+            "contribution": -3,
+            "valeurObservee": "aucun dossier signalé",
+            "valeurAttendue": "aucun",
+            "source": "Registre des alertes, depuis la souscription",
+            "enonce": "l'assurée n'a jamais fait l'objet d'un signalement"
+          }
+        ],
+        "modele": "Moteur de détection v2.4 — règles pondérées",
+        "calculeLe": "2026-05-19T06:03:00.000Z"
+      },
+      "comparatifs": [
+        {
+          "cohorte": "L'établissement",
+          "libelle": "Montant moyen d'un dossier — Centre Médical Yoff",
+          "valeurDossier": 1100000,
+          "valeurCohorte": 224000,
+          "effectif": "74 dossiers réglés sur douze mois",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "L'acte",
+          "libelle": "Montant moyen facturé pour DEN-118 — Pose de couronne céramo-métallique",
+          "valeurDossier": 900000,
+          "valeurCohorte": 610000,
+          "effectif": "143 facturations du code depuis janvier 2026",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "La période",
+          "libelle": "Montant moyen d'une demande — mai 2026",
+          "valeurDossier": 1100000,
+          "valeurCohorte": 168000,
+          "effectif": "4 812 demandes traitées en mai 2026",
+          "unite": "FCFA"
         }
       ]
     },
@@ -404,6 +707,75 @@
           "horodatage": "2026-05-18T16:45:00.000Z",
           "libelle": "Dossier clos — écart tarifaire justifié par la fourniture de pansements techniques",
           "acteur": "admin@fraudshield.com"
+        }
+      ],
+      "explication": {
+        "valeurDeBase": 18,
+        "facteurs": [
+          {
+            "code": "ecart_tarif",
+            "libelle": "Écart au tarif de référence",
+            "contribution": 13,
+            "valeurObservee": "135 000 FCFA facturés",
+            "valeurAttendue": "120 000 FCFA au tarif",
+            "source": "Nomenclature générale des actes professionnels, édition 2026",
+            "enonce": "le pansement est facturé 12,5 % au-dessus du tarif de la nomenclature"
+          },
+          {
+            "code": "acte_isole",
+            "libelle": "Acte isolé hors parcours de soins",
+            "contribution": 7,
+            "valeurObservee": "aucune consultation associée",
+            "valeurAttendue": "un acte de suivi rattaché à une consultation",
+            "source": "Historique de remboursement de l'assurée",
+            "enonce": "l'acte n'est rattaché à aucune consultation du parcours de soins"
+          },
+          {
+            "code": "etablissement_sain",
+            "libelle": "Établissement sans dossier signalé",
+            "contribution": -6,
+            "valeurObservee": "0 dossier signalé sur douze mois",
+            "valeurAttendue": "0,8 dossier en moyenne",
+            "source": "Registre des alertes, douze derniers mois",
+            "enonce": "l'établissement n'a fait l'objet d'aucun signalement en douze mois"
+          },
+          {
+            "code": "suivi_coherent",
+            "libelle": "Suivi régulier et cohérent de l'assurée",
+            "contribution": -4,
+            "valeurObservee": "9 demandes régulières sur douze mois",
+            "valeurAttendue": "8 demandes en moyenne",
+            "source": "Historique de remboursement de l'assurée",
+            "enonce": "l'assurée présente un suivi régulier et cohérent depuis douze mois"
+          }
+        ],
+        "modele": "Moteur de détection v2.4 — règles pondérées",
+        "calculeLe": "2026-05-18T06:30:00.000Z"
+      },
+      "comparatifs": [
+        {
+          "cohorte": "L'établissement",
+          "libelle": "Montant moyen d'un dossier — Clinique du Plateau",
+          "valeurDossier": 150000,
+          "valeurCohorte": 141000,
+          "effectif": "203 dossiers réglés sur douze mois",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "L'acte",
+          "libelle": "Montant moyen facturé pour PAN-070 — Pansement complexe",
+          "valeurDossier": 135000,
+          "valeurCohorte": 118000,
+          "effectif": "1 240 facturations du code depuis janvier 2026",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "La période",
+          "libelle": "Montant moyen d'une demande — mai 2026",
+          "valeurDossier": 150000,
+          "valeurCohorte": 168000,
+          "effectif": "4 812 demandes traitées en mai 2026",
+          "unite": "FCFA"
         }
       ]
     },
@@ -458,6 +830,84 @@
           "libelle": "Statut porté à « À vérifier » — historique de l'assurée demandé",
           "acteur": "superviseur@fraudshield.com"
         }
+      ],
+      "explication": {
+        "valeurDeBase": 18,
+        "facteurs": [
+          {
+            "code": "frequence_consultations",
+            "libelle": "Fréquence de consultations",
+            "contribution": 26,
+            "valeurObservee": "8 consultations en 11 jours",
+            "valeurAttendue": "2 consultations par trimestre",
+            "source": "Historique de remboursement de l'assurée, douze derniers mois",
+            "enonce": "huit consultations ont été facturées en onze jours, soit quatre fois la moyenne de l'assurée"
+          },
+          {
+            "code": "concentration_praticien",
+            "libelle": "Concentration sur un seul praticien",
+            "contribution": 13,
+            "valeurObservee": "8 consultations sur 8 chez le même praticien",
+            "valeurAttendue": "2,6 praticiens distincts en moyenne",
+            "source": "Lignes d'actes des demandes de la période",
+            "enonce": "toutes les consultations ont été facturées par le même praticien"
+          },
+          {
+            "code": "prescription_repetee",
+            "libelle": "Prescription répétée sans changement",
+            "contribution": 11,
+            "valeurObservee": "3 délivrances identiques",
+            "valeurAttendue": "une adaptation entre deux délivrances",
+            "source": "Lignes de délivrance rapprochées des prescriptions",
+            "enonce": "la même prescription a été renouvelée trois fois sans aucune adaptation du traitement"
+          },
+          {
+            "code": "pathologie_chronique",
+            "libelle": "Pathologie chronique déclarée",
+            "contribution": -8,
+            "valeurObservee": "affection longue durée depuis 2024",
+            "valeurAttendue": "aucune",
+            "source": "Déclaration médicale au contrat",
+            "enonce": "l'assurée est reconnue en affection longue durée, ce qui justifie un suivi rapproché"
+          },
+          {
+            "code": "tarifs_conformes",
+            "libelle": "Tarifs conformes à la nomenclature",
+            "contribution": -5,
+            "valeurObservee": "0 % d'écart au tarif",
+            "valeurAttendue": "0 %",
+            "source": "Nomenclature générale des actes professionnels, édition 2026",
+            "enonce": "les montants facturés sont ceux de la nomenclature"
+          }
+        ],
+        "modele": "Moteur de détection v2.4 — règles pondérées",
+        "calculeLe": "2026-05-18T05:55:00.000Z"
+      },
+      "comparatifs": [
+        {
+          "cohorte": "L'établissement",
+          "libelle": "Montant moyen d'un dossier — Hôpital Principal",
+          "valeurDossier": 560000,
+          "valeurCohorte": 189000,
+          "effectif": "587 dossiers réglés sur douze mois",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "L'acte",
+          "libelle": "Montant moyen facturé pour MED-500 — Délivrance de médicaments — antalgiques",
+          "valeurDossier": 352000,
+          "valeurCohorte": 96000,
+          "effectif": "3 517 facturations du code depuis janvier 2026",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "La période",
+          "libelle": "Montant moyen d'une demande — mai 2026",
+          "valeurDossier": 560000,
+          "valeurCohorte": 168000,
+          "effectif": "4 812 demandes traitées en mai 2026",
+          "unite": "FCFA"
+        }
       ]
     },
     "A-2026-0119": {
@@ -488,6 +938,75 @@
           "horodatage": "2026-05-17T14:20:00.000Z",
           "libelle": "Dossier clos — erreur de saisie du code acte reconnue et corrigée par l'établissement",
           "acteur": "superviseur@fraudshield.com"
+        }
+      ],
+      "explication": {
+        "valeurDeBase": 18,
+        "facteurs": [
+          {
+            "code": "acte_incoherent",
+            "libelle": "Acte incompatible avec le profil de l'assuré",
+            "contribution": 19,
+            "valeurObservee": "acte de la nomenclature gynécologique",
+            "valeurAttendue": "acte compatible avec le profil",
+            "source": "Nomenclature rapprochée de la fiche de l'assuré",
+            "enonce": "un acte de la nomenclature gynécologique est facturé pour un assuré de sexe masculin"
+          },
+          {
+            "code": "etablissement_sain",
+            "libelle": "Cabinet sans dossier signalé",
+            "contribution": -5,
+            "valeurObservee": "0 dossier signalé sur douze mois",
+            "valeurAttendue": "0,8 dossier en moyenne",
+            "source": "Registre des alertes, douze derniers mois",
+            "enonce": "le cabinet n'a fait l'objet d'aucun signalement en douze mois"
+          },
+          {
+            "code": "correction_declaree",
+            "libelle": "Correction déclarée par l'établissement",
+            "contribution": -4,
+            "valeurObservee": "rectification transmise le 17/05",
+            "valeurAttendue": "aucune",
+            "source": "Message de rectification joint à la demande",
+            "enonce": "l'établissement a spontanément déclaré une erreur de codage avant tout contrôle"
+          },
+          {
+            "code": "tarifs_conformes",
+            "libelle": "Montant faible et conforme au tarif",
+            "contribution": -6,
+            "valeurObservee": "95 000 FCFA, 0 % d'écart",
+            "valeurAttendue": "95 000 FCFA au tarif",
+            "source": "Nomenclature générale des actes professionnels, édition 2026",
+            "enonce": "le montant est faible et strictement conforme au tarif"
+          }
+        ],
+        "modele": "Moteur de détection v2.4 — règles pondérées",
+        "calculeLe": "2026-05-17T07:02:00.000Z"
+      },
+      "comparatifs": [
+        {
+          "cohorte": "L'établissement",
+          "libelle": "Montant moyen d'un dossier — Cabinet Dr Sall",
+          "valeurDossier": 95000,
+          "valeurCohorte": 88000,
+          "effectif": "52 dossiers réglés sur douze mois",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "L'acte",
+          "libelle": "Montant moyen facturé pour GYN-201 — Échographie pelvienne",
+          "valeurDossier": 95000,
+          "valeurCohorte": 92000,
+          "effectif": "406 facturations du code depuis janvier 2026",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "La période",
+          "libelle": "Montant moyen d'une demande — mai 2026",
+          "valeurDossier": 95000,
+          "valeurCohorte": 168000,
+          "effectif": "4 812 demandes traitées en mai 2026",
+          "unite": "FCFA"
         }
       ]
     },
@@ -525,6 +1044,84 @@
           "horodatage": "2026-05-17T06:41:00.000Z",
           "libelle": "Alerte levée par le moteur de détection — score 67",
           "acteur": null
+        }
+      ],
+      "explication": {
+        "valeurDeBase": 18,
+        "facteurs": [
+          {
+            "code": "double_service",
+            "libelle": "Même acte facturé par deux services",
+            "contribution": 30,
+            "valeurObservee": "LAB-330 facturé deux fois le 15/05",
+            "valeurAttendue": "une facturation par acte",
+            "source": "Lignes d'actes de la demande",
+            "enonce": "le même examen a été facturé deux fois le même jour par deux services de l'établissement"
+          },
+          {
+            "code": "hors_region",
+            "libelle": "Établissement hors région de résidence",
+            "contribution": 11,
+            "valeurObservee": "Touba pour un assuré domicilié à Dakar",
+            "valeurAttendue": "établissement de la région de résidence",
+            "source": "Adresse du contrat rapprochée de l'établissement",
+            "enonce": "l'établissement se situe hors de la région de résidence de l'assurée, sans motif de déplacement"
+          },
+          {
+            "code": "ecart_tarif",
+            "libelle": "Écart au tarif de référence",
+            "contribution": 6,
+            "valeurObservee": "430 000 FCFA facturés",
+            "valeurAttendue": "396 000 FCFA au tarif",
+            "source": "Nomenclature générale des actes professionnels, édition 2026",
+            "enonce": "le montant dépasse de 8,6 % le tarif de la nomenclature"
+          },
+          {
+            "code": "delai_transmission",
+            "libelle": "Délai de transmission",
+            "contribution": 5,
+            "valeurObservee": "31 jours après l'acte",
+            "valeurAttendue": "9 jours en moyenne",
+            "source": "Horodatage de dépôt de la demande",
+            "enonce": "la demande a été transmise 31 jours après l'acte"
+          },
+          {
+            "code": "anciennete_contrat",
+            "libelle": "Ancienneté du contrat sans incident",
+            "contribution": -3,
+            "valeurObservee": "6 ans, aucun litige",
+            "valeurAttendue": "3 ans en moyenne",
+            "source": "Référentiel des contrats",
+            "enonce": "le contrat est actif depuis six ans sans litige"
+          }
+        ],
+        "modele": "Moteur de détection v2.4 — règles pondérées",
+        "calculeLe": "2026-05-17T06:41:00.000Z"
+      },
+      "comparatifs": [
+        {
+          "cohorte": "L'établissement",
+          "libelle": "Montant moyen d'un dossier — Clinique Matlaboul",
+          "valeurDossier": 430000,
+          "valeurCohorte": 162000,
+          "effectif": "96 dossiers réglés sur douze mois",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "L'acte",
+          "libelle": "Montant moyen facturé pour LAB-330 — Sérologie complète",
+          "valeurDossier": 215000,
+          "valeurCohorte": 198000,
+          "effectif": "722 facturations du code depuis janvier 2026",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "La période",
+          "libelle": "Montant moyen d'une demande — mai 2026",
+          "valeurDossier": 430000,
+          "valeurCohorte": 168000,
+          "effectif": "4 812 demandes traitées en mai 2026",
+          "unite": "FCFA"
         }
       ]
     },
@@ -574,6 +1171,84 @@
           "libelle": "Alerte levée par le moteur de détection — score 81",
           "acteur": null
         }
+      ],
+      "explication": {
+        "valeurDeBase": 18,
+        "facteurs": [
+          {
+            "code": "ecart_tarif",
+            "libelle": "Écart au tarif de référence sur trois lignes",
+            "contribution": 33,
+            "valeurObservee": "780 000 FCFA facturés",
+            "valeurAttendue": "295 000 FCFA au tarif",
+            "source": "Nomenclature générale des actes professionnels, édition 2026",
+            "enonce": "les trois lignes de la demande sont facturées 2,6 fois le tarif de la nomenclature"
+          },
+          {
+            "code": "praticien_signale",
+            "libelle": "Récurrence du praticien",
+            "contribution": 14,
+            "valeurObservee": "4 dossiers signalés sur douze mois",
+            "valeurAttendue": "0,3 dossier en moyenne",
+            "source": "Registre des alertes, douze derniers mois",
+            "enonce": "le praticien apparaît dans quatre dossiers signalés en douze mois"
+          },
+          {
+            "code": "montant_etablissement",
+            "libelle": "Montant inhabituel pour l'établissement",
+            "contribution": 12,
+            "valeurObservee": "780 000 FCFA",
+            "valeurAttendue": "231 000 FCFA par dossier en moyenne",
+            "source": "Dossiers réglés de l'établissement, douze derniers mois",
+            "enonce": "le montant vaut plus de trois fois le dossier moyen de l'établissement"
+          },
+          {
+            "code": "concentration_code",
+            "libelle": "Dépassements concentrés sur un même code",
+            "contribution": 8,
+            "valeurObservee": "CS-041 dépassé dans 3 dossiers",
+            "valeurAttendue": "aucun code récurrent",
+            "source": "Registre des alertes, douze derniers mois",
+            "enonce": "les dépassements de cet établissement se concentrent sur le même code d'acte"
+          },
+          {
+            "code": "actes_coherents",
+            "libelle": "Actes cohérents entre eux",
+            "contribution": -4,
+            "valeurObservee": "3 actes d'un même épisode",
+            "valeurAttendue": "actes rattachés à un épisode de soins",
+            "source": "Lignes d'actes de la demande",
+            "enonce": "les actes facturés forment un épisode de soins cohérent"
+          }
+        ],
+        "modele": "Moteur de détection v2.4 — règles pondérées",
+        "calculeLe": "2026-05-16T06:18:00.000Z"
+      },
+      "comparatifs": [
+        {
+          "cohorte": "L'établissement",
+          "libelle": "Montant moyen d'un dossier — Polyclinique Liberté",
+          "valeurDossier": 780000,
+          "valeurCohorte": 231000,
+          "effectif": "148 dossiers réglés sur douze mois",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "L'acte",
+          "libelle": "Montant moyen facturé pour IMG-150 — Radiographie standard — 3 incidences",
+          "valeurDossier": 450000,
+          "valeurCohorte": 172000,
+          "effectif": "1 083 facturations du code depuis janvier 2026",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "La période",
+          "libelle": "Montant moyen d'une demande — mai 2026",
+          "valeurDossier": 780000,
+          "valeurCohorte": 168000,
+          "effectif": "4 812 demandes traitées en mai 2026",
+          "unite": "FCFA"
+        }
       ]
     },
     "A-2026-0116": {
@@ -604,6 +1279,84 @@
           "horodatage": "2026-05-15T13:50:00.000Z",
           "libelle": "Statut porté à « À vérifier » — registre d'émargement demandé",
           "acteur": "superviseur@fraudshield.com"
+        }
+      ],
+      "explication": {
+        "valeurDeBase": 18,
+        "facteurs": [
+          {
+            "code": "emargements_manquants",
+            "libelle": "Émargements manquants au registre",
+            "contribution": 34,
+            "valeurObservee": "3 émargements pour 10 séances",
+            "valeurAttendue": "un émargement par séance",
+            "source": "Registre du cabinet, transmis le 16/05",
+            "enonce": "trois émargements seulement ont été retrouvés au registre pour dix séances facturées"
+          },
+          {
+            "code": "praticien_signale",
+            "libelle": "Praticien déjà mis en cause",
+            "contribution": 17,
+            "valeurObservee": "3 dossiers signalés sur douze mois",
+            "valeurAttendue": "0,3 dossier en moyenne",
+            "source": "Registre des alertes, douze derniers mois",
+            "enonce": "le praticien est déjà mis en cause dans trois autres dossiers"
+          },
+          {
+            "code": "historique_etablissement",
+            "libelle": "Antécédents de l'établissement",
+            "contribution": 13,
+            "valeurObservee": "6 dossiers signalés sur douze mois",
+            "valeurAttendue": "0,8 dossier en moyenne",
+            "source": "Registre des alertes, douze derniers mois",
+            "enonce": "l'établissement concentre six dossiers signalés en douze mois"
+          },
+          {
+            "code": "tarifs_conformes",
+            "libelle": "Tarifs conformes à la nomenclature",
+            "contribution": -5,
+            "valeurObservee": "0 % d'écart au tarif",
+            "valeurAttendue": "0 %",
+            "source": "Nomenclature générale des actes professionnels, édition 2026",
+            "enonce": "les séances sont facturées au tarif exact de la nomenclature"
+          },
+          {
+            "code": "montant_modere",
+            "libelle": "Montant modéré",
+            "contribution": -4,
+            "valeurObservee": "210 000 FCFA",
+            "valeurAttendue": "168 000 FCFA par demande en moyenne",
+            "source": "Demandes traitées en mai 2026",
+            "enonce": "le montant reste proche de la demande moyenne de la période"
+          }
+        ],
+        "modele": "Moteur de détection v2.4 — règles pondérées",
+        "calculeLe": "2026-05-15T07:35:00.000Z"
+      },
+      "comparatifs": [
+        {
+          "cohorte": "L'établissement",
+          "libelle": "Montant moyen d'un dossier — Clinique Pasteur",
+          "valeurDossier": 210000,
+          "valeurCohorte": 415000,
+          "effectif": "38 dossiers réglés sur douze mois",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "L'acte",
+          "libelle": "Montant moyen facturé pour KIN-052 — Séance de kinésithérapie respiratoire",
+          "valeurDossier": 210000,
+          "valeurCohorte": 84000,
+          "effectif": "968 facturations du code depuis janvier 2026",
+          "unite": "FCFA"
+        },
+        {
+          "cohorte": "La période",
+          "libelle": "Montant moyen d'une demande — mai 2026",
+          "valeurDossier": 210000,
+          "valeurCohorte": 168000,
+          "effectif": "4 812 demandes traitées en mai 2026",
+          "unite": "FCFA"
         }
       ]
     }
