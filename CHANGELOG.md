@@ -83,8 +83,9 @@ produite continue d'en produire de semblables. Ici, elle devient une mesure.
 
 `typecheck` et `build` sans erreur (14 routes, `/qualite` comprise) ; `lint` inchangé à
 2 erreurs préexistantes. **51 vérifications** sur le HTML réellement servi, session
-ouverte, et **62 tests** sur les fonctions pures, le contrat de décision et les contrôles
-du service. Non-régression des phases 2, 3 et de D1 rejouée : 17/17, 8/8, 24/24, 45/45 et
+ouverte, **62 tests** sur les fonctions pures, le contrat de décision et les contrôles
+du service, et **16 tests** sur la migration du contenu local — le seul endroit du projet
+qui puisse détruire le travail d'un utilisateur. Non-régression des phases 2, 3 et de D1 rejouée : 17/17, 8/8, 24/24, 45/45 et
 72/72.
 
 ---

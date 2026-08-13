@@ -57,8 +57,11 @@ const STOCKAGE_NEUTRE: StateStorage = {
  * exactement comme le ferait « Revenir sur la décision » : le dossier retrouve
  * le statut qu'il avait avant. Ce qui ne peut plus être représenté est annulé,
  * pas complété d'une cause qu'aucun analyste n'a choisie.
+ *
+ * Exportée parce qu'elle est le seul endroit du projet qui puisse détruire le
+ * travail d'un utilisateur : une fonction pure, et testée comme telle.
  */
-function defaireDecisionsNonQualifiees(contenu: unknown): unknown {
+export function defaireDecisionsNonQualifiees(contenu: unknown): unknown {
   if (typeof contenu !== "object" || contenu === null) return contenu
 
   const etat = contenu as Record<string, unknown>
