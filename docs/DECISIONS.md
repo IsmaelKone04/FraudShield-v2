@@ -965,29 +965,58 @@ dans le navigateur. Le SVG part complet dans le HTML servi — trente-cinq disqu
 et cinquante liens vérifiés dans la réponse — il n'y a rien à réconcilier à
 l'hydratation, et l'algorithme se teste sans navigateur.
 
-**Trois précautions que l'algorithme classique ne prend pas.**
+**Correction après relecture à l'écran : les forces seules ne suffisaient
+pas.** La première version laissait l'algorithme décider de tout, comme le fait
+un graphe force-dirigé ordinaire. Le résultat, vérifié dans le HTML servi, était
+juste et pourtant illisible : sur un réseau de vingt-sept entités de quatre
+natures, plus rien ne se distinguait, et les libellés se chevauchaient faute de
+place prévisible. Un graphe exact que personne ne peut lire ne vaut pas mieux
+qu'un graphe faux.
+
+**Décision : chaque type est rappelé vers sa colonne, les forces ne règlent plus
+que la hauteur.** Les colonnes suivent l'ordre de la phrase — un assuré déclare
+un sinistre, pris en charge par un praticien, facturé par un établissement. On y
+perd la liberté d'un vrai nuage ; on y gagne un graphe où l'on sait où regarder,
+où la place de chaque libellé est connue d'avance, et où le sens de lecture
+dispense de dessiner des flèches sur les liens.
+
+L'abscisse étant fixée par la colonne, l'écartement des disques se fait
+**uniquement en hauteur** : pousser horizontalement délogerait le nœud de sa
+colonne, et c'est la colonne qui rend le graphe lisible.
+
+**Deux précautions que l'algorithme classique ne prend pas.**
 
 Les coordonnées sont arrondies au centième. Le SVG traverse le réseau sous forme
 de texte : `312.4500000000001` y serait écrit tel quel, et un écart de
 représentation en virgule flottante entre Node et le navigateur suffirait à
 provoquer un avertissement d'hydratation sur un attribut.
 
-Le recadrage conserve les proportions. Étirer chaque axe séparément remplirait
-mieux le cadre et déformerait les angles : deux liens de même longueur
-n'apparaîtraient plus égaux, et la lecture visuelle des distances — tout
-l'intérêt d'un graphe — deviendrait fausse.
+Les disques sont desserrés après coup. La disposition raisonne sur des points et
+ignore la taille de ce qu'elle place : le CHU et le radiologue qui y signe six
+imageries finissaient à quatorze unités l'un de l'autre, pour des rayons qui en
+totalisent vingt-quatre — un seul disque à l'endroit le plus intéressant du
+réseau. C'est un test qui l'a relevé, en comparant chaque paire de positions aux
+rayons réellement dessinés. Un second test étend la règle aux **libellés** :
+deux entités d'une même colonne qui en portent un en permanence doivent être
+séparées d'au moins une hauteur de ligne.
 
-Les disques sont desserrés après coup. La disposition force-dirigée raisonne sur
-des points et ignore la taille de ce qu'elle place : le CHU et le radiologue qui
-y signe six imageries finissaient à quatorze unités l'un de l'autre, pour des
-rayons qui en totalisent vingt-quatre — un seul disque à l'endroit le plus
-intéressant du réseau. C'est un test qui l'a relevé, en comparant chaque paire de
-positions aux rayons réellement dessinés.
+**La couleur ne porte jamais seule une information.** Chaque type a sa
+silhouette — disque, losange, triangle, carré — parce qu'une teinte disparaît
+pour un daltonien, à l'impression et sur une capture d'écran. La nuance de
+remplissage du losange (plein pour un sinistre signalé, creux pour un sinistre
+venu du recoupement) est doublée d'une ligne de légende qui l'énonce.
 
 **Contrepartie assumée.** On ne peut pas attraper un nœud à la souris pour le
 déplacer : la disposition est arrêtée avant d'arriver au navigateur. Le zoom, le
 déplacement du cadre et la mise en évidence du voisinage couvrent le besoin
 d'exploration ; réarranger le graphe à la main n'apprend rien sur la fraude.
+
+**Le glissement du cadre ne doit pas voler le clic.** La première version
+capturait le pointeur sur le `<svg>` dès l'appui, ce qui redirige vers lui tous
+les événements suivants : le clic n'atteignait donc jamais le nœud, et aucune
+sélection n'était possible. La capture a été retirée ; le glissement se suit à
+l'état des boutons, et un déplacement de plus de quatre pixels annule le clic
+qui le termine.
 
 **La mise en évidence estompe, elle ne filtre pas.** Choisir un nœud atténue le
 reste du graphe au lieu de le retirer : un analyste doit voir ce qu'il écarte.

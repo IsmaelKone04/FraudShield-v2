@@ -1,7 +1,8 @@
 import type { Graphe } from "@/lib/reseaux"
+import type { TypeNoeud } from "@/lib/schemas/reseaux.schema"
 
 /**
- * Disposition force-dirigée du graphe — Fruchterman-Reingold, écrit ici.
+ * Disposition du graphe : force-dirigée en hauteur, ordonnée en colonnes.
  *
  * **Pourquoi pas `d3-force`.** Ce n'est pas une question de poids (30 ko) mais
  * de nature : `d3-force` est une simulation *animée*, qui mute des objets au fil
@@ -12,34 +13,76 @@ import type { Graphe } from "@/lib/reseaux"
  * Ici la disposition est une **fonction pure et déterministe** : mêmes nœuds,
  * mêmes positions, sur le serveur comme dans le navigateur. Le SVG part donc
  * complet dans le HTML servi, il n'y a rien à réconcilier à l'hydratation, et
- * l'algorithme se teste sans navigateur — ce qui a été fait.
+ * l'algorithme se teste sans navigateur.
  *
- * La contrepartie est assumée : pas de nœud qu'on attrape à la souris pour le
- * déplacer. Le zoom et la mise en évidence couvrent le besoin d'exploration ;
- * réarranger le graphe à la main n'apprend rien sur la fraude.
+ * **Pourquoi des colonnes.** La première version laissait les forces décider
+ * seules, comme le fait un graphe force-dirigé ordinaire. Le résultat était
+ * illisible : sur un réseau de vingt-sept entités de quatre natures différentes,
+ * plus rien ne se distinguait, et les libellés se chevauchaient faute de place
+ * prévisible. Chaque type est donc rappelé vers sa propre colonne, dans l'ordre
+ * où la chaîne se lit — l'assuré déclare, le sinistre est pris en charge par un
+ * praticien, l'établissement facture. Les forces ne règlent plus que la
+ * hauteur : qui se place à côté de qui.
+ *
+ * On y perd la liberté d'un vrai nuage ; on y gagne un graphe où l'on sait où
+ * regarder, et où le sens de lecture dispense de dessiner des flèches.
  */
 
+export const LARGEUR = 1000
+export const HAUTEUR = 640
 
-/** Espace libre exigé entre deux disques, en unités du repère. */
-const ESPACE = 8
+/** Rayon du disque d'un nœud, selon son type. */
+export const RAYONS = {
+  assure: 9,
+  etablissement: 13,
+  praticien: 11,
+  sinistre: 8,
+} as const
 
-export const LARGEUR = 960
-export const HAUTEUR = 620
+/**
+ * Position horizontale de chaque colonne, en fraction de la largeur.
+ *
+ * L'ordre est celui de la phrase : « un assuré déclare un sinistre, pris en
+ * charge par un praticien, facturé par un établissement ».
+ */
+export const COLONNES: Record<TypeNoeud, number> = {
+  assure: 0.11,
+  sinistre: 0.37,
+  praticien: 0.63,
+  etablissement: 0.89,
+}
 
-/** Marge intérieure, en unités du repère, pour que les libellés respirent. */
-const MARGE = 56
+/** Ordre d'affichage des colonnes, pour les en-têtes de l'écran. */
+export const ORDRE_COLONNES: TypeNoeud[] = [
+  "assure",
+  "sinistre",
+  "praticien",
+  "etablissement",
+]
 
-const ITERATIONS = 420
+/** Bande réservée aux en-têtes de colonnes, en haut du repère. */
+export const BANDEAU = 34
+
+const MARGE_HAUT = BANDEAU + 18
+const MARGE_BAS = 22
+
+/** Espace libre exigé entre deux disques. */
+const ESPACE = 10
+
+const ITERATIONS = 460
+
+/** Part du chemin parcourue vers sa colonne à chaque pas. */
+const FIXATION = 0.14
 
 export type Position = { x: number; y: number }
 
 /**
  * Un aléa reproductible tiré de l'identifiant du nœud.
  *
- * Sans lui, deux nœuds posés au même angle resteraient superposés : les forces
- * sont symétriques et ne les sépareraient jamais. Le tirage vient de la chaîne
- * elle-même plutôt que d'un générateur, de sorte qu'ajouter un nœud ne déplace
- * pas tous les autres.
+ * Sans lui, deux nœuds d'une même colonne partiraient exactement au même
+ * endroit : les forces sont symétriques et ne les sépareraient jamais. Le tirage
+ * vient de la chaîne elle-même plutôt que d'un générateur, de sorte qu'ajouter
+ * un nœud ne déplace pas tous les autres.
  */
 function grain(texte: string): number {
   let h = 2166136261
@@ -51,13 +94,11 @@ function grain(texte: string): number {
 }
 
 /**
- * Place les nœuds du graphe et renvoie leurs coordonnées, indexées par
- * identifiant.
+ * Place les nœuds et renvoie leurs coordonnées, indexées par identifiant.
  *
- * Les arêtes tirent les nœuds liés l'un vers l'autre, tous les nœuds se
- * repoussent, et la température décroît jusqu'à figer la disposition. Le résultat
- * est ensuite recadré sur la zone de dessin : c'est ce recadrage qui rend un
- * réseau de 9 nœuds aussi lisible qu'un réseau de 27.
+ * Les arêtes rapprochent verticalement les nœuds liés, tous les nœuds se
+ * repoussent, chacun est rappelé vers la colonne de son type, et la température
+ * décroît jusqu'à figer la disposition.
  */
 export function disposer(graphe: Graphe): Map<string, Position> {
   const noeuds = graphe.noeuds
@@ -65,35 +106,47 @@ export function disposer(graphe: Graphe): Map<string, Position> {
   if (noeuds.length === 0) return positions
 
   if (noeuds.length === 1) {
-    positions.set(noeuds[0].id, { x: LARGEUR / 2, y: HAUTEUR / 2 })
+    positions.set(noeuds[0].id, {
+      x: LARGEUR * COLONNES[noeuds[0].type],
+      y: HAUTEUR / 2,
+    })
     return positions
   }
 
-  // Départ sur un cercle, dans l'ordre du jeu de données : les nœuds sont triés
-  // par type, donc les entités de même nature partent voisines.
-  const rayon = Math.min(LARGEUR, HAUTEUR) / 2.6
   const xs = new Float64Array(noeuds.length)
   const ys = new Float64Array(noeuds.length)
+  const cibles = new Float64Array(noeuds.length)
   const rang = new Map<string, number>()
+
+  // Départ : chacun dans sa colonne, réparti en hauteur.
+  const effectifs = new Map<TypeNoeud, number>()
+  for (const n of noeuds) effectifs.set(n.type, (effectifs.get(n.type) ?? 0) + 1)
+  const compteurs = new Map<TypeNoeud, number>()
+
   noeuds.forEach((n, i) => {
     rang.set(n.id, i)
-    const angle = (2 * Math.PI * i) / noeuds.length + grain(n.id) * 0.4
-    const r = rayon * (0.75 + grain(n.id + "r") * 0.5)
-    xs[i] = LARGEUR / 2 + r * Math.cos(angle)
-    ys[i] = HAUTEUR / 2 + r * Math.sin(angle)
+    const place = compteurs.get(n.type) ?? 0
+    compteurs.set(n.type, place + 1)
+    const total = effectifs.get(n.type)!
+    cibles[i] = LARGEUR * COLONNES[n.type]
+    xs[i] = cibles[i] + (grain(n.id) - 0.5) * 20
+    ys[i] =
+      MARGE_HAUT +
+      (HAUTEUR - MARGE_HAUT - MARGE_BAS) * ((place + 0.5) / total) +
+      (grain(n.id + "y") - 0.5) * 16
   })
 
   const liens = graphe.aretes
     .map((a) => [rang.get(a.source), rang.get(a.cible)] as const)
-    .filter((p): p is readonly [number, number] =>
-      p[0] !== undefined && p[1] !== undefined
+    .filter(
+      (p): p is readonly [number, number] =>
+        p[0] !== undefined && p[1] !== undefined
     )
 
-  // Distance de repos : la surface disponible répartie entre les nœuds.
   const k = Math.sqrt((LARGEUR * HAUTEUR) / noeuds.length)
   const dx = new Float64Array(noeuds.length)
   const dy = new Float64Array(noeuds.length)
-  let temperature = LARGEUR / 8
+  let temperature = HAUTEUR / 8
 
   for (let pas = 0; pas < ITERATIONS; pas += 1) {
     dx.fill(0)
@@ -106,8 +159,6 @@ export function disposer(graphe: Graphe): Map<string, Position> {
         let ey = ys[i] - ys[j]
         let d = Math.hypot(ex, ey)
         if (d < 0.01) {
-          // Deux nœuds exactement confondus : les séparer dans une direction
-          // tirée de leur rang, donc toujours la même.
           ex = ((i % 7) - 3) / 10 || 0.1
           ey = ((j % 5) - 2) / 10 || 0.1
           d = Math.hypot(ex, ey)
@@ -132,18 +183,21 @@ export function disposer(graphe: Graphe): Map<string, Position> {
       dy[j] += (ey / d) * force
     }
 
-    // Déplacement, borné par la température qui décroît.
     for (let i = 0; i < noeuds.length; i += 1) {
       const d = Math.max(Math.hypot(dx[i], dy[i]), 0.01)
       const pasMax = Math.min(d, temperature)
       xs[i] += (dx[i] / d) * pasMax
       ys[i] += (dy[i] / d) * pasMax
+
+      // Rappel vers la colonne, appliqué après le déplacement : les forces
+      // gardent la main sur la hauteur, la colonne garde la main sur l'abscisse.
+      xs[i] += (cibles[i] - xs[i]) * FIXATION
+      ys[i] = Math.min(Math.max(ys[i], MARGE_HAUT), HAUTEUR - MARGE_BAS)
     }
-    temperature *= 0.985
+    temperature *= 0.987
   }
 
-  recadrer(xs, ys)
-  desserrer(noeuds, xs, ys)
+  desserrer(noeuds, xs, ys, cibles)
 
   noeuds.forEach((n, i) => {
     positions.set(n.id, { x: arrondir(xs[i]), y: arrondir(ys[i]) })
@@ -152,89 +206,51 @@ export function disposer(graphe: Graphe): Map<string, Position> {
 }
 
 /**
- * Ramène la disposition dans la zone de dessin, en conservant les proportions.
- *
- * Étirer chaque axe séparément remplirait mieux le cadre, mais déformerait les
- * angles : deux liens de même longueur n'apparaîtraient plus égaux, et la
- * lecture visuelle des distances — tout l'intérêt d'un graphe — deviendrait
- * fausse.
- */
-function recadrer(xs: Float64Array, ys: Float64Array): void {
-  let xMin = Infinity
-  let xMax = -Infinity
-  let yMin = Infinity
-  let yMax = -Infinity
-  for (let i = 0; i < xs.length; i += 1) {
-    xMin = Math.min(xMin, xs[i])
-    xMax = Math.max(xMax, xs[i])
-    yMin = Math.min(yMin, ys[i])
-    yMax = Math.max(yMax, ys[i])
-  }
-
-  const etendueX = Math.max(xMax - xMin, 1)
-  const etendueY = Math.max(yMax - yMin, 1)
-  const echelle = Math.min(
-    (LARGEUR - 2 * MARGE) / etendueX,
-    (HAUTEUR - 2 * MARGE) / etendueY
-  )
-  const decalageX = (LARGEUR - etendueX * echelle) / 2
-  const decalageY = (HAUTEUR - etendueY * echelle) / 2
-
-  for (let i = 0; i < xs.length; i += 1) {
-    xs[i] = (xs[i] - xMin) * echelle + decalageX
-    ys[i] = (ys[i] - yMin) * echelle + decalageY
-  }
-}
-
-/**
  * Écarte les disques qui se recouvrent encore.
  *
  * La disposition force-dirigée ignore la taille de ce qu'elle place : elle
  * raisonne sur des points. Deux entités très liées — le CHU et le radiologue qui
- * y signe six imageries — finissent donc à quatorze unités l'une de l'autre,
- * pour des rayons qui en totalisent vingt-quatre. Le graphe donnait alors un
- * seul disque là où il y a deux acteurs, exactement à l'endroit le plus
- * intéressant du réseau.
+ * y signe six imageries — finissaient à quatorze unités l'une de l'autre, pour
+ * des rayons qui en totalisent vingt-quatre : un seul disque là où il y a deux
+ * acteurs, exactement à l'endroit le plus intéressant du réseau.
  *
- * Ce désserrage se fait **après** le recadrage, une fois les distances exprimées
- * dans les unités où les rayons ont un sens.
+ * L'écartement se fait **en hauteur** : pousser horizontalement délogerait le
+ * nœud de sa colonne, et c'est la colonne qui rend le graphe lisible. L'abscisse
+ * est donc remise à sa cible à chaque tour.
  */
 function desserrer(
   noeuds: Graphe["noeuds"],
   xs: Float64Array,
-  ys: Float64Array
+  ys: Float64Array,
+  cibles: Float64Array
 ): void {
   const rayons = noeuds.map((n) => RAYONS[n.type])
-  for (let pas = 0; pas < 120; pas += 1) {
+  for (let pas = 0; pas < 240; pas += 1) {
     let deplace = false
     for (let i = 0; i < noeuds.length; i += 1) {
       for (let j = i + 1; j < noeuds.length; j += 1) {
         const minimum = rayons[i] + rayons[j] + ESPACE
-        let ex = xs[j] - xs[i]
+        const ecartX = Math.abs(xs[j] - xs[i])
+        if (ecartX >= minimum) continue
         let ey = ys[j] - ys[i]
-        let d = Math.hypot(ex, ey)
-        if (d >= minimum) continue
-        if (d < 0.01) {
-          ex = ((i % 5) - 2) / 10 || 0.1
-          ey = ((j % 3) - 1) / 10 || 0.1
-          d = Math.hypot(ex, ey)
-        }
-        const pousse = (minimum - d) / 2
-        xs[i] -= (ex / d) * pousse
-        ys[i] -= (ey / d) * pousse
-        xs[j] += (ex / d) * pousse
-        ys[j] += (ey / d) * pousse
+        if (Math.abs(ey) < 0.01) ey = i % 2 === 0 ? 0.1 : -0.1
+        // Il faut assez de hauteur pour compenser ce qui manque en largeur.
+        const requis = Math.sqrt(
+          Math.max(minimum * minimum - ecartX * ecartX, 0)
+        )
+        if (Math.abs(ey) >= requis) continue
+        const pousse = (requis - Math.abs(ey)) / 2
+        const sens = ey >= 0 ? 1 : -1
+        ys[i] -= sens * pousse
+        ys[j] += sens * pousse
         deplace = true
       }
     }
+    for (let i = 0; i < noeuds.length; i += 1) {
+      ys[i] = Math.min(Math.max(ys[i], MARGE_HAUT), HAUTEUR - MARGE_BAS)
+      xs[i] = cibles[i]
+    }
     if (!deplace) break
-  }
-
-  // Le desserrage peut pousser un nœud hors du cadre ; la marge le rattrape.
-  const bord = ESPACE
-  for (let i = 0; i < noeuds.length; i += 1) {
-    xs[i] = Math.min(Math.max(xs[i], bord + rayons[i]), LARGEUR - bord - rayons[i])
-    ys[i] = Math.min(Math.max(ys[i], bord + rayons[i]), HAUTEUR - bord - rayons[i])
   }
 }
 
@@ -248,11 +264,3 @@ function desserrer(
 function arrondir(valeur: number): number {
   return Math.round(valeur * 100) / 100
 }
-
-/** Rayon du disque d'un nœud, selon son type. */
-export const RAYONS = {
-  assure: 9,
-  etablissement: 13,
-  praticien: 11,
-  sinistre: 7,
-} as const

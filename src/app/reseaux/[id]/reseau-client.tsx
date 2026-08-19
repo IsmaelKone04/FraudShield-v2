@@ -30,15 +30,24 @@ import {
   type Graphe,
   type Indicateurs,
 } from "@/lib/reseaux"
-import { HAUTEUR, LARGEUR, RAYONS } from "@/lib/reseaux-disposition"
+import {
+  COLONNES,
+  HAUTEUR,
+  LARGEUR,
+  ORDRE_COLONNES,
+  RAYONS,
+} from "@/lib/reseaux-disposition"
 import type { Alerte } from "@/lib/schemas/alertes.schema"
 import type { Investigation } from "@/lib/schemas/investigations.schema"
-import type { Noeud } from "@/lib/schemas/reseaux.schema"
+import type { Noeud, TypeNoeud } from "@/lib/schemas/reseaux.schema"
 
 type PositionNommee = { id: string; x: number; y: number }
 
 const ZOOM_MIN = 0.6
 const ZOOM_MAX = 3
+
+/** Au-delà, le libellé est coupé : il empiéterait sur la colonne voisine. */
+const LONGUEUR_LIBELLE = 22
 
 export function ReseauClient({
   graphe,
@@ -57,12 +66,18 @@ export function ReseauClient({
   selectionInitiale: string | null
 }) {
   const [selection, setSelection] = useState<string | null>(selectionInitiale)
+  const [survol, setSurvol] = useState<string | null>(null)
   const [profondeur, setProfondeur] = useState<1 | 2>(1)
   const [zoom, setZoom] = useState(1)
   const [decalage, setDecalage] = useState({ x: 0, y: 0 })
+
+  // Le glissement du cadre et le clic sur un nœud se disputent le même geste :
+  // ces deux repères servent à les départager sans capture de pointeur, qui
+  // détournerait le clic vers le SVG et empêcherait tout nœud de le recevoir.
   const glisse = useRef<{ x: number; y: number; dx: number; dy: number } | null>(
     null
   )
+  const aGlisse = useRef(false)
 
   const parId = useMemo(
     () => new Map(graphe.noeuds.map((n) => [n.id, n])),
@@ -105,6 +120,13 @@ export function ReseauClient({
     setZoom(1)
     setDecalage({ x: 0, y: 0 })
   }
+
+  // Le cadrage passe par le `viewBox` : le repère du dessin reste celui du
+  // serveur, et les coordonnées écrites dans le HTML ne changent jamais.
+  const largeurVue = LARGEUR / zoom
+  const hauteurVue = HAUTEUR / zoom
+  const vueX = (LARGEUR - largeurVue) / 2 - decalage.x
+  const vueY = (HAUTEUR - hauteurVue) / 2 - decalage.y
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -153,8 +175,8 @@ export function ReseauClient({
           Le dossier annonce <strong>{investigation.casLies} cas liés</strong> ;
           le moteur n&apos;en avait signalé que{" "}
           <strong>{investigation.alertesLiees.length}</strong>. Les autres sont
-          venus du recoupement — ce sont les sinistres sans contour clair
-          ci-dessous, et aucun écran ne les montrait jusqu&apos;ici.
+          venus du recoupement — ce sont les losanges creux ci-dessous, et aucun
+          écran ne les montrait jusqu&apos;ici.
         </span>
       </div>
 
@@ -194,7 +216,7 @@ export function ReseauClient({
         />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
+      <div className="grid gap-4 xl:grid-cols-[1fr_330px]">
         {/* ── Le graphe ── */}
         <Section
           titre="Graphe du réseau"
@@ -207,7 +229,7 @@ export function ReseauClient({
                 size="sm"
                 className="h-7 gap-1.5 px-2 text-[11px]"
                 onClick={() => setProfondeur(profondeur === 1 ? 2 : 1)}
-                title="Étendue de la mise en évidence autour du nœud choisi"
+                title="Étendue de la mise en évidence autour de l'entité choisie : ses voisins directs, ou les voisins de ses voisins"
               >
                 Voisinage {profondeur}
               </Button>
@@ -242,8 +264,38 @@ export function ReseauClient({
             </div>
           }
         >
+          {/* ── Comment lire ce graphe ── */}
+          <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+            Chaque chaîne se lit <strong>de gauche à droite</strong> : un{" "}
+            <Mot type="assure">assuré</Mot> déclare un{" "}
+            <Mot type="sinistre">sinistre</Mot>, pris en charge par un{" "}
+            <Mot type="praticien">praticien</Mot> et facturé par un{" "}
+            <Mot type="etablissement">établissement</Mot>. Un trait est un
+            rattachement réel. <strong>Cliquez sur une entité</strong> pour
+            n&apos;éclairer que ce qu&apos;elle touche ; le reste est estompé,
+            pas retiré.
+          </p>
+
+          {/* ── En-têtes de colonnes ──
+              En HTML plutôt que dans le SVG : ils restent en place quand on
+              déplace ou agrandit le graphe, et se lisent à la sélection. */}
+          <div className="relative mb-1 h-5">
+            {ORDRE_COLONNES.map((type) => (
+              <span
+                key={type}
+                className="absolute -translate-x-1/2 text-[10px] font-semibold uppercase tracking-wider"
+                style={{
+                  left: `${COLONNES[type] * 100}%`,
+                  color: NOEUDS[type].couleur,
+                }}
+              >
+                {NOEUDS[type].pluriel} ({compte[type]})
+              </span>
+            ))}
+          </div>
+
           <svg
-            viewBox={`0 0 ${LARGEUR} ${HAUTEUR}`}
+            viewBox={`${vueX} ${vueY} ${largeurVue} ${hauteurVue}`}
             className="w-full cursor-grab touch-none rounded-lg bg-muted/20 active:cursor-grabbing"
             role="img"
             aria-label={`Graphe du réseau ${graphe.reseau.titre} : ${graphe.noeuds.length} entités reliées par ${graphe.aretes.length} liens`}
@@ -254,115 +306,165 @@ export function ReseauClient({
                 dx: decalage.x,
                 dy: decalage.y,
               }
-              e.currentTarget.setPointerCapture(e.pointerId)
+              aGlisse.current = false
             }}
             onPointerMove={(e) => {
               const depart = glisse.current
-              if (!depart) return
-              // Le déplacement du pointeur est en pixels d'écran ; le repère du
-              // SVG fait 960 unités de large quel que soit l'espace disponible.
-              const echelle = LARGEUR / e.currentTarget.clientWidth
+              if (!depart || (e.buttons & 1) === 0) return
+              const bougeX = e.clientX - depart.x
+              const bougeY = e.clientY - depart.y
+              if (Math.abs(bougeX) + Math.abs(bougeY) > 4) aGlisse.current = true
+              // Le pointeur se déplace en pixels d'écran ; le repère du SVG fait
+              // 1000 unités de large quel que soit l'espace disponible.
+              const echelle = largeurVue / e.currentTarget.clientWidth
               setDecalage({
-                x: depart.dx + (e.clientX - depart.x) * echelle,
-                y: depart.dy + (e.clientY - depart.y) * echelle,
+                x: depart.dx + bougeX * echelle,
+                y: depart.dy + bougeY * echelle,
               })
             }}
             onPointerUp={() => (glisse.current = null)}
-            onPointerCancel={() => (glisse.current = null)}
+            onPointerLeave={() => (glisse.current = null)}
             onClick={(e) => {
+              // Un glissement se termine par un clic : il ne doit pas
+              // désélectionner ce qu'on venait de choisir.
+              if (aGlisse.current) {
+                aGlisse.current = false
+                return
+              }
               if (e.target === e.currentTarget) setSelection(null)
             }}
           >
-            <g
-              transform={`translate(${decalage.x} ${decalage.y}) scale(${zoom}) translate(${(LARGEUR * (1 - 1 / zoom)) / -2} ${(HAUTEUR * (1 - 1 / zoom)) / -2})`}
-            >
-              {graphe.aretes.map((a) => {
-                const de = coordonnees.get(a.source)
-                const vers = coordonnees.get(a.cible)
-                if (!de || !vers) return null
-                const mise =
-                  !evidence || (evidence.has(a.source) && evidence.has(a.cible))
-                return (
-                  <line
-                    key={`${a.source}-${a.cible}-${a.type}`}
-                    x1={de.x}
-                    y1={de.y}
-                    x2={vers.x}
-                    y2={vers.y}
-                    stroke="currentColor"
-                    className={
-                      mise ? "text-muted-foreground/60" : "text-muted-foreground/10"
-                    }
-                    strokeWidth={mise ? 1.4 : 1}
-                  />
-                )
-              })}
+            {graphe.aretes.map((a) => {
+              const de = coordonnees.get(a.source)
+              const vers = coordonnees.get(a.cible)
+              if (!de || !vers) return null
+              const mise =
+                !evidence || (evidence.has(a.source) && evidence.has(a.cible))
+              return (
+                <line
+                  key={`${a.source}-${a.cible}-${a.type}`}
+                  x1={de.x}
+                  y1={de.y}
+                  x2={vers.x}
+                  y2={vers.y}
+                  stroke="currentColor"
+                  className={
+                    mise ? "text-muted-foreground/50" : "text-muted-foreground/5"
+                  }
+                  strokeWidth={mise ? 1.3 : 1}
+                />
+              )
+            })}
 
-              {graphe.noeuds.map((n) => {
-                const p = coordonnees.get(n.id)
-                if (!p) return null
-                const mise = !evidence || evidence.has(n.id)
-                const choisi = n.id === selection
-                const signale = n.type === "sinistre" && n.alerteId !== null
-                return (
-                  <g
-                    key={n.id}
-                    transform={`translate(${p.x} ${p.y})`}
-                    className="cursor-pointer"
-                    opacity={mise ? 1 : 0.18}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelection(choisi ? null : n.id)
-                    }}
-                  >
-                    <title>{titreNoeud(n)}</title>
-                    <circle
-                      r={RAYONS[n.type] + (choisi ? 5 : 0)}
-                      fill={NOEUDS[n.type].couleur}
-                      fillOpacity={signale || n.type !== "sinistre" ? 0.9 : 0.35}
-                      stroke={choisi ? "#f8fafc" : NOEUDS[n.type].couleur}
-                      strokeWidth={choisi ? 2.5 : signale ? 2 : 1}
-                    />
-                    {(n.type !== "sinistre" || choisi || zoom >= 1.75) && (
-                      <text
-                        y={RAYONS[n.type] + 13}
-                        textAnchor="middle"
-                        className="pointer-events-none fill-foreground text-[10px]"
-                      >
-                        {n.libelle}
-                      </text>
-                    )}
-                  </g>
-                )
-              })}
-            </g>
+            {graphe.noeuds.map((n) => {
+              const p = coordonnees.get(n.id)
+              if (!p) return null
+              const mise = !evidence || evidence.has(n.id)
+              const choisi = n.id === selection
+              const signale = n.type === "sinistre" && n.alerteId !== null
+              const rayon = RAYONS[n.type] + (choisi ? 4 : 0)
+              // Les sinistres sont trop nombreux pour porter tous un libellé :
+              // le leur n'apparaît qu'à la sélection, au survol, ou quand la
+              // mise en évidence a déjà réduit ce qui est lisible.
+              const libelleVisible =
+                n.type !== "sinistre" ||
+                choisi ||
+                survol === n.id ||
+                (evidence !== null && evidence.has(n.id))
+              return (
+                <g
+                  key={n.id}
+                  transform={`translate(${p.x} ${p.y})`}
+                  className="cursor-pointer"
+                  opacity={mise ? 1 : 0.15}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (aGlisse.current) return
+                    setSelection(choisi ? null : n.id)
+                  }}
+                  onPointerEnter={() => setSurvol(n.id)}
+                  onPointerLeave={() => setSurvol(null)}
+                >
+                  <title>{titreNoeud(n)}</title>
+                  {/* Cible de clic élargie : un disque de huit unités se rate. */}
+                  <circle r={rayon + 10} fill="transparent" />
+                  <Forme
+                    type={n.type}
+                    rayon={rayon}
+                    fill={NOEUDS[n.type].couleur}
+                    fillOpacity={signale || n.type !== "sinistre" ? 0.85 : 0.12}
+                    stroke={choisi ? "#f8fafc" : NOEUDS[n.type].couleur}
+                    strokeWidth={choisi ? 2.5 : signale ? 2.2 : 1.4}
+                  />
+                  {libelleVisible && (
+                    <text
+                      {...ancrageLibelle(n.type, rayon)}
+                      className="pointer-events-none fill-foreground text-[11px]"
+                      style={{
+                        paintOrder: "stroke",
+                        stroke: "var(--card)",
+                        strokeWidth: 3.5,
+                        strokeLinejoin: "round",
+                      }}
+                    >
+                      {couper(n.libelle)}
+                    </text>
+                  )}
+                </g>
+              )
+            })}
           </svg>
 
           {/* ── Légende ── */}
-          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border/40 pt-3">
-            {(Object.keys(NOEUDS) as (keyof typeof NOEUDS)[]).map((type) => (
-              <span
-                key={type}
-                className="flex items-center gap-1.5 text-[11px] text-muted-foreground"
-              >
+          <div className="mt-4 flex flex-col gap-2 border-t border-border/40 pt-3">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              {ORDRE_COLONNES.map((type) => (
                 <span
-                  className="inline-block rounded-full"
-                  style={{
-                    background: NOEUDS[type].couleur,
-                    width: RAYONS[type],
-                    height: RAYONS[type],
-                  }}
-                />
-                {NOEUDS[type].pluriel} ({compte[type]})
+                  key={type}
+                  className="flex items-center gap-1.5 text-[11px] text-muted-foreground"
+                >
+                  <svg width={18} height={18} viewBox="-9 -9 18 18">
+                    <Forme
+                      type={type}
+                      rayon={7}
+                      fill={NOEUDS[type].couleur}
+                      fillOpacity={0.85}
+                      stroke={NOEUDS[type].couleur}
+                      strokeWidth={1.4}
+                    />
+                  </svg>
+                  {NOEUDS[type].libelle}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <svg width={18} height={18} viewBox="-9 -9 18 18">
+                  <Forme
+                    type="sinistre"
+                    rayon={7}
+                    fill={NOEUDS.sinistre.couleur}
+                    fillOpacity={0.85}
+                    stroke={NOEUDS.sinistre.couleur}
+                    strokeWidth={2.2}
+                  />
+                </svg>
+                Losange plein : le moteur avait signalé ce sinistre
               </span>
-            ))}
-            <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <span
-                className="inline-block size-2 rounded-full border-2"
-                style={{ borderColor: NOEUDS.sinistre.couleur }}
-              />
-              Contour plein : sinistre ayant déclenché une alerte
-            </span>
+              <span className="flex items-center gap-1.5">
+                <svg width={18} height={18} viewBox="-9 -9 18 18">
+                  <Forme
+                    type="sinistre"
+                    rayon={7}
+                    fill={NOEUDS.sinistre.couleur}
+                    fillOpacity={0.12}
+                    stroke={NOEUDS.sinistre.couleur}
+                    strokeWidth={1.4}
+                  />
+                </svg>
+                Losange creux : venu du recoupement, jamais signalé
+              </span>
+            </div>
           </div>
         </Section>
 
@@ -371,18 +473,24 @@ export function ReseauClient({
           <Section titre="Entité choisie" icone={Crosshair}>
             {!noeudSelectionne ? (
               <p className="text-xs text-muted-foreground">
-                Choisissez un nœud du graphe pour ne garder en évidence que ce
-                qu&apos;il touche. Le reste est estompé, pas retiré — on doit
-                voir ce qu&apos;on écarte.
+                Cliquez sur une entité du graphe — ou sur un nom dans les
+                indicateurs ci-dessous — pour ne garder en évidence que ce
+                qu&apos;elle touche.
               </p>
             ) : (
               <div className="flex flex-col gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span
-                      className="inline-block size-2.5 rounded-full"
-                      style={{ background: NOEUDS[noeudSelectionne.type].couleur }}
-                    />
+                    <svg width={14} height={14} viewBox="-9 -9 18 18">
+                      <Forme
+                        type={noeudSelectionne.type}
+                        rayon={7}
+                        fill={NOEUDS[noeudSelectionne.type].couleur}
+                        fillOpacity={0.85}
+                        stroke={NOEUDS[noeudSelectionne.type].couleur}
+                        strokeWidth={1.4}
+                      />
+                    </svg>
                     <span className="text-sm font-semibold text-foreground">
                       {noeudSelectionne.libelle}
                     </span>
@@ -401,7 +509,8 @@ export function ReseauClient({
                 {noeudSelectionne.type === "sinistre" && (
                   <div className="space-y-0.5 text-xs text-muted-foreground">
                     <p>
-                      {noeudSelectionne.montantFormate} · {noeudSelectionne.dateFormate}
+                      {noeudSelectionne.montantFormate} ·{" "}
+                      {noeudSelectionne.dateFormate}
                     </p>
                     <p>
                       {noeudSelectionne.alerteId
@@ -433,7 +542,9 @@ export function ReseauClient({
                           style={{ background: NOEUDS[r.noeud.type].couleur }}
                         />
                         <span className="min-w-0">
-                          <span className="text-muted-foreground">{r.lien} </span>
+                          <span className="text-muted-foreground">
+                            {r.lien}{" "}
+                          </span>
                           <button
                             type="button"
                             onClick={() => setSelection(r.noeud.id)}
@@ -520,6 +631,71 @@ export function ReseauClient({
         </div>
       </div>
     </div>
+  )
+}
+
+/**
+ * Une forme par type d'entité.
+ *
+ * La couleur seule ne suffit pas : elle disparaît pour un daltonien, à
+ * l'impression, et sur une capture d'écran. Quatre silhouettes distinctes se
+ * lisent dans tous les cas.
+ */
+function Forme({
+  type,
+  rayon: r,
+  ...props
+}: { type: TypeNoeud; rayon: number } & React.SVGProps<
+  SVGCircleElement & SVGRectElement & SVGPolygonElement
+>) {
+  if (type === "etablissement")
+    return <rect x={-r} y={-r} width={r * 2} height={r * 2} rx={2} {...props} />
+  if (type === "praticien")
+    return (
+      <polygon
+        points={`0,${-r * 1.2} ${r * 1.05},${r * 0.75} ${-r * 1.05},${r * 0.75}`}
+        {...props}
+      />
+    )
+  if (type === "sinistre")
+    return (
+      <polygon points={`0,${-r * 1.2} ${r * 1.2},0 0,${r * 1.2} ${-r * 1.2},0`} {...props} />
+    )
+  return <circle r={r} {...props} />
+}
+
+/**
+ * Où écrire le libellé d'un nœud, selon sa colonne.
+ *
+ * Les assurés sont à gauche du dessin : leur nom part vers l'extérieur, du côté
+ * où il ne rencontre aucun lien. Les praticiens et les établissements font de
+ * même vers la droite. Seuls les sinistres, au milieu, écrivent sous le nœud.
+ */
+function ancrageLibelle(type: TypeNoeud, rayon: number) {
+  if (type === "assure")
+    return { x: -rayon - 7, y: 4, textAnchor: "end" as const }
+  if (type === "sinistre")
+    return { x: 0, y: rayon + 15, textAnchor: "middle" as const }
+  return { x: rayon + 7, y: 4, textAnchor: "start" as const }
+}
+
+const couper = (texte: string) =>
+  texte.length > LONGUEUR_LIBELLE
+    ? `${texte.slice(0, LONGUEUR_LIBELLE - 1)}…`
+    : texte
+
+/** Un mot de la phrase de lecture, teinté comme sa colonne. */
+function Mot({
+  type,
+  children,
+}: {
+  type: TypeNoeud
+  children: React.ReactNode
+}) {
+  return (
+    <strong style={{ color: NOEUDS[type].couleur }} className="font-semibold">
+      {children}
+    </strong>
   )
 }
 

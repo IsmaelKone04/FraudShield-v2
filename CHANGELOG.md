@@ -78,6 +78,29 @@ déclare dans trois cliniques, un chirurgien qui exerce dans deux d'entre elles.
 Ailleurs, un cabinet privé concentre sept consultations du même assuré, et le
 praticien qui les signe intervient aussi dans un second dossier.
 
+### Corrigé après relecture à l'écran
+
+Le graphe était exact et illisible — trois défauts relevés en le regardant, que
+ni les tests ni la vérification du HTML servi ne pouvaient voir.
+
+- **Aucun nœud ne répondait au clic.** Le glissement du cadre capturait le
+  pointeur sur le `<svg>`, ce qui redirige vers lui tous les événements
+  suivants : le clic n'atteignait jamais le nœud. La capture est retirée, et un
+  déplacement de plus de quatre pixels annule le clic qui le termine.
+- **Rien n'indiquait comment lire le graphe.** Chaque type est désormais rappelé
+  vers sa colonne, dans l'ordre de la phrase — un assuré déclare un sinistre,
+  pris en charge par un praticien, facturé par un établissement. Les colonnes
+  sont nommées avec leur effectif, la phrase est écrite au-dessus du dessin, et
+  le sens de lecture dispense de flèches.
+- **Les libellés se chevauchaient.** Ils sont placés selon la colonne — vers
+  l'extérieur pour les assurés et les établissements, sous le nœud pour les
+  sinistres — coupés à vingt-deux caractères, et posés sur un halo. Les
+  sinistres, trop nombreux, n'en portent qu'à la sélection ou au survol. Un test
+  vérifie que deux entités libellées d'une même colonne sont séparées d'au moins
+  une hauteur de ligne.
+- **Chaque type a sa forme** — disque, losange, triangle, carré — la couleur
+  seule disparaissant pour un daltonien, à l'impression et sur une capture.
+
 ### Dette laissée sciemment
 
 - Les indicateurs sont calculés sur le jeu chargé : à volume réel, le
@@ -93,11 +116,12 @@ praticien qui les signe intervient aussi dans un second dossier.
 ### Vérifié
 
 `typecheck` et `build` sans erreur (17 routes, `/reseaux` pré-rendue) ; `lint`
-inchangé à 2 erreurs préexistantes. **52 tests** unitaires sur le contrat, les
-périmètres, les indicateurs et la disposition ; **12 gardes prouvées** en
-abîmant une copie du jeu de données pour vérifier que le service refuse et
-désigne le fautif ; **37 vérifications** sur le HTML réellement servi, dont la
-présence des disques et des liens du SVG avant toute hydratation. Non-régression
+inchangé à 2 erreurs préexistantes. **57 tests** unitaires sur le contrat, les
+périmètres, les indicateurs, les colonnes et l'espacement des libellés ;
+**12 gardes prouvées** en abîmant une copie du jeu de données pour vérifier que
+le service refuse et désigne le fautif ; **42 vérifications** sur le HTML
+réellement servi, dont la présence des formes et des liens du SVG avant toute
+hydratation, et celle des repères de lecture. Non-régression
 des phases 2, 3, de D1, D2, D4 et D5 rejouée : 17/17, 8/8, 24/24, 45/45, 51/51,
 34/34, 36/36, 8/8, 72/72, 62/62, 16/16, 62/62, 68/68 et 38/38.
 

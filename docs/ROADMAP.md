@@ -371,6 +371,15 @@ pure et déterministe, dont le résultat part complet dans le HTML servi.
   sinistres égal aux cas liés annoncés, alertes rattachées présentes,
   établissements nommés existants, et sinistre signalé décrivant la même chose
   que son alerte. Onze refus provoqués un à un sur une copie abîmée du jeu.
+- **La disposition force-dirigée seule était illisible.** Relu à l'écran, le
+  graphe était exact et incompréhensible : quatre natures d'entité mêlées, aucun
+  sens de lecture, des libellés qui se chevauchaient. Chaque type est désormais
+  rappelé vers sa colonne — les forces ne règlent plus que la hauteur — et chaque
+  type porte une forme distincte. Ni les tests ni la vérification du HTML servi
+  ne pouvaient relever ce défaut : il fallait regarder l'écran.
+- **Le glissement du cadre volait le clic.** `setPointerCapture` sur le `<svg>`
+  redirige vers lui tous les événements suivants : aucun nœud n'était
+  sélectionnable. Capture retirée, glissement suivi à l'état des boutons.
 - **La disposition ignorait la taille de ce qu'elle place.** Un test comparant
   chaque paire de positions aux rayons dessinés a montré que le CHU et son
   radiologue se recouvraient — quatorze unités d'écart pour vingt-quatre de

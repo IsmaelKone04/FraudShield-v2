@@ -310,6 +310,14 @@ signalés apparaissent pour la première fois.
   ne tourne pas sur le serveur et laisserait un cadre vide au premier rendu. Pure
   et déterministe, elle envoie le SVG complet dans le HTML servi
   ([ADR-025](docs/DECISIONS.md)).
+- **Le graphe se lit de gauche à droite.** Chaque nature d'entité occupe sa
+  colonne, dans l'ordre de la phrase — un assuré déclare un sinistre, pris en
+  charge par un praticien, facturé par un établissement. Les forces ne règlent
+  que la hauteur : qui se place à côté de qui. Une disposition libre avait été
+  essayée d'abord ; elle était exacte et illisible.
+- **Chaque type porte une forme**, pas seulement une couleur : disque, losange,
+  triangle, carré. Une teinte disparaît pour un daltonien, à l'impression et sur
+  une capture d'écran.
 - **Zoom, déplacement, voisinage à un ou deux liens.** Choisir un nœud estompe le
   reste au lieu de le retirer : on doit voir ce qu'on écarte.
 
