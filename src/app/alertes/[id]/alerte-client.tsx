@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import {
   AlertTriangle, ArrowLeft, Building2, Calendar, CheckCircle,
   FileText, History, MessageSquare, Printer, Receipt, Scale, Send,
-  ShieldAlert, Trash2, Undo2, User,
+  ShieldAlert, Share2, Trash2, Undo2, User,
 } from "lucide-react"
 
 import {
@@ -132,9 +132,17 @@ function Champ({
 // ─── Écran ────────────────────────────────────────────────────────────────────
 
 export function AlerteClient({
+  reseau,
   dossier: dossierServeur,
   utilisateur,
 }: {
+  /**
+   * Le réseau de fraude où figure cette alerte, `null` quand elle n'appartient
+   * à aucun. Une alerte isolée, résolue et à score faible n'a pas de schéma
+   * organisé derrière elle : afficher le lien quand même mènerait à un écran
+   * qui n'apprend rien.
+   */
+  reseau: { reseauId: string; sinistreId: string; titre: string } | null
   dossier: AlerteDetail
   /** Adresse du compte connecté ; `null` si la session a expiré. */
   utilisateur: string | null
@@ -285,6 +293,25 @@ export function AlerteClient({
           <SelecteurStatut id={dossier.id} statut={dossier.statut} />
         </div>
       </div>
+
+      {/* ── Ce cas fait-il partie d'un schéma ── */}
+      {reseau && (
+        <Link
+          href={`/reseaux/${reseau.reseauId}?sinistre=${reseau.sinistreId}`}
+          className="group flex items-center justify-between gap-3 rounded-lg border border-violet-500/20 bg-violet-500/[0.06] px-4 py-2.5 transition-colors hover:border-violet-500/40"
+        >
+          <span className="min-w-0 text-xs text-violet-300">
+            Ce dossier n&apos;est pas isolé : il appartient au réseau{" "}
+            <strong>{reseau.titre}</strong>. Le graphe montre les assurés, les
+            praticiens et les établissements qu&apos;il partage avec les autres
+            cas.
+          </span>
+          <span className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-violet-200">
+            <Share2 size={13} />
+            Voir le réseau
+          </span>
+        </Link>
+      )}
 
       {/* ── Résumé ── */}
       <Card className="border-border/50 bg-card">

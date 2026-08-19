@@ -4,6 +4,105 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 4 — Les différenciateurs · D3 — Graphe de réseaux de fraude
+
+Une alerte isolée se conteste. Un schéma organisé se démontre.
+
+### Ajouté
+
+- **`/reseaux`** : les six réseaux de fraude, avec ce que chacun met en jeu —
+  sinistres, entités, montant, densité de liens. Et **`/reseaux/[id]`** : le
+  graphe lui-même, ses indicateurs de collusion, et les alertes de son
+  périmètre.
+- **Un modèle de graphe à quatre types d'entité** — assuré, établissement,
+  praticien, sinistre — et quatre liens orientés, chacun n'admettant qu'un
+  couple de types. Le jeu de nœuds est **commun à tous les dossiers** : un
+  praticien présent dans trois dossiers y est un seul nœud, sans quoi le
+  recoupement entre dossiers serait invisible ([ADR-024](docs/DECISIONS.md)).
+- **Les cas liés que personne ne montrait.** `INV-2026-001` annonçait « 8 cas
+  liés » depuis la phase 1 en ne rattachant que trois alertes. Les huit sont là,
+  et le service **refuse de servir** un réseau dont le nombre de sinistres ne
+  correspond pas à celui de la fiche.
+- **Une disposition force-dirigée écrite ici**, pure et déterministe, calculée
+  sur le serveur : le SVG part complet dans le HTML servi, sans dépendance
+  ajoutée et sans cadre vide au premier rendu ([ADR-025](docs/DECISIONS.md)).
+- **Zoom, déplacement du cadre, mise en évidence du voisinage** à un ou deux
+  liens. Choisir un nœud estompe le reste au lieu de le retirer : un analyste
+  doit voir ce qu'il écarte.
+- **Trois indicateurs de collusion**, calculés depuis les liens et non écrits
+  dans le jeu de données : assurés présents dans plusieurs établissements,
+  praticiens présents dans plusieurs dossiers, entités portant plusieurs
+  sinistres. Chacun renvoie au nœud concerné d'un clic.
+- **Une densité de liens qui se lit.** Elle vaut exactement `1,00` quand rien
+  n'est partagé — chaque sinistre apporte alors quatre nœuds et quatre liens.
+  Toute valeur supérieure mesure donc de la mutualisation, et rien d'autre.
+- **Depuis le dossier d'alerte : « voir le réseau ».** Le lien désigne le
+  sinistre, pas seulement le réseau, de sorte que le graphe s'ouvre sur le cas
+  qu'on quittait. Il ne s'affiche pas pour une alerte qui n'appartient à aucun
+  réseau — un lien qui mène à un écran vide punit celui qui le suit.
+
+### Modifié
+
+- **« Cas liés : 8 alertes » se lit désormais « 8 cas, dont 3 signalés ».**
+  L'étiquette de la liste des investigations confondait deux nombres que le
+  graphe vient de séparer.
+- **Les totaux de la liste ne sont plus une addition.** Un sinistre suivi par
+  deux dossiers y était compté deux fois : le total dépassait ce que le graphe
+  contient, à l'endroit précis où l'écran prétend montrer le partage d'entités.
+  Le service les calcule sur les entités distinctes.
+- **`CarteSynthese` quitte le journal d'audit** pour `components/` : la
+  deuxième copie allait être écrite. Même raison que `Section` en D1.
+
+### Arbitrages
+
+| Décision | Pourquoi |
+|---|---|
+| Un jeu de nœuds commun, des réseaux qui n'en désignent qu'un périmètre | Un sous-graphe par dossier ferait de trois apparitions d'un praticien trois praticiens ([ADR-024](docs/DECISIONS.md)) |
+| Les arêtes d'un réseau sont déduites, pas listées | Deux descriptions du même lien finissent par diverger |
+| L'identifiant du nœud **est** sa référence métier | Un second champ pour la même information, c'est une divergence en attente |
+| Un sinistre n'est pas une alerte | Un dossier couvre des demandes dont une partie seulement a été signalée — c'est tout l'écart que le graphe explique |
+| Le service refuse un périmètre qui ne tient pas sa fiche | Un graphe faux se voit moins qu'un tableau faux : il ressemble à quelque chose quoi qu'on y mette |
+| Disposition écrite à la main plutôt que `d3-force` | Une simulation animée ne tourne pas sur le serveur : le graphe n'apparaîtrait qu'après l'hydratation ([ADR-025](docs/DECISIONS.md)) |
+| Coordonnées arrondies au centième | Le SVG part en texte dans le HTML ; un écart en virgule flottante suffirait à faire diverger serveur et navigateur |
+| Recadrage à proportions conservées | Étirer chaque axe déformerait les angles, et la lecture des distances deviendrait fausse |
+| La sélection estompe, elle ne filtre pas | On doit voir ce qu'on écarte |
+| Indicateurs calculés, jamais stockés | Un indicateur écrit dans le jeu de données est une affirmation ; calculé, il se vérifie ligne à ligne |
+| Densité rapportée à 1,00 | Un chiffre sans point de comparaison ne se lit pas |
+
+### Ce que l'écran finit par dire
+
+Le dossier « Réseau de surfacturation » affiche huit sinistres pour trois
+alertes : cinq cas n'ont jamais été signalés par le moteur et n'apparaissaient
+nulle part. Le graphe montre pourquoi ils tiennent ensemble — un assuré qui
+déclare dans trois cliniques, un chirurgien qui exerce dans deux d'entre elles.
+Ailleurs, un cabinet privé concentre sept consultations du même assuré, et le
+praticien qui les signe intervient aussi dans un second dossier.
+
+### Dette laissée sciemment
+
+- Les indicateurs sont calculés sur le jeu chargé : à volume réel, le
+  recoupement entre dossiers se ferait côté serveur.
+- Aucun nœud ne se déplace à la souris — contrepartie d'une disposition arrêtée
+  avant d'arriver au navigateur.
+- Le graphe ne couvre que les sinistres rattachés à un dossier d'instruction :
+  une alerte isolée n'a pas de réseau, et l'écran le dit plutôt que d'ouvrir un
+  cadre vide.
+- Les liens sont orientés dans le modèle mais dessinés sans flèche : le sens se
+  lit dans le panneau latéral, pas sur le trait.
+
+### Vérifié
+
+`typecheck` et `build` sans erreur (17 routes, `/reseaux` pré-rendue) ; `lint`
+inchangé à 2 erreurs préexistantes. **52 tests** unitaires sur le contrat, les
+périmètres, les indicateurs et la disposition ; **12 gardes prouvées** en
+abîmant une copie du jeu de données pour vérifier que le service refuse et
+désigne le fautif ; **37 vérifications** sur le HTML réellement servi, dont la
+présence des disques et des liens du SVG avant toute hydratation. Non-régression
+des phases 2, 3, de D1, D2, D4 et D5 rejouée : 17/17, 8/8, 24/24, 45/45, 51/51,
+34/34, 36/36, 8/8, 72/72, 62/62, 16/16, 62/62, 68/68 et 38/38.
+
+---
+
 ## Phase 4 — Les différenciateurs · D5 — Piste d'audit
 
 Une console qui décide doit pouvoir dire qui a décidé. Surtout quand la décision

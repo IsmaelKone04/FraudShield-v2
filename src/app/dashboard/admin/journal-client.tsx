@@ -13,10 +13,10 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 
+import { CarteSynthese } from "@/components/carte-synthese"
 import { Section } from "@/components/section"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -367,40 +367,5 @@ export function JournalClient() {
         )}
       </Section>
     </div>
-  )
-}
-
-// ─── Carte de synthèse ────────────────────────────────────────────────────────
-
-function CarteSynthese({
-  icone: Icone,
-  libelle,
-  valeur,
-  precision,
-  accent,
-}: {
-  icone: React.ComponentType<{ size?: number; className?: string }>
-  libelle: string
-  valeur: string
-  precision: string
-  accent?: string
-}) {
-  return (
-    <Card className="border-border/50 bg-card">
-      <CardContent className="p-5">
-        <div className="mb-3 flex items-center gap-3">
-          <Icone size={16} className="text-muted-foreground" />
-          <span className="text-xs font-medium text-muted-foreground">
-            {libelle}
-          </span>
-        </div>
-        <div
-          className={`mb-1 text-3xl font-bold ${accent ?? "text-foreground"}`}
-        >
-          {valeur}
-        </div>
-        <div className="text-xs text-muted-foreground/60">{precision}</div>
-      </CardContent>
-    </Card>
   )
 }

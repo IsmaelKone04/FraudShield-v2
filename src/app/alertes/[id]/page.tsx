@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 
 import { auth } from "@/auth"
 import { ActeurJournal } from "@/components/acteur-journal"
-import { alertesService } from "@/lib/services"
+import { alertesService, reseauxService } from "@/lib/services"
 import { AlerteClient } from "./alerte-client"
 
 type Parametres = { params: Promise<{ id: string }> }
@@ -22,9 +22,13 @@ export async function generateMetadata({ params }: Parametres) {
  */
 export default async function AlertePage({ params }: Parametres) {
   const { id } = await params
-  const [session, dossier] = await Promise.all([
+  const identifiant = decodeURIComponent(id)
+  const [session, dossier, reseau] = await Promise.all([
     auth(),
-    alertesService.getAlerte(decodeURIComponent(id)),
+    alertesService.getAlerte(identifiant),
+    // Toutes les alertes n'appartiennent pas à un réseau : le service répond
+    // `null` plutôt que de laisser la page proposer un lien vers un écran vide.
+    reseauxService.getReseauDeLAlerte(identifiant),
   ])
 
   if (!dossier) notFound()
@@ -34,6 +38,7 @@ export default async function AlertePage({ params }: Parametres) {
       <ActeurJournal email={session?.user?.email ?? null} />
       <AlerteClient
         dossier={dossier}
+        reseau={reseau}
         // Le compte qui décide et qui signe les notes. Lu ici plutôt que côté
         // client, pour la même raison que sur la liste : cela évite de monter un
         // `SessionProvider` pour une seule adresse.

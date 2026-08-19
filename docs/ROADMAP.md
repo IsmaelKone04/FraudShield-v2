@@ -336,16 +336,62 @@ d'ajouter un quatrième bouton qui ne mène nulle part.
 | Le tableau de bord affiche la dérive du seul jeu serveur : les décisions locales n'y sont pas comptées (il est rendu côté serveur). | P5, si le tableau de bord passe côté client pour d'autres raisons |
 | Les décisions de la console sont rattachées à mai 2026, dernier mois du jeu, et non au mois réel. | Jeu de données glissant, ou API réelle |
 
-#### D3 — Graphe de réseaux de fraude
+#### D3 — Graphe de réseaux de fraude ✅ terminé
 
 > *Ailleurs* : une ligne = un sinistre. *Ici* : trois cliniques qui s'échangent les mêmes assurés.
 
-| # | Tâche | Est. |
-|---|---|---|
-| **P4-10** | Modèle nœuds / arêtes (assuré, établissement, praticien, sinistre) et jeu de données fictif cohérent avec les investigations existantes — `INV-2026-001 « Réseau de surfacturation »` annonce déjà 8 cas liés sans jamais les montrer. | 1 |
-| **P4-11** | Visualisation force-directed (SVG maison ou une dépendance légère — arbitrer, pas d'ajout lourd sans raison). Zoom, sélection, mise en évidence des chemins. | 2 |
-| **P4-12** | Indicateurs de collusion : densité anormale de liens, assurés partagés entre établissements, praticiens présents dans plusieurs dossiers signalés. | 1 |
-| **P4-13** | Depuis le détail d'alerte : « voir le réseau de ce dossier » — le lien entre le cas isolé et le schéma organisé. | 0,5 |
+| # | Tâche | Est. | |
+|---|---|---|---|
+| **P4-10** | Modèle nœuds / arêtes (assuré, établissement, praticien, sinistre) et jeu de données fictif cohérent avec les investigations existantes — `INV-2026-001 « Réseau de surfacturation »` annonce déjà 8 cas liés sans jamais les montrer. | 1 | ✅ |
+| **P4-11** | Visualisation force-directed (SVG maison ou une dépendance légère — arbitrer, pas d'ajout lourd sans raison). Zoom, sélection, mise en évidence des chemins. | 2 | ✅ * |
+| **P4-12** | Indicateurs de collusion : densité anormale de liens, assurés partagés entre établissements, praticiens présents dans plusieurs dossiers signalés. | 1 | ✅ |
+| **P4-13** | Depuis le détail d'alerte : « voir le réseau de ce dossier » — le lien entre le cas isolé et le schéma organisé. | 0,5 | ✅ |
+
+**Total D3 ≈ 4,5 j.** Arbitrages en [`DECISIONS.md`](DECISIONS.md), ADR-024 et ADR-025.
+
+\* **SVG maison, arbitré contre `d3-force`.** Pas pour le poids : parce qu'une
+simulation animée ne tourne pas sur le serveur, et que le graphe n'apparaîtrait
+alors qu'après l'hydratation. Écrit ici, Fruchterman-Reingold est une fonction
+pure et déterministe, dont le résultat part complet dans le HTML servi.
+
+#### Écarts constatés — D3
+
+- **Le jeu de nœuds est commun à tous les dossiers**, un réseau n'en désignant
+  qu'un périmètre. Refermer chaque dossier sur son sous-graphe aurait rendu
+  invisible le signal recherché : un praticien présent dans trois dossiers y
+  serait devenu trois praticiens (ADR-024).
+- **« Cas liés » n'était pas « alertes ».** La liste des investigations affichait
+  « 8 alertes » là où la fiche annonce huit **cas**, dont trois signalés. Le
+  graphe a rendu la confusion visible ; l'étiquette est corrigée.
+- **Les totaux de la liste des réseaux ne sont plus une addition.** Un sinistre
+  suivi par deux dossiers y était compté deux fois — le total dépassait le nombre
+  de sinistres au graphe, à l'endroit même où l'écran met en avant le partage
+  d'entités. Le service les calcule sur les entités distinctes.
+- **Le service refuse un périmètre qui ne tient pas sa fiche** : nombre de
+  sinistres égal aux cas liés annoncés, alertes rattachées présentes,
+  établissements nommés existants, et sinistre signalé décrivant la même chose
+  que son alerte. Onze refus provoqués un à un sur une copie abîmée du jeu.
+- **La disposition ignorait la taille de ce qu'elle place.** Un test comparant
+  chaque paire de positions aux rayons dessinés a montré que le CHU et son
+  radiologue se recouvraient — quatorze unités d'écart pour vingt-quatre de
+  rayons. Un desserrage a été ajouté après le recadrage.
+- **Le jeu de données a été écrit par script**, comme en D1 et D2 : quarante
+  sinistres, cent trente arêtes, et six périmètres dont le compte doit tomber
+  juste.
+- **`CarteSynthese` est extraite dans `components/`** — la deuxième copie allait
+  être écrite.
+- **Une page 404 diffusée renvoie 200**, comme la garde de D5 : la vérification
+  porte sur ce qui est servi, pas sur le code de statut.
+
+#### Dette reportée — D3
+
+| Constat | Vers |
+|---|---|
+| Les indicateurs sont calculés sur le jeu chargé en mémoire. | Recoupement côté serveur, quand le volume l'exigera |
+| Aucun nœud ne se déplace à la souris. | Contrepartie assumée d'une disposition arrêtée avant le navigateur |
+| Les liens sont orientés dans le modèle, dessinés sans flèche. | Le sens se lit dans le panneau latéral |
+| Le graphe ne couvre que les sinistres rattachés à un dossier. | Une alerte isolée n'a pas de réseau, et l'écran le dit |
+| Pas de capture d'écran. | P5-8 |
 
 #### D4 — Simulateur de seuils ✅ terminé
 
@@ -479,7 +525,7 @@ Unité : la demi-journée de travail effectif.
 | P1 | Fondations | 6,25 | 8 | ✅ |
 | P2 | Interactions | 5,25 | 13,25 | ✅ |
 | P3 | Détail d'alerte | 2,75 | 16 | ✅ |
-| P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) · D2 ✅ (3) · D4 ✅ (2,75) · D5 ✅ (1,5) |
+| P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) · D2 ✅ (3) · D3 ✅ (4,5) · D4 ✅ (2,75) · D5 ✅ (1,5) |
 | P5 | Finition | 7 | 39 | |
 
 **≈ 39 demi-journées**, soit une vingtaine de jours pleins. Les phases 0 à 3 (16 demi-journées)

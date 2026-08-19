@@ -118,6 +118,7 @@ La console **modifie** des données. Elle ne se contente plus d'afficher.
 | Clôturer ou rouvrir un dossier | `/investigations` | |
 | Exporter en CSV | `/alertes`, `/investigations`, `/rapports`, `/dashboard/admin` | Fichier produit par le navigateur |
 | **Relire la piste d'audit** | `/dashboard/admin` | Toute action métier, avec son acteur, son avant/après et son motif — réservé au rôle administrateur |
+| **Explorer un réseau de fraude** | `/reseaux/[id]` | Zoom, déplacement, mise en évidence du voisinage — et les indicateurs de collusion qui renvoient au nœud concerné |
 | **Simuler puis appliquer un seuil** | `/simulation` | Curseur, effets en direct sur les alertes et la charge, puis écriture du réglage |
 | Régler le seuil de déclenchement | `/parametres` | Agit sur `/alertes` : les scores sous le seuil sont atténués, marqués, et masquables |
 
@@ -276,6 +277,52 @@ actions faites depuis cette console, quel que soit le compte connecté, et ne re
 celles faites ailleurs — faute d'API à qui les transmettre. Une piste d'audit opposable se
 tiendrait côté serveur ; le mécanisme serait le même, écrit au même endroit.
 
+## 🕸️ Ce qu'une alerte seule ne montre pas
+
+Cinquième différenciateur, et le plus visuel. Une alerte isolée se conteste ; un
+schéma organisé se démontre.
+
+Depuis la phase 1, la fiche de `INV-2026-001` annonce **« 8 cas liés »** en ne
+rattachant que trois alertes. Le chiffre était affiché, jamais montré, jamais
+vérifié. Sur `/reseaux`, les huit sont là — et les cinq que le moteur n'avait pas
+signalés apparaissent pour la première fois.
+
+- **Quatre types d'entité, quatre liens** : un assuré déclare un sinistre, qui est
+  facturé par un établissement et pris en charge par un praticien, lequel exerce
+  dans des établissements. Chaque lien n'admet qu'un couple de types, et le
+  service refuse un graphe où un établissement « déclarerait » un sinistre.
+- **Un seul jeu de nœuds, partagé par tous les dossiers.** Un praticien présent
+  dans trois dossiers signalés y est **un** nœud. Le dupliquer par dossier
+  rendrait invisible exactement le signal qu'on cherche ([ADR-024](docs/DECISIONS.md)).
+- **Le périmètre tient sa promesse, ou rien n'est servi.** Un réseau porte
+  exactement autant de sinistres que sa fiche annonce de cas liés ; ses alertes
+  rattachées y figurent ; ses établissements nommés y existent ; et un sinistre
+  signalé porte le même montant et le même établissement que son alerte.
+- **Une densité de liens qui se lit.** Elle vaut exactement **1,00** quand rien
+  n'est partagé — chaque sinistre apporte alors quatre nœuds et quatre liens.
+  Toute valeur supérieure mesure de la mutualisation, et rien d'autre.
+- **Trois indicateurs de collusion**, calculés depuis les liens et non écrits
+  dans le jeu de données : assurés présents dans plusieurs établissements,
+  praticiens présents dans plusieurs dossiers, entités portant plusieurs
+  sinistres. Chacun renvoie au nœud concerné.
+- **La disposition est calculée sur le serveur.** Fruchterman-Reingold écrit ici
+  plutôt que `d3-force` : non pour le poids, mais parce qu'une simulation animée
+  ne tourne pas sur le serveur et laisserait un cadre vide au premier rendu. Pure
+  et déterministe, elle envoie le SVG complet dans le HTML servi
+  ([ADR-025](docs/DECISIONS.md)).
+- **Zoom, déplacement, voisinage à un ou deux liens.** Choisir un nœud estompe le
+  reste au lieu de le retirer : on doit voir ce qu'on écarte.
+
+> **Ce que le graphe seul montre.** Un assuré qui déclare dans trois cliniques du
+> même dossier. Un chirurgien qui exerce dans deux d'entre elles. Un cabinet privé
+> où le même assuré passe sept consultations, signées par un praticien qui
+> intervient aussi dans un autre dossier. Aucun tableau de la console ne dit cela.
+
+**Depuis une alerte.** Le dossier d'alerte propose « voir le réseau » — le lien
+désigne le sinistre, pas seulement le réseau, de sorte que le graphe s'ouvre sur
+le cas qu'on quittait. Une alerte qui n'appartient à aucun réseau n'affiche pas
+le lien : il mènerait à un écran vide.
+
 ## 🧱 Structure
 
 Chaque écran suit le même découpage : `page.tsx` (serveur) charge via le service et
@@ -292,6 +339,8 @@ src/
 │   │   └── [id]/         # Le dossier : score expliqué, actes, chronologie, décision, notes
 │   │       └── note/     # La note d'explication, mise en page pour l'impression
 │   ├── investigations/   # Dossiers en cours d'instruction
+│   ├── reseaux/          # Réseaux de fraude : liste des six périmètres
+│   │   └── [id]/         # Le graphe, ses indicateurs de collusion, ses alertes
 │   ├── analyses/         # Analyses par type de fraude
 │   ├── qualite/          # Qualité du modèle : faux positifs, dérive, registre
 │   ├── simulation/       # Simulateur de seuils : rejeu de la population
@@ -310,6 +359,8 @@ src/
 │   ├── csv.ts            # Génération CSV, exports.ts  # Colonnes des deux exports
 │   ├── explication.ts    # Des facteurs à la phrase en français (déterministe)
 │   ├── journal.ts        # Piste d'audit : libellés, tri, filtres, relecture du stocké
+│   ├── reseaux.ts        # Graphe de fraude : extraction, voisinage, indicateurs
+│   ├── reseaux-disposition.ts  # Disposition force-dirigée, pure et déterministe
 │   ├── qualite.ts        # Précision, rappel, dérive — calculés depuis des comptages
 │   ├── simulation.ts     # Rejeu à seuil variable, courbe, point recommandé
 │   ├── decisions.ts      # Ce qu'une décision entraîne, et les causes de faux positif
@@ -347,7 +398,7 @@ elle s'adresse ([ADR-023](docs/DECISIONS.md)).
 | Tableaux | `<table>` + composants `ui/table` (pas de tri ni de réordonnancement à ce jour) |
 | Validation | Zod 4, au runtime, sur les données locales comme distantes |
 | État client | Zustand 5, persistance `localStorage` versionnée |
-| Graphiques | Recharts |
+| Graphiques | Recharts — et un SVG maison pour le graphe de réseaux ([ADR-025](docs/DECISIONS.md)) |
 | Authentification | NextAuth v5 (Credentials), bcrypt, JWT |
 | Langage | TypeScript |
 
@@ -392,6 +443,12 @@ elle s'adresse ([ADR-023](docs/DECISIONS.md)).
   n'est pas elle-même journalisée. Il est borné à 500 entrées, ce qui est une contrainte
   de stockage et non une durée de rétention ; l'écran l'annonce dès que la borne est
   atteinte.
+- **Le graphe de réseaux ne couvre que les sinistres rattachés à un dossier
+  d'instruction.** Une alerte isolée n'a donc pas de réseau, et le lien ne s'affiche pas
+  plutôt que d'ouvrir un cadre vide. Les indicateurs de collusion sont calculés sur le jeu
+  chargé en mémoire : à volume réel, le recoupement entre dossiers se ferait côté serveur.
+  Enfin, aucun nœud ne se déplace à la souris — contrepartie assumée d'une disposition
+  arrêtée avant d'arriver au navigateur ([ADR-025](docs/DECISIONS.md)).
 - **404 souple sur un identifiant d'alerte inconnu** : la page « introuvable » s'affiche
   bien, mais la réponse porte le statut 200. La frontière de streaming posée par
   `src/app/loading.tsx` envoie l'en-tête avant que `notFound()` ne soit atteint — cause
@@ -409,7 +466,7 @@ les arbitrages. Résumé :
 | **P1** | Fondations : service généralisé, validation Zod, gestion d'erreurs | ✅ terminée |
 | **P2** | Interactions : statuts, assignation, export, paramètres persistés | ✅ terminée |
 | **P3** | Détail d'alerte (`/alertes/[id]`) | ✅ terminée |
-| **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · simulateur de seuils ✅ · piste d'audit ✅ · graphe de réseaux | en cours |
+| **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · simulateur de seuils ✅ · piste d'audit ✅ · graphe de réseaux ✅ | terminée |
 | **P5** | Accessibilité, thème, tests, responsive, documentation finale | à venir |
 
 La phase 4 porte le parti pris du projet : **mettre l'analyste au centre plutôt que le

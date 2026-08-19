@@ -14,6 +14,7 @@ import {
   ScrollText,
   SlidersHorizontal,
   Shield,
+  Share2,
   Activity,
   ChevronRight,
 } from "lucide-react"
@@ -68,6 +69,12 @@ const navItems = [
         href: "/simulation",
         icon: SlidersHorizontal,
         description: "Rejeu à seuil variable",
+      },
+      {
+        title: "Réseaux de fraude",
+        href: "/reseaux",
+        icon: Share2,
+        description: "Schémas organisés",
       },
       {
         title: "Investigations",

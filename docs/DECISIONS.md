@@ -893,3 +893,101 @@ le layout racine aurait été plus simple et aurait fait basculer les huit écra
 pré-rendus, dont quatre n'écrivent rien. Un composant discret la porte donc sur
 les seuls écrans qui écrivent : trois routes changent de régime — celles qui
 enregistrent désormais qui les a modifiées — et cinq restent statiques.
+
+---
+
+## ADR-024 — Un seul jeu de nœuds partagé, et un périmètre de dossier qui tient sa promesse
+
+**Contexte.** La fiche d'un dossier d'instruction annonce un nombre de cas liés
+depuis la phase 1 — huit pour `INV-2026-001` — alors qu'elle ne rattache que
+trois alertes. L'écart n'était ni expliqué ni vérifié : un chiffre affiché que
+rien ne soutenait.
+
+**Décision : le graphe est commun à tous les dossiers ; un réseau n'en désigne
+qu'un périmètre.** Le jeu de données porte une liste de nœuds et une liste
+d'arêtes ; chaque réseau ne porte que des identifiants. Les arêtes d'un réseau
+s'en déduisent — une arête en fait partie quand ses deux extrémités y sont — au
+lieu d'être listées une seconde fois.
+
+L'alternative était de refermer chaque dossier sur son propre sous-graphe. Elle
+aurait été plus simple à lire et aurait rendu **invisible le signal recherché** :
+un praticien présent dans trois dossiers signalés y serait devenu trois
+praticiens différents. Dupliquer les entités par dossier, c'est effacer les
+recoupements entre dossiers, c'est-à-dire précisément ce qu'un graphe de fraude
+sert à montrer.
+
+**Un sinistre n'est pas une alerte.** Un dossier couvre des demandes de
+remboursement dont une partie seulement a été signalée par le moteur ; les autres
+sont venues du recoupement. C'est ce que « 8 cas liés, 3 alertes » voulait dire
+sans le dire, et ce que le graphe montre enfin. La liste des investigations
+affichait d'ailleurs ce nombre sous l'étiquette « 8 alertes » — corrigé.
+
+**Le service refuse de servir un périmètre qui ment.** Le contrôle central : un
+réseau porte exactement autant de sinistres que sa fiche annonce de cas liés,
+sinon rien n'est servi. S'y ajoutent, dans le même esprit, que toute alerte
+rattachée au dossier figure dans son réseau, que tout établissement nommé sur la
+fiche y existe, et qu'un sinistre portant un identifiant d'alerte décrive la même
+chose qu'elle — même montant, même établissement. Sans ce dernier point, le
+graphe deviendrait un univers parallèle : « 2 400 000 FCFA » sur l'alerte,
+« 990 000 FCFA » sur le nœud, et aucun écran pour signaler la contradiction.
+
+Ces contrôles ne tournent qu'en mode démonstration, là où les trois jeux viennent
+du même dépôt. Face à une API, la cohérence entre ressources relève du service de
+détection. Restent toujours actifs, en revanche, les contrôles de forme du graphe
+lui-même : une arête ne peut pas pointer vers un nœud absent, ni relier deux
+types que son lien n'admet pas. Un graphe faux se voit encore moins qu'un tableau
+faux — il *ressemble* à quelque chose quoi qu'on y mette.
+
+**Conséquence.** Onze refus ont été provoqués un à un sur une copie abîmée du jeu
+de données, pour vérifier qu'ils tombent et qu'ils désignent le fautif.
+
+**Ce qui reste à la charge de la suite.** Les indicateurs sont calculés sur le
+jeu chargé, non sur une base : à volume réel, le recoupement entre dossiers se
+ferait côté serveur.
+
+---
+
+## ADR-025 — La disposition du graphe est calculée sur le serveur, et écrite à la main
+
+**Contexte.** Afficher un graphe force-dirigé appelle naturellement `d3-force`,
+qui fait ce travail depuis quinze ans.
+
+**Décision : l'algorithme est écrit ici, en une fonction pure.** Ce n'est pas une
+question de poids — trente kilo-octets ne décideraient de rien — mais de nature.
+`d3-force` est une simulation *animée* : elle mute des objets au fil d'un
+`requestAnimationFrame`, ne peut donc pas tourner sur le serveur, et le graphe
+n'apparaîtrait qu'après l'hydratation. Un cadre vide au premier rendu, sur
+l'écran dont toute la valeur est de montrer quelque chose immédiatement.
+
+Écrit ici, Fruchterman-Reingold tient en une soixantaine de lignes et rend une
+**fonction déterministe** : mêmes nœuds, mêmes coordonnées, sur le serveur comme
+dans le navigateur. Le SVG part complet dans le HTML servi — trente-cinq disques
+et cinquante liens vérifiés dans la réponse — il n'y a rien à réconcilier à
+l'hydratation, et l'algorithme se teste sans navigateur.
+
+**Trois précautions que l'algorithme classique ne prend pas.**
+
+Les coordonnées sont arrondies au centième. Le SVG traverse le réseau sous forme
+de texte : `312.4500000000001` y serait écrit tel quel, et un écart de
+représentation en virgule flottante entre Node et le navigateur suffirait à
+provoquer un avertissement d'hydratation sur un attribut.
+
+Le recadrage conserve les proportions. Étirer chaque axe séparément remplirait
+mieux le cadre et déformerait les angles : deux liens de même longueur
+n'apparaîtraient plus égaux, et la lecture visuelle des distances — tout
+l'intérêt d'un graphe — deviendrait fausse.
+
+Les disques sont desserrés après coup. La disposition force-dirigée raisonne sur
+des points et ignore la taille de ce qu'elle place : le CHU et le radiologue qui
+y signe six imageries finissaient à quatorze unités l'un de l'autre, pour des
+rayons qui en totalisent vingt-quatre — un seul disque à l'endroit le plus
+intéressant du réseau. C'est un test qui l'a relevé, en comparant chaque paire de
+positions aux rayons réellement dessinés.
+
+**Contrepartie assumée.** On ne peut pas attraper un nœud à la souris pour le
+déplacer : la disposition est arrêtée avant d'arriver au navigateur. Le zoom, le
+déplacement du cadre et la mise en évidence du voisinage couvrent le besoin
+d'exploration ; réarranger le graphe à la main n'apprend rien sur la fraude.
+
+**La mise en évidence estompe, elle ne filtre pas.** Choisir un nœud atténue le
+reste du graphe au lieu de le retirer : un analyste doit voir ce qu'il écarte.

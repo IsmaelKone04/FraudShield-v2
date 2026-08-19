@@ -1,0 +1,1382 @@
+{
+  "noeuds": [
+    {
+      "id": "SN-ASS-19883",
+      "libelle": "Aminata Camara",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-27350",
+      "libelle": "Rokhaya Thiam",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-29466",
+      "libelle": "Papa Malick Seck",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-30912",
+      "libelle": "Fatou Ndiaye",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-33940",
+      "libelle": "Alioune Badara Sy",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-36702",
+      "libelle": "Bineta Sarr",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-38845",
+      "libelle": "Mame Diarra Fall",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-40877",
+      "libelle": "Babacar Ndoye",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-42389",
+      "libelle": "Awa Ndour",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-44718",
+      "libelle": "Moussa Diallo",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-47615",
+      "libelle": "Coumba Niang",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-49517",
+      "libelle": "Abdou Diop",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-51204",
+      "libelle": "Ibrahima Sow",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-51988",
+      "libelle": "Adama Traoré",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-55390",
+      "libelle": "Marième Faye",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-57023",
+      "libelle": "Souleymane Cissé",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-58231",
+      "libelle": "Seynabou Dieng",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-62104",
+      "libelle": "Ndèye Sokhna Diouf",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-64155",
+      "libelle": "Malick Diouf",
+      "type": "assure"
+    },
+    {
+      "id": "SN-ASS-71026",
+      "libelle": "Cheikh Mbaye",
+      "type": "assure"
+    },
+    {
+      "id": "ETB-DK-001",
+      "libelle": "CHU de Dakar",
+      "type": "etablissement"
+    },
+    {
+      "id": "ETB-DK-003",
+      "libelle": "Hôpital Principal",
+      "type": "etablissement"
+    },
+    {
+      "id": "ETB-DK-008",
+      "libelle": "Clinique du Plateau",
+      "type": "etablissement"
+    },
+    {
+      "id": "ETB-DK-014",
+      "libelle": "Clinique Pasteur",
+      "type": "etablissement"
+    },
+    {
+      "id": "ETB-DK-027",
+      "libelle": "Polyclinique El Hadj",
+      "type": "etablissement"
+    },
+    {
+      "id": "ETB-DK-052",
+      "libelle": "Centre Médical Yoff",
+      "type": "etablissement"
+    },
+    {
+      "id": "ETB-DK-066",
+      "libelle": "Polyclinique Liberté",
+      "type": "etablissement"
+    },
+    {
+      "id": "ETB-DK-119",
+      "libelle": "Cabinet Dr Sall",
+      "type": "etablissement"
+    },
+    {
+      "id": "ETB-TB-041",
+      "libelle": "Clinique Matlaboul",
+      "type": "etablissement"
+    },
+    {
+      "id": "PRA-SN-0001",
+      "libelle": "Dr Aliou Ndour",
+      "type": "praticien",
+      "specialite": "Chirurgie orthopédique"
+    },
+    {
+      "id": "PRA-SN-0002",
+      "libelle": "Dr Astou Diagne",
+      "type": "praticien",
+      "specialite": "Chirurgie ambulatoire"
+    },
+    {
+      "id": "PRA-SN-0003",
+      "libelle": "Dr Ibrahima Sall",
+      "type": "praticien",
+      "specialite": "Médecine générale"
+    },
+    {
+      "id": "PRA-SN-0004",
+      "libelle": "Dr Khady Sarr",
+      "type": "praticien",
+      "specialite": "Radiologie"
+    },
+    {
+      "id": "PRA-SN-0005",
+      "libelle": "Dr Mamadou Cissé",
+      "type": "praticien",
+      "specialite": "Médecine générale"
+    },
+    {
+      "id": "PRA-SN-0006",
+      "libelle": "Dr Modou Kane",
+      "type": "praticien",
+      "specialite": "Chirurgie orthopédique"
+    },
+    {
+      "id": "PRA-SN-0007",
+      "libelle": "Dr Ousmane Bâ",
+      "type": "praticien",
+      "specialite": "Radiologie"
+    },
+    {
+      "id": "PRA-SN-0008",
+      "libelle": "Dr Serigne Fall",
+      "type": "praticien",
+      "specialite": "Pharmacie hospitalière"
+    },
+    {
+      "id": "SIN-2026-0001",
+      "libelle": "Chirurgie orthopédique",
+      "type": "sinistre",
+      "montant": 2400000,
+      "montantFormate": "2 400 000 FCFA",
+      "date": "2026-05-20",
+      "dateFormate": "20/05/2026",
+      "alerteId": "A-2026-0125"
+    },
+    {
+      "id": "SIN-2026-0002",
+      "libelle": "Chirurgie orthopédique",
+      "type": "sinistre",
+      "montant": 780000,
+      "montantFormate": "780 000 FCFA",
+      "date": "2026-05-16",
+      "dateFormate": "16/05/2026",
+      "alerteId": "A-2026-0117"
+    },
+    {
+      "id": "SIN-2026-0003",
+      "libelle": "Hospitalisation",
+      "type": "sinistre",
+      "montant": 210000,
+      "montantFormate": "210 000 FCFA",
+      "date": "2026-05-15",
+      "dateFormate": "15/05/2026",
+      "alerteId": "A-2026-0116"
+    },
+    {
+      "id": "SIN-2026-0004",
+      "libelle": "Chirurgie orthopédique",
+      "type": "sinistre",
+      "montant": 1850000,
+      "montantFormate": "1 850 000 FCFA",
+      "date": "2026-02-18",
+      "dateFormate": "18/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0005",
+      "libelle": "Hospitalisation",
+      "type": "sinistre",
+      "montant": 990000,
+      "montantFormate": "990 000 FCFA",
+      "date": "2026-01-27",
+      "dateFormate": "27/01/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0006",
+      "libelle": "Chirurgie orthopédique",
+      "type": "sinistre",
+      "montant": 1240000,
+      "montantFormate": "1 240 000 FCFA",
+      "date": "2026-02-04",
+      "dateFormate": "04/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0007",
+      "libelle": "Hospitalisation",
+      "type": "sinistre",
+      "montant": 675000,
+      "montantFormate": "675 000 FCFA",
+      "date": "2026-03-02",
+      "dateFormate": "02/03/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0008",
+      "libelle": "Chirurgie orthopédique",
+      "type": "sinistre",
+      "montant": 820000,
+      "montantFormate": "820 000 FCFA",
+      "date": "2026-03-09",
+      "dateFormate": "09/03/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0009",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 1100000,
+      "montantFormate": "1 100 000 FCFA",
+      "date": "2026-05-19",
+      "dateFormate": "19/05/2026",
+      "alerteId": "A-2026-0122"
+    },
+    {
+      "id": "SIN-2026-0010",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 640000,
+      "montantFormate": "640 000 FCFA",
+      "date": "2026-01-15",
+      "dateFormate": "15/01/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0011",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 480000,
+      "montantFormate": "480 000 FCFA",
+      "date": "2026-02-02",
+      "dateFormate": "02/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0012",
+      "libelle": "Hospitalisation",
+      "type": "sinistre",
+      "montant": 720000,
+      "montantFormate": "720 000 FCFA",
+      "date": "2026-02-21",
+      "dateFormate": "21/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0013",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 350000,
+      "montantFormate": "350 000 FCFA",
+      "date": "2026-03-05",
+      "dateFormate": "05/03/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0014",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 850000,
+      "montantFormate": "850 000 FCFA",
+      "date": "2026-05-20",
+      "dateFormate": "20/05/2026",
+      "alerteId": "A-2026-0124"
+    },
+    {
+      "id": "SIN-2026-0015",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 560000,
+      "montantFormate": "560 000 FCFA",
+      "date": "2026-05-18",
+      "dateFormate": "18/05/2026",
+      "alerteId": "A-2026-0120"
+    },
+    {
+      "id": "SIN-2026-0016",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 410000,
+      "montantFormate": "410 000 FCFA",
+      "date": "2026-01-09",
+      "dateFormate": "09/01/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0017",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 395000,
+      "montantFormate": "395 000 FCFA",
+      "date": "2026-01-16",
+      "dateFormate": "16/01/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0018",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 430000,
+      "montantFormate": "430 000 FCFA",
+      "date": "2026-01-23",
+      "dateFormate": "23/01/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0019",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 380000,
+      "montantFormate": "380 000 FCFA",
+      "date": "2026-02-06",
+      "dateFormate": "06/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0020",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 445000,
+      "montantFormate": "445 000 FCFA",
+      "date": "2026-02-13",
+      "dateFormate": "13/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0021",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 520000,
+      "montantFormate": "520 000 FCFA",
+      "date": "2026-02-20",
+      "dateFormate": "20/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0022",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 495000,
+      "montantFormate": "495 000 FCFA",
+      "date": "2026-02-27",
+      "dateFormate": "27/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0023",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 505000,
+      "montantFormate": "505 000 FCFA",
+      "date": "2026-03-06",
+      "dateFormate": "06/03/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0024",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 470000,
+      "montantFormate": "470 000 FCFA",
+      "date": "2026-03-13",
+      "dateFormate": "13/03/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0025",
+      "libelle": "Imagerie",
+      "type": "sinistre",
+      "montant": 460000,
+      "montantFormate": "460 000 FCFA",
+      "date": "2026-03-20",
+      "dateFormate": "20/03/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0026",
+      "libelle": "Délivrance de médicaments",
+      "type": "sinistre",
+      "montant": 320000,
+      "montantFormate": "320 000 FCFA",
+      "date": "2026-05-19",
+      "dateFormate": "19/05/2026",
+      "alerteId": "A-2026-0123"
+    },
+    {
+      "id": "SIN-2026-0027",
+      "libelle": "Délivrance de médicaments",
+      "type": "sinistre",
+      "montant": 430000,
+      "montantFormate": "430 000 FCFA",
+      "date": "2026-05-17",
+      "dateFormate": "17/05/2026",
+      "alerteId": "A-2026-0118"
+    },
+    {
+      "id": "SIN-2026-0028",
+      "libelle": "Délivrance de médicaments",
+      "type": "sinistre",
+      "montant": 320000,
+      "montantFormate": "320 000 FCFA",
+      "date": "2026-02-27",
+      "dateFormate": "27/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0029",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 45000,
+      "montantFormate": "45 000 FCFA",
+      "date": "2026-01-12",
+      "dateFormate": "12/01/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0030",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 45000,
+      "montantFormate": "45 000 FCFA",
+      "date": "2026-01-19",
+      "dateFormate": "19/01/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0031",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 45000,
+      "montantFormate": "45 000 FCFA",
+      "date": "2026-01-26",
+      "dateFormate": "26/01/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0032",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 45000,
+      "montantFormate": "45 000 FCFA",
+      "date": "2026-02-09",
+      "dateFormate": "09/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0033",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 45000,
+      "montantFormate": "45 000 FCFA",
+      "date": "2026-02-16",
+      "dateFormate": "16/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0034",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 45000,
+      "montantFormate": "45 000 FCFA",
+      "date": "2026-02-23",
+      "dateFormate": "23/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0035",
+      "libelle": "Chirurgie ambulatoire",
+      "type": "sinistre",
+      "montant": 95000,
+      "montantFormate": "95 000 FCFA",
+      "date": "2026-05-17",
+      "dateFormate": "17/05/2026",
+      "alerteId": "A-2026-0119"
+    },
+    {
+      "id": "SIN-2026-0036",
+      "libelle": "Chirurgie ambulatoire",
+      "type": "sinistre",
+      "montant": 1150000,
+      "montantFormate": "1 150 000 FCFA",
+      "date": "2026-02-11",
+      "dateFormate": "11/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0037",
+      "libelle": "Chirurgie ambulatoire",
+      "type": "sinistre",
+      "montant": 980000,
+      "montantFormate": "980 000 FCFA",
+      "date": "2026-02-25",
+      "dateFormate": "25/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0038",
+      "libelle": "Chirurgie ambulatoire",
+      "type": "sinistre",
+      "montant": 1320000,
+      "montantFormate": "1 320 000 FCFA",
+      "date": "2026-03-03",
+      "dateFormate": "03/03/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0039",
+      "libelle": "Consultation",
+      "type": "sinistre",
+      "montant": 75000,
+      "montantFormate": "75 000 FCFA",
+      "date": "2026-02-28",
+      "dateFormate": "28/02/2026",
+      "alerteId": null
+    },
+    {
+      "id": "SIN-2026-0040",
+      "libelle": "Chirurgie ambulatoire",
+      "type": "sinistre",
+      "montant": 1060000,
+      "montantFormate": "1 060 000 FCFA",
+      "date": "2026-03-12",
+      "dateFormate": "12/03/2026",
+      "alerteId": null
+    }
+  ],
+  "aretes": [
+    {
+      "source": "PRA-SN-0001",
+      "cible": "ETB-DK-008",
+      "type": "exerce_dans"
+    },
+    {
+      "source": "PRA-SN-0001",
+      "cible": "ETB-DK-014",
+      "type": "exerce_dans"
+    },
+    {
+      "source": "PRA-SN-0002",
+      "cible": "ETB-TB-041",
+      "type": "exerce_dans"
+    },
+    {
+      "source": "PRA-SN-0003",
+      "cible": "ETB-DK-119",
+      "type": "exerce_dans"
+    },
+    {
+      "source": "PRA-SN-0004",
+      "cible": "ETB-DK-001",
+      "type": "exerce_dans"
+    },
+    {
+      "source": "PRA-SN-0005",
+      "cible": "ETB-DK-001",
+      "type": "exerce_dans"
+    },
+    {
+      "source": "PRA-SN-0005",
+      "cible": "ETB-DK-052",
+      "type": "exerce_dans"
+    },
+    {
+      "source": "PRA-SN-0006",
+      "cible": "ETB-DK-066",
+      "type": "exerce_dans"
+    },
+    {
+      "source": "PRA-SN-0007",
+      "cible": "ETB-DK-003",
+      "type": "exerce_dans"
+    },
+    {
+      "source": "PRA-SN-0008",
+      "cible": "ETB-DK-027",
+      "type": "exerce_dans"
+    },
+    {
+      "source": "SIN-2026-0001",
+      "cible": "ETB-DK-014",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0001",
+      "cible": "PRA-SN-0001",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0002",
+      "cible": "ETB-DK-066",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0002",
+      "cible": "PRA-SN-0006",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0003",
+      "cible": "ETB-DK-014",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0003",
+      "cible": "PRA-SN-0001",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0004",
+      "cible": "ETB-DK-066",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0004",
+      "cible": "PRA-SN-0006",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0005",
+      "cible": "ETB-DK-008",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0005",
+      "cible": "PRA-SN-0001",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0006",
+      "cible": "ETB-DK-014",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0006",
+      "cible": "PRA-SN-0001",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0007",
+      "cible": "ETB-DK-008",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0007",
+      "cible": "PRA-SN-0001",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0008",
+      "cible": "ETB-DK-066",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0008",
+      "cible": "PRA-SN-0006",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0009",
+      "cible": "ETB-DK-052",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0009",
+      "cible": "PRA-SN-0005",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0010",
+      "cible": "ETB-DK-001",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0010",
+      "cible": "PRA-SN-0004",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0011",
+      "cible": "ETB-DK-052",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0011",
+      "cible": "PRA-SN-0005",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0012",
+      "cible": "ETB-DK-001",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0012",
+      "cible": "PRA-SN-0005",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0013",
+      "cible": "ETB-DK-052",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0013",
+      "cible": "PRA-SN-0005",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0014",
+      "cible": "ETB-DK-001",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0014",
+      "cible": "PRA-SN-0004",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0015",
+      "cible": "ETB-DK-003",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0015",
+      "cible": "PRA-SN-0007",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0016",
+      "cible": "ETB-DK-001",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0016",
+      "cible": "PRA-SN-0004",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0017",
+      "cible": "ETB-DK-001",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0017",
+      "cible": "PRA-SN-0004",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0018",
+      "cible": "ETB-DK-001",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0018",
+      "cible": "PRA-SN-0004",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0019",
+      "cible": "ETB-DK-001",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0019",
+      "cible": "PRA-SN-0004",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0020",
+      "cible": "ETB-DK-001",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0020",
+      "cible": "PRA-SN-0004",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0021",
+      "cible": "ETB-DK-003",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0021",
+      "cible": "PRA-SN-0007",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0022",
+      "cible": "ETB-DK-003",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0022",
+      "cible": "PRA-SN-0007",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0023",
+      "cible": "ETB-DK-003",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0023",
+      "cible": "PRA-SN-0007",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0024",
+      "cible": "ETB-DK-003",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0024",
+      "cible": "PRA-SN-0007",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0025",
+      "cible": "ETB-DK-003",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0025",
+      "cible": "PRA-SN-0007",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0026",
+      "cible": "ETB-DK-027",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0026",
+      "cible": "PRA-SN-0008",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0027",
+      "cible": "ETB-TB-041",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0027",
+      "cible": "PRA-SN-0002",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0028",
+      "cible": "ETB-TB-041",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0028",
+      "cible": "PRA-SN-0002",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0029",
+      "cible": "ETB-DK-119",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0029",
+      "cible": "PRA-SN-0003",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0030",
+      "cible": "ETB-DK-119",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0030",
+      "cible": "PRA-SN-0003",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0031",
+      "cible": "ETB-DK-119",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0031",
+      "cible": "PRA-SN-0003",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0032",
+      "cible": "ETB-DK-119",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0032",
+      "cible": "PRA-SN-0003",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0033",
+      "cible": "ETB-DK-119",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0033",
+      "cible": "PRA-SN-0003",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0034",
+      "cible": "ETB-DK-119",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0034",
+      "cible": "PRA-SN-0003",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0035",
+      "cible": "ETB-DK-119",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0035",
+      "cible": "PRA-SN-0003",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0036",
+      "cible": "ETB-TB-041",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0036",
+      "cible": "PRA-SN-0002",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0037",
+      "cible": "ETB-DK-027",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0037",
+      "cible": "PRA-SN-0008",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0038",
+      "cible": "ETB-TB-041",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0038",
+      "cible": "PRA-SN-0002",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0039",
+      "cible": "ETB-DK-119",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0039",
+      "cible": "PRA-SN-0003",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SIN-2026-0040",
+      "cible": "ETB-DK-027",
+      "type": "facture_par"
+    },
+    {
+      "source": "SIN-2026-0040",
+      "cible": "PRA-SN-0008",
+      "type": "soigne_par"
+    },
+    {
+      "source": "SN-ASS-19883",
+      "cible": "SIN-2026-0009",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-19883",
+      "cible": "SIN-2026-0010",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-19883",
+      "cible": "SIN-2026-0011",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-19883",
+      "cible": "SIN-2026-0012",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-19883",
+      "cible": "SIN-2026-0013",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-27350",
+      "cible": "SIN-2026-0015",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-27350",
+      "cible": "SIN-2026-0029",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-27350",
+      "cible": "SIN-2026-0030",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-27350",
+      "cible": "SIN-2026-0031",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-27350",
+      "cible": "SIN-2026-0032",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-27350",
+      "cible": "SIN-2026-0033",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-27350",
+      "cible": "SIN-2026-0034",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-29466",
+      "cible": "SIN-2026-0019",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-30912",
+      "cible": "SIN-2026-0014",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-33940",
+      "cible": "SIN-2026-0017",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-36702",
+      "cible": "SIN-2026-0021",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-38845",
+      "cible": "SIN-2026-0027",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-40877",
+      "cible": "SIN-2026-0038",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-40877",
+      "cible": "SIN-2026-0039",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-40877",
+      "cible": "SIN-2026-0040",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-42389",
+      "cible": "SIN-2026-0023",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-44718",
+      "cible": "SIN-2026-0001",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-44718",
+      "cible": "SIN-2026-0004",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-44718",
+      "cible": "SIN-2026-0005",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-47615",
+      "cible": "SIN-2026-0018",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-49517",
+      "cible": "SIN-2026-0002",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-49517",
+      "cible": "SIN-2026-0006",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-51204",
+      "cible": "SIN-2026-0026",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-51204",
+      "cible": "SIN-2026-0028",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-51988",
+      "cible": "SIN-2026-0020",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-55390",
+      "cible": "SIN-2026-0003",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-57023",
+      "cible": "SIN-2026-0024",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-58231",
+      "cible": "SIN-2026-0016",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-58231",
+      "cible": "SIN-2026-0025",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-62104",
+      "cible": "SIN-2026-0007",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-62104",
+      "cible": "SIN-2026-0008",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-64155",
+      "cible": "SIN-2026-0022",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-71026",
+      "cible": "SIN-2026-0035",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-71026",
+      "cible": "SIN-2026-0036",
+      "type": "a_declare"
+    },
+    {
+      "source": "SN-ASS-71026",
+      "cible": "SIN-2026-0037",
+      "type": "a_declare"
+    }
+  ],
+  "reseaux": [
+    {
+      "id": "RES-2026-001",
+      "investigationId": "INV-2026-001",
+      "titre": "Réseau de surfacturation — Cliniques du Nord",
+      "noeuds": [
+        "ETB-DK-008",
+        "ETB-DK-014",
+        "ETB-DK-066",
+        "PRA-SN-0001",
+        "PRA-SN-0006",
+        "SIN-2026-0001",
+        "SIN-2026-0002",
+        "SIN-2026-0003",
+        "SIN-2026-0004",
+        "SIN-2026-0005",
+        "SIN-2026-0006",
+        "SIN-2026-0007",
+        "SIN-2026-0008",
+        "SN-ASS-44718",
+        "SN-ASS-49517",
+        "SN-ASS-55390",
+        "SN-ASS-62104"
+      ]
+    },
+    {
+      "id": "RES-2026-002",
+      "investigationId": "INV-2026-002",
+      "titre": "Usurpation d'identité — Série de remboursements fictifs",
+      "noeuds": [
+        "ETB-DK-001",
+        "ETB-DK-052",
+        "PRA-SN-0004",
+        "PRA-SN-0005",
+        "SIN-2026-0009",
+        "SIN-2026-0010",
+        "SIN-2026-0011",
+        "SIN-2026-0012",
+        "SIN-2026-0013",
+        "SN-ASS-19883"
+      ]
+    },
+    {
+      "id": "RES-2026-003",
+      "investigationId": "INV-2026-003",
+      "titre": "Services de radiologie — Actes non réalisés",
+      "noeuds": [
+        "ETB-DK-001",
+        "ETB-DK-003",
+        "PRA-SN-0004",
+        "PRA-SN-0007",
+        "SIN-2026-0014",
+        "SIN-2026-0015",
+        "SIN-2026-0016",
+        "SIN-2026-0017",
+        "SIN-2026-0018",
+        "SIN-2026-0019",
+        "SIN-2026-0020",
+        "SIN-2026-0021",
+        "SIN-2026-0022",
+        "SIN-2026-0023",
+        "SIN-2026-0024",
+        "SIN-2026-0025",
+        "SN-ASS-27350",
+        "SN-ASS-29466",
+        "SN-ASS-30912",
+        "SN-ASS-33940",
+        "SN-ASS-36702",
+        "SN-ASS-42389",
+        "SN-ASS-47615",
+        "SN-ASS-51988",
+        "SN-ASS-57023",
+        "SN-ASS-58231",
+        "SN-ASS-64155"
+      ]
+    },
+    {
+      "id": "RES-2026-004",
+      "investigationId": "INV-2026-004",
+      "titre": "Doublons de remboursement — Médicaments",
+      "noeuds": [
+        "ETB-DK-027",
+        "ETB-TB-041",
+        "PRA-SN-0002",
+        "PRA-SN-0008",
+        "SIN-2026-0026",
+        "SIN-2026-0027",
+        "SIN-2026-0028",
+        "SN-ASS-38845",
+        "SN-ASS-51204"
+      ]
+    },
+    {
+      "id": "RES-2026-005",
+      "investigationId": "INV-2026-005",
+      "titre": "Fréquence anormale de consultations — Cabinet privé",
+      "noeuds": [
+        "ETB-DK-003",
+        "ETB-DK-119",
+        "PRA-SN-0003",
+        "PRA-SN-0007",
+        "SIN-2026-0015",
+        "SIN-2026-0029",
+        "SIN-2026-0030",
+        "SIN-2026-0031",
+        "SIN-2026-0032",
+        "SIN-2026-0033",
+        "SIN-2026-0034",
+        "SN-ASS-27350"
+      ]
+    },
+    {
+      "id": "RES-2026-006",
+      "investigationId": "INV-2026-006",
+      "titre": "Fausses déclarations — Chirurgies ambulatoires",
+      "noeuds": [
+        "ETB-DK-027",
+        "ETB-DK-119",
+        "ETB-TB-041",
+        "PRA-SN-0002",
+        "PRA-SN-0003",
+        "PRA-SN-0008",
+        "SIN-2026-0035",
+        "SIN-2026-0036",
+        "SIN-2026-0037",
+        "SIN-2026-0038",
+        "SIN-2026-0039",
+        "SIN-2026-0040",
+        "SN-ASS-40877",
+        "SN-ASS-71026"
+      ]
+    }
+  ]
+}

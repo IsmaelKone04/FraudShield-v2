@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -13,7 +14,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import {
   Search, Plus, ChevronDown, ChevronRight,
   AlertTriangle, Clock, Eye, CheckCircle,
-  User, Calendar, FileText, Building2, RotateCcw, Undo2,
+  User, Calendar, FileText, Building2, RotateCcw, Undo2, Share2,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { SelecteurAssignation } from "@/components/selecteur-assignation"
@@ -70,7 +71,14 @@ const SANS_CREATION =
 // ─── Page ─────────────────────────────────────────────────────────────────────
 import type { InvestigationsData } from "@/lib/schemas/investigations.schema"
 
-export function InvestigationsClient({ data }: { data: InvestigationsData }) {
+export function InvestigationsClient({
+  data,
+  reseauParDossier,
+}: {
+  data: InvestigationsData
+  /** Réseau de fraude de chaque dossier, quand il en a un. */
+  reseauParDossier: Record<string, string>
+}) {
   const [expanded,  setExpanded]  = useState<string | null>(null)
   const [recherche, setRecherche] = useState("")
   const [filtrePriorite, setPriorite] = useState("tous")
@@ -364,7 +372,7 @@ export function InvestigationsClient({ data }: { data: InvestigationsData }) {
 
                         {[
                           { icon: Calendar,  label: "Ouvert le",      val: inv.dateOuverture.split("-").reverse().join("/") },
-                          { icon: AlertTriangle, label: "Cas liés",   val: `${inv.casLies} alertes`             },
+                          { icon: AlertTriangle, label: "Cas liés",   val: `${inv.casLies} cas, dont ${inv.alertesLiees.length} signalés` },
                           { icon: FileText,  label: "Montant total",  val: inv.montantTotal                     },
                         ].map(d => (
                           <div key={d.label}
@@ -430,6 +438,19 @@ export function InvestigationsClient({ data }: { data: InvestigationsData }) {
                         {/* « Ouvrir le dossier » a été retiré : c'est exactement ce
                             que fait le clic sur la carte, et il n'existe pas d'écran
                             de détail à ouvrir par ailleurs. */}
+                        {reseauParDossier[inv.id] && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-2 text-xs"
+                            render={
+                              <Link href={`/reseaux/${reseauParDossier[inv.id]}`} />
+                            }
+                          >
+                            <Share2 size={13} />
+                            Voir le réseau
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           onClick={() => basculerCloture(inv.id, inv.statut)}
