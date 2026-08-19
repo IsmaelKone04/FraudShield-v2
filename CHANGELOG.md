@@ -4,6 +4,56 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 4 — Les différenciateurs · Correction · Navigation et sens des liens
+
+Deux défauts relevés à l'écran, l'un dans le graphe, l'autre dans toute la
+console. Aucun des deux n'était visible depuis les tests : le premier demandait
+de cliquer sur un nœud, le second de quitter le tableau de bord.
+
+### Corrigé
+
+- **La console n'avait de sommaire que sur sa première page.** La barre latérale
+  n'était montée que par `/dashboard` ; les huit autres sections n'offraient
+  qu'un lien de retour vers leur parent supposé. Elle est désormais installée par
+  une **coque commune**, montée par un `layout.tsx` dans chaque section
+  ([ADR-026](docs/DECISIONS.md)).
+- **L'en-tête affichait « Documents »**, un titre resté du gabarit. Il prend
+  maintenant le nom de la section dans la table de navigation — la même que celle
+  qui remplit la barre latérale — et forme un fil d'Ariane à deux niveaux sur les
+  pages de détail : « Réseaux de fraude › RES-2026-003 ».
+- **Le panneau de l'entité choisie disait le contraire de la relation** une fois
+  sur deux : un praticien s'y voyait annoncer « pris en charge par
+  CLM-2026-0417 ». Chaque lien porte désormais **deux libellés**, et le panneau
+  lit celui qui correspond au bout par lequel on regarde
+  ([ADR-027](docs/DECISIONS.md)).
+
+### Modifié
+
+- La table de navigation quitte `app-sidebar.tsx` pour `lib/navigation.ts` :
+  deux composants la lisent, un seul la définit.
+- `/reseaux` **n'est plus pré-rendue.** La coque lit la session pour afficher
+  le compte connecté ; l'arbitrage de D5 — la session n'est lue que là où
+  quelque chose s'écrit — cède ici devant la navigation.
+
+### Laissé en l'état
+
+- Les liens de retour « ← » des pages font désormais doublon avec le fil
+  d'Ariane et la barre latérale. Ils restent le temps de la revue d'ergonomie de
+  la phase 5 : les retirer serait un second changement, non demandé, dans le même
+  mouvement.
+
+### Vérification
+
+`typecheck` et `build` sans erreur (17 routes) ; `lint` inchangé à 2 erreurs
+préexistantes. **62 tests** unitaires sur D3, dont 5 nouveaux sur le sens des
+liens ; **43 vérifications** sur le HTML réellement servi — la barre latérale et
+les huit liens de section présents sur chacune des neuf sections, le titre du
+gabarit disparu partout, le fil d'Ariane sur les pages de détail, et l'entrée du
+journal d'audit visible du seul administrateur. L'ensemble des suites
+antérieures rejouées sans régression.
+
+---
+
 ## Phase 4 — Les différenciateurs · D3 — Graphe de réseaux de fraude
 
 Une alerte isolée se conteste. Un schéma organisé se démontre.

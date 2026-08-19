@@ -53,15 +53,52 @@ export const NOEUDS: Record<
  * `de` et `vers` ne sont pas de la documentation : le service s'en sert pour
  * refuser un graphe où un établissement déclarerait un sinistre. Un lien orienté
  * dont personne ne vérifie le sens finit par être posé à l'envers.
+ *
+ * Chaque lien porte **deux** libellés parce qu'on le lit depuis ses deux bouts.
+ * `libelle` se lit de `de` vers `vers` ; `inverse` se lit dans l'autre sens.
+ * Sans ce second libellé, un praticien sélectionné s'entend annoncer « pris en
+ * charge par CLM-2026-0417 » — c'est-à-dire l'exact contraire de ce qu'il fait.
  */
 export const LIENS: Record<
   TypeLien,
-  { libelle: string; de: TypeNoeud; vers: TypeNoeud }
+  { libelle: string; inverse: string; de: TypeNoeud; vers: TypeNoeud }
 > = {
-  a_declare: { libelle: "a déclaré", de: "assure", vers: "sinistre" },
-  facture_par: { libelle: "facturé par", de: "sinistre", vers: "etablissement" },
-  soigne_par: { libelle: "pris en charge par", de: "sinistre", vers: "praticien" },
-  exerce_dans: { libelle: "exerce dans", de: "praticien", vers: "etablissement" },
+  a_declare: {
+    libelle: "a déclaré",
+    inverse: "déclaré par",
+    de: "assure",
+    vers: "sinistre",
+  },
+  facture_par: {
+    libelle: "facturé par",
+    inverse: "a facturé",
+    de: "sinistre",
+    vers: "etablissement",
+  },
+  soigne_par: {
+    libelle: "pris en charge par",
+    inverse: "a pris en charge",
+    de: "sinistre",
+    vers: "praticien",
+  },
+  exerce_dans: {
+    libelle: "exerce dans",
+    inverse: "accueille",
+    de: "praticien",
+    vers: "etablissement",
+  },
+}
+
+/**
+ * Le libellé d'un lien **vu depuis l'une de ses extrémités**.
+ *
+ * Le panneau de l'entité choisie lisait toujours `libelle`, quel que soit le
+ * bout par lequel on regardait : une fois sur deux, la phrase disait le
+ * contraire de la relation. On regarde donc d'abord de quel côté on se tient.
+ */
+export function libelleDepuis(arete: Arete, noeudId: string): string {
+  const lien = LIENS[arete.type]
+  return arete.source === noeudId ? lien.libelle : lien.inverse
 }
 
 // ─── Extraction ──────────────────────────────────────────────────────────────

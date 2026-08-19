@@ -371,6 +371,12 @@ pure et déterministe, dont le résultat part complet dans le HTML servi.
   sinistres égal aux cas liés annoncés, alertes rattachées présentes,
   établissements nommés existants, et sinistre signalé décrivant la même chose
   que son alerte. Onze refus provoqués un à un sur une copie abîmée du jeu.
+- **La console n'avait de navigation que sur son tableau de bord.** La barre
+  latérale existait, complète, mais un seul écran la montait. Elle est passée
+  dans une coque commune montée par chaque section. Là encore, aucun test ne
+  pouvait le voir : il fallait quitter la première page.
+- **Le panneau de l'entité choisie lisait les liens à l'envers** une fois sur
+  deux, faute d'un libellé inverse. Chaque lien en porte désormais deux.
 - **La disposition force-dirigée seule était illisible.** Relu à l'écran, le
   graphe était exact et incompréhensible : quatre natures d'entité mêlées, aucun
   sens de lecture, des libellés qui se chevauchaient. Chaque type est désormais

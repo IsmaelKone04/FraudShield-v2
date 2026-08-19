@@ -318,6 +318,10 @@ signalés apparaissent pour la première fois.
 - **Chaque type porte une forme**, pas seulement une couleur : disque, losange,
   triangle, carré. Une teinte disparaît pour un daltonien, à l'impression et sur
   une capture d'écran.
+- **Un lien se lit dans les deux sens.** Chaque relation porte deux libellés :
+  un praticien « a pris en charge » un sinistre, que ce même sinistre est
+  « pris en charge par » lui. Un seul libellé aurait dit le contraire de la
+  relation une fois sur deux ([ADR-027](docs/DECISIONS.md)).
 - **Zoom, déplacement, voisinage à un ou deux liens.** Choisir un nœud estompe le
   reste au lieu de le retirer : on doit voir ce qu'on écarte.
 
@@ -335,6 +339,9 @@ le lien : il mènerait à un écran vide.
 
 Chaque écran suit le même découpage : `page.tsx` (serveur) charge via le service et
 passe les données à `*-client.tsx` (client), qui porte les filtres et l'interaction.
+Les neuf sections partagent une **coque** — barre latérale, en-tête, fil d'Ariane —
+montée par leur `layout.tsx` ([ADR-026](docs/DECISIONS.md)) : la navigation
+appartient au cadre, jamais à la page.
 
 ```
 src/
@@ -357,6 +364,7 @@ src/
 │   └── login/            # Authentification
 ├── components/
 │   ├── ui/               # Bibliothèque shadcn/ui (variante Base UI)
+│   ├── coque-console.tsx # Le cadre commun : barre latérale, en-tête, fil d'Ariane
 │   └── ...               # Sidebar, tableaux, graphiques, cartes de KPI
 ├── lib/
 │   ├── api/client.ts     # Bascule mock ↔ API, appel HTTP, validation
@@ -367,6 +375,7 @@ src/
 │   ├── csv.ts            # Génération CSV, exports.ts  # Colonnes des deux exports
 │   ├── explication.ts    # Des facteurs à la phrase en français (déterministe)
 │   ├── journal.ts        # Piste d'audit : libellés, tri, filtres, relecture du stocké
+│   ├── navigation.ts     # La table des neuf sections — barre latérale et en-tête
 │   ├── reseaux.ts        # Graphe de fraude : extraction, voisinage, indicateurs
 │   ├── reseaux-disposition.ts  # Disposition force-dirigée, pure et déterministe
 │   ├── qualite.ts        # Précision, rappel, dérive — calculés depuis des comptages

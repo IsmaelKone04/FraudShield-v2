@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button"
 import { francs, separerMilliers } from "@/lib/formats"
 import {
   DENSITE_ANORMALE,
-  LIENS,
+  libelleDepuis,
   NOEUDS,
   autourDe,
   montantDuReseau,
@@ -105,7 +105,7 @@ export function ReseauClient({
       .filter((a) => a.source === selection || a.cible === selection)
       .map((a) => {
         const autre = a.source === selection ? a.cible : a.source
-        return { lien: LIENS[a.type].libelle, noeud: parId.get(autre)! }
+        return { lien: libelleDepuis(a, selection), noeud: parId.get(autre)! }
       })
       .filter((r) => r.noeud)
       .sort((a, b) => a.noeud.libelle.localeCompare(b.noeud.libelle))

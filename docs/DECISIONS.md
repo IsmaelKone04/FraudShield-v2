@@ -1020,3 +1020,97 @@ qui le termine.
 
 **La mise en évidence estompe, elle ne filtre pas.** Choisir un nœud atténue le
 reste du graphe au lieu de le retirer : un analyste doit voir ce qu'il écarte.
+
+---
+
+## ADR-026 — La console a une coque : la navigation appartient au cadre, pas à la page
+
+**Statut** : accepté · **Portée** : les neuf sections de la console
+
+**Constat.** Un seul écran montait la barre latérale : le tableau de bord. Les
+huit autres — alertes, analyses, qualité, simulateur, réseaux, investigations,
+rapports, paramètres — n'offraient qu'un lien de retour vers leur parent
+supposé. Passé la première page, on ne naviguait plus qu'à reculons, et le
+chemin dépendait de la page où l'on se trouvait plutôt que de la structure de
+l'application. La barre latérale existait pourtant, complète, avec ses neuf
+entrées et son filtre de rôle : elle n'était simplement montée nulle part
+ailleurs.
+
+L'en-tête portait la même marque : un titre écrit en dur, « Documents », resté
+du gabarit d'origine. Invisible sur le seul écran qui l'affichait, il serait
+devenu faux sur les neuf.
+
+**Décision.** La barre latérale et l'en-tête deviennent une **coque**
+(`components/coque-console.tsx`), montée par un `layout.tsx` dans chaque
+section. Le tableau de bord cesse de l'installer pour lui-même. Un seul endroit
+lit la session, construit l'identité affichée et décide de montrer ou non le
+journal d'audit.
+
+**La table de navigation devient partagée.** Elle vivait dans
+`app-sidebar.tsx`, où elle n'était visible que de la barre latérale ; elle est
+désormais dans `lib/navigation.ts`, et l'en-tête y prend le titre de la section
+courante. Deux endroits qui nomment les mêmes routes finissent toujours par les
+nommer différemment.
+
+Le rattachement d'une adresse à sa section se fait par **le préfixe le plus
+long** : `/dashboard/admin` est le journal d'audit et non le tableau de bord,
+et une page de détail (`/reseaux/RES-2026-003`) reste rattachée à sa section —
+c'est bien de là qu'on vient. L'en-tête en tire un fil d'Ariane à deux niveaux,
+dont le premier est cliquable.
+
+**Ce que cela coûte, et pourquoi c'est accepté.** La coque lit la session ;
+toutes les pages qu'elle enveloppe deviennent donc dynamiques. `/reseaux`
+était jusqu'ici pré-rendue — c'était l'arbitrage de D5, la session n'est lue que
+là où quelque chose s'écrit. Il tombe ici : une page servie une milliseconde
+plus tôt ne vaut pas une console où l'on se perd. Les huit autres sections
+lisaient déjà la session.
+
+**Ce que ce n'est pas.** Un contrôle d'accès. `proxy.ts` et chaque page
+décident qui entre ; la coque ne décide que de ce qui s'affiche. L'entrée du
+journal d'audit reste cachée à qui ne peut pas l'ouvrir — un lien qui punit
+celui qui le suit vaut moins qu'un lien absent — mais la cacher n'a jamais
+protégé la page.
+
+**Les liens de retour sont conservés.** Ils font désormais doublon avec le fil
+d'Ariane pour les pages de détail, et avec la barre latérale pour les sections.
+Les retirer aurait été un second changement, non demandé, dans le même
+mouvement ; ils restent le temps de la revue d'ergonomie de la phase 5.
+
+---
+
+## ADR-027 — Un lien orienté se lit dans les deux sens, et porte donc deux libellés
+
+**Statut** : accepté · **Portée** : `lib/reseaux.ts`, panneau de l'entité choisie
+
+**Constat.** Le panneau qui liste les rattachements d'une entité lisait le
+libellé du lien dans le sens de la table, quel que soit le bout par lequel on
+regardait. Un praticien sélectionné s'y voyait annoncer « **pris en charge par**
+CLM-2026-0417 » — l'exact contraire de ce qu'il fait. Un établissement
+s'entendait dire « exerce dans » à propos d'un praticien. Une fois sur deux, la
+phrase décrivait la relation à l'envers.
+
+Ce n'est pas un défaut de forme. Le graphe existe pour qu'un analyste puisse
+dire à voix haute ce qu'il voit ; une console qui lui met dans la bouche le
+contraire de la relation vaut moins que pas de phrase du tout.
+
+**Décision.** Chaque lien porte deux libellés : `libelle`, lu de `de` vers
+`vers`, et `inverse`, lu dans l'autre sens. Une fonction `libelleDepuis`
+regarde d'abord de quel côté on se tient.
+
+| Lien | Depuis la source | Depuis la cible |
+| --- | --- | --- |
+| `a_declare` | a déclaré | déclaré par |
+| `facture_par` | facturé par | a facturé |
+| `soigne_par` | pris en charge par | a pris en charge |
+| `exerce_dans` | exerce dans | accueille |
+
+**Ce que les tests verrouillent.** Que les deux libellés d'un lien ne sont
+jamais identiques, et surtout que, sur les six réseaux, **aucune arête ne
+produit la même phrase depuis ses deux extrémités**. C'est cette dernière
+propriété qui garantit qu'un clic sur un praticien et un clic sur son sinistre
+racontent bien deux choses différentes.
+
+**La phrase de lecture, elle, ne change pas.** Écrite au-dessus du dessin, elle
+décrit la chaîne dans son sens naturel — un assuré déclare un sinistre, pris en
+charge par un praticien, facturé par un établissement — et n'a jamais été lue
+depuis un bout.
