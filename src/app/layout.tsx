@@ -34,6 +34,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    /*
+      La console assume une palette unique, sombre : `dark` et `colorScheme`
+      sont posés ici une fois pour toutes, et non pilotés par une préférence.
+      C'est une décision, pas un provisoire — voir ADR-030. `colorScheme`
+      importe autant que la classe : sans lui, les éléments dessinés par le
+      navigateur (barres de défilement, sélecteurs de date, remplissage
+      automatique des champs) restent clairs sur une interface sombre.
+    */
     <html 
       lang="fr" 
       className={cn("dark", geistSans.variable, geistMono.variable)}
@@ -49,11 +57,10 @@ export default function RootLayout({
         {/*
           Point de sortie des notifications. Le composant existait déjà mais
           n'était monté nulle part : aucun `toast()` ne pouvait s'afficher.
-          Le thème est figé sur « dark » tant que le sélecteur clair/sombre
-          n'est pas en place (phase 5) — sinon les notifications suivraient les
-          préférences du système sur une interface, elle, toujours sombre.
+          Le thème n'est plus passé d'ici : le composant le fixe lui-même sur
+          la seule palette de la console.
         */}
-        <Toaster theme="dark" position="bottom-right" richColors />
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   );

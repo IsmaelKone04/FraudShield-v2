@@ -1206,3 +1206,53 @@ tabulation. C'est beaucoup pour une page ; c'est infiniment moins que zéro.
 Un déplacement aux flèches avec un seul point d'entrée dans le graphe serait le
 motif idéal — il est noté pour une reprise, pas improvisé ici.
 
+
+---
+
+## ADR-030 — Une seule palette, assumée, plutôt qu'un sélecteur de thème
+
+**Statut** : accepté · **Portée** : `layout.tsx`, `globals.css`, notifications
+
+**Constat.** `next-themes` figurait dans les dépendances depuis la génération du
+gabarit. Rien ne le montait : pas de `ThemeProvider`, et `dark` posé en dur sur
+`<html>`. Un seul composant l'interrogeait — les notifications, qui lisaient
+donc `system` par défaut et pouvaient s'afficher en clair sur une console, elle,
+toujours sombre.
+
+**Ce que coûterait vraiment un thème clair.** La feuille de style ne contient
+qu'une palette : un unique bloc `@theme`, sans variante `.dark`, sans
+`prefers-color-scheme`. À côté, trente-quatre couleurs sont écrites en dur dans
+les composants — les fonds `bg-white/[0.02]`, les traits du graphe, le halo des
+libellés. Et l'audit de contraste (ADR-028) mesure ses vingt-quatre teintes sur
+les deux fonds sombres du projet : un thème clair le rendrait muet du jour au
+lendemain. Le sélecteur n'est pas une demi-journée de travail, c'est une
+seconde palette à concevoir, à écrire et à mesurer.
+
+**Décision.** La console assume une palette unique, sombre. `next-themes` est
+retiré des dépendances ; les notifications fixent leur thème elles-mêmes.
+`colorScheme: "dark"` reste posé sur `<html>` à côté de la classe : sans lui,
+les éléments que le navigateur dessine seul — barres de défilement, sélecteurs
+de date, remplissage automatique des champs — restent clairs sur fond sombre.
+
+**Ce que la décision a mis au jour.** En retirant `next-themes`, les variables
+CSS lues par les composants ont été relues une à une. Huit d'entre elles ne
+désignaient rien : `--popover`, `--border`, `--radius`, `--card`,
+`--muted-foreground`, `--sidebar-border`, `--sidebar-accent`. Ce sont les noms
+de jetons de shadcn, que ce projet n'a jamais déclarés — il définit les siens
+dans `@theme`, préfixés `--color-`. Conséquences visibles : les notifications
+s'affichaient aux couleurs par défaut de sonner, le halo qui détache les
+libellés du graphe de leurs liens ne se peignait pas, et les graduations du
+graphique des alertes gardaient le gris par défaut de Recharts — soit un
+contraste que l'audit de l'ADR-028 ne pouvait pas voir, puisqu'il ne passe pas
+par une classe Tailwind.
+
+**Une `var()` vide ne casse rien** — elle ne peint simplement pas, et l'élément
+garde sa valeur par défaut. C'est ce qui rendait le défaut invisible en
+relecture. Un contrôle recense désormais toute variable lue dans `src/` et exige
+que chacune soit déclarée dans `globals.css`, fournie par Tailwind, ou posée à
+l'exécution par un composant nommément désigné.
+
+**Réversibilité.** Rien n'interdit un thème clair plus tard : il demandera un
+second jeu de jetons, la reprise des couleurs écrites en dur, et une seconde
+passe de mesure des contrastes. La décision d'aujourd'hui est de ne pas faire
+semblant de l'avoir avec une dépendance que personne ne monte.

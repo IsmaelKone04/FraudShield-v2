@@ -461,7 +461,7 @@ export function ReseauClient({
                       className="pointer-events-none fill-foreground text-[11px]"
                       style={{
                         paintOrder: "stroke",
-                        stroke: "var(--card)",
+                        stroke: "var(--color-card)",
                         strokeWidth: 3.5,
                         strokeLinejoin: "round",
                       }}

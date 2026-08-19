@@ -484,7 +484,7 @@ les arbitrages. Résumé :
 | **P2** | Interactions : statuts, assignation, export, paramètres persistés | ✅ terminée |
 | **P3** | Détail d'alerte (`/alertes/[id]`) | ✅ terminée |
 | **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · simulateur de seuils ✅ · piste d'audit ✅ · graphe de réseaux ✅ | terminée |
-| **P5** | Accessibilité ✅ · contrastes ✅ · leurre d'authentification ✅ · thème · tests · responsive · documentation finale | en cours |
+| **P5** | Accessibilité ✅ · contrastes ✅ · leurre d'authentification ✅ · thème ✅ · tests · responsive · documentation finale | en cours |
 
 La phase 4 porte le parti pris du projet : **mettre l'analyste au centre plutôt que le
 modèle**. Les outils du marché produisent un score et une file d'alertes ; ils

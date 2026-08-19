@@ -1,15 +1,18 @@
 "use client"
 
-import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
 
+/*
+  La console n'a qu'une palette, sombre (voir ADR-030) : les notifications la
+  suivent sans avoir à interroger de préférence. Elles lisaient auparavant le
+  thème du système via next-themes, ce qui pouvait leur donner un fond clair
+  sur une interface, elle, toujours sombre.
+*/
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
-
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme="dark"
       className="toaster group"
       icons={{
         success: (
@@ -30,17 +33,19 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
+          /*
+            Ces quatre variables désignaient les jetons de shadcn (--popover,
+            --border, --radius), que ce projet n'a jamais définis : il déclare
+            les siens dans le bloc @theme, préfixés --color-. Elles ne
+            résolvaient donc rien, et les notifications s'affichaient avec les
+            couleurs par défaut de sonner au lieu de celles de la console.
+          */
+          "--normal-bg": "var(--color-popover)",
+          "--normal-text": "var(--color-popover-foreground)",
+          "--normal-border": "var(--color-border)",
+          "--border-radius": "var(--radius-xl)",
         } as React.CSSProperties
       }
-      toastOptions={{
-        classNames: {
-          toast: "cn-toast",
-        },
-      }}
       {...props}
     />
   )

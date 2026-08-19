@@ -519,7 +519,7 @@ projet d'un tableau de bord de plus.
 |---|---|---|---|
 | **P5-1** | Accessibilité : `aria-label` sur les boutons à icône seule, `role="alert"` sur l'erreur de connexion, `autoComplete` sur les champs du login, état de chargement/désactivé à la soumission, `scope="col"` sur les `<th>`. | 1 | ✅ |
 | **P5-2** | Retirer les `cursor-pointer` restants sur les éléments non cliquables (4 emplacements) et les `animationDelay` sans animation (3 emplacements). | 0,25 | ✅ |
-| **P5-3** | Thème clair/sombre : `next-themes` est installé, aucun `ThemeProvider` n'est monté, `dark` est figé sur `<html>`. Monter le fournisseur et l'interrupteur, ou retirer la dépendance. | 0,5 | |
+| **P5-3** | Thème clair/sombre : `next-themes` est installé, aucun `ThemeProvider` n'est monté, `dark` est figé sur `<html>`. Monter le fournisseur et l'interrupteur, ou retirer la dépendance. | 0,5 | ✅ dépendance retirée (ADR-030) |
 | **P5-4** | Parcours clavier complet, contrastes vérifiés sur les badges de risque (rouge sur sombre : à mesurer). | 0,5 | ✅ |
 | **P5-5** | Tests : Vitest + Testing Library sur le service, la validation Zod, le calcul de score et le simulateur. Puis un parcours Playwright login → alerte → décision. | 2 | |
 | **P5-6** | Responsive : les tableaux sur mobile, la sidebar sur tablette. | 1 | |
@@ -527,6 +527,18 @@ projet d'un tableau de bord de plus.
 | **P5-8** | **Documentation finale** : README complet avec captures, `docs/ARCHITECTURE.md`, `docs/API-CONTRACT.md` (le contrat que la vraie API doit respecter — utile au coéquipier), CHANGELOG v2.0. | 1,5 | |
 
 **Écarts constatés — P5**
+
+- **Le thème était la question, les variables CSS étaient le problème.** En
+  relisant ce que `next-themes` pilotait, huit variables sont apparues qui ne
+  désignaient rien : les noms de jetons de shadcn, que ce projet n'a jamais
+  déclarés. Trois rendus en pâtissaient sans que cela se voie — les couleurs
+  des notifications, le halo des libellés du graphe, les graduations du
+  graphique des alertes. Un contrôle (`verif-styles`) l'interdit désormais.
+- **Un thème clair n'était pas une demi-journée.** L'estimation supposait qu'il
+  suffisait de monter un fournisseur ; il fallait en réalité une seconde palette
+  complète, la reprise de trente-quatre couleurs écrites en dur, et une seconde
+  passe de mesure des contrastes. La décision de ne pas le faire est
+  documentée plutôt que subie.
 
 - **Le contraste qui posait problème n'était pas celui qu'on surveillait.** Les
   badges de risque passaient déjà largement (6,8 au plus bas) ; c'est le gris

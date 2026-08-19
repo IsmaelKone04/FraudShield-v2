@@ -286,14 +286,14 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "hsl(var(--muted-foreground))" }}
+                tick={{ fill: "var(--color-muted-foreground)" }}
                 interval={Math.floor(trendData.length / 6)}
               />
               <YAxis
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "hsl(var(--muted-foreground))" }}
+                tick={{ fill: "var(--color-muted-foreground)" }}
               />
               <Tooltip content={<CustomTooltip />} />
               <Area type="monotone" dataKey="alertes"  stroke="#ffa502" strokeWidth={2} fill="url(#gAlertes)"  />

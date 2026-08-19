@@ -4,6 +4,54 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 5 — Finition · Le thème, et les variables qui ne désignaient rien
+
+P5-3. La question posée était « monter le sélecteur clair/sombre ou retirer la
+dépendance ». La réponse est la seconde, et elle a fait apparaître un défaut
+plus large : des composants stylés avec des variables CSS inexistantes.
+
+### Décidé
+
+- **La console assume une palette unique, sombre** ([ADR-030](docs/DECISIONS.md)).
+  `next-themes` figurait dans les dépendances sans que rien ne le monte : pas de
+  `ThemeProvider`, `dark` posé en dur sur `<html>`. Un thème clair n'est pas une
+  demi-journée de travail — la feuille de style n'a qu'une palette, trente-quatre
+  couleurs sont écrites en dur dans les composants, et l'audit de contraste
+  mesure ses vingt-quatre teintes sur les deux fonds sombres du projet. La
+  dépendance est retirée plutôt que laissée à faire semblant.
+
+### Corrigé — des styles qui ne s'appliquaient pas
+
+- **Huit variables CSS ne désignaient rien.** `--popover`, `--border`,
+  `--radius`, `--card`, `--muted-foreground`, `--sidebar-border`,
+  `--sidebar-accent` : les noms de jetons de shadcn, que ce projet n'a jamais
+  déclarés — il définit les siens dans `@theme`, préfixés `--color-`.
+- Conséquences visibles, jusqu'ici passées inaperçues : les **notifications**
+  s'affichaient aux couleurs par défaut de sonner et non à celles de la console ;
+  le **halo qui détache les libellés du graphe** de leurs liens ne se peignait
+  pas ; les **graduations du graphique des alertes** gardaient le gris par défaut
+  de Recharts — un contraste que l'audit des couleurs ne pouvait pas voir,
+  puisqu'il ne passe par aucune classe Tailwind.
+- Une classe `cn-toast` était appliquée aux notifications sans être définie
+  nulle part. Retirée.
+- Les notifications suivaient le thème du **système** (`system` par défaut, faute
+  de provider) : elles pouvaient s'afficher en clair sur une interface sombre.
+
+### Ajouté — vérification
+
+- **`verif-styles`** : recense toute `var(--…)` lue dans `src/` et exige que
+  chacune soit déclarée dans `globals.css`, fournie par Tailwind, ou posée à
+  l'exécution par un composant nommément désigné. Une `var()` vide ne casse
+  rien — elle ne peint pas — ce qui est précisément ce qui rendait ces huit
+  défauts invisibles en relecture.
+
+### Ce qui demande encore un œil
+
+- Le rendu des notifications aux couleurs de la console, et le halo des libellés
+  du graphe : ils se constatent à l'écran, pas dans une feuille de style.
+
+---
+
 ## Phase 5 — Finition · Accessibilité, contrastes, et le leurre d'authentification
 
 P5-1, P5-2, P5-4 et P5-7. Ce qu'on ne voit pas en regardant l'écran : ce qui ne
