@@ -90,13 +90,13 @@ export default async function ReseauxPage() {
                     <h2 className="text-sm font-semibold text-foreground">
                       {r.titre}
                     </h2>
-                    <p className="mt-0.5 font-mono text-[11px] text-muted-foreground/70">
+                    <p className="mt-0.5 font-mono text-[11px] text-muted-foreground-subtle">
                       {r.investigationId}
                     </p>
                   </div>
                   <ArrowUpRight
                     size={15}
-                    className="shrink-0 text-muted-foreground/50 transition-colors group-hover:text-foreground"
+                    className="shrink-0 text-muted-foreground-subtle transition-colors group-hover:text-foreground"
                   />
                 </div>
 
@@ -158,7 +158,7 @@ function Mesure({
         {valeur}
       </div>
       <div className="text-[11px] text-muted-foreground">{libelle}</div>
-      <div className="mt-0.5 truncate text-[10px] text-muted-foreground/60">
+      <div className="mt-0.5 truncate text-[10px] text-muted-foreground-subtle">
         {precision}
       </div>
     </div>

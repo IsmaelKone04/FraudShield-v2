@@ -53,7 +53,7 @@ export function SiteHeader() {
                 </Link>
                 <ChevronRight
                   size={14}
-                  className="shrink-0 text-muted-foreground/60"
+                  className="shrink-0 text-muted-foreground-subtle"
                   aria-hidden
                 />
                 <span className="truncate font-medium" aria-current="page">

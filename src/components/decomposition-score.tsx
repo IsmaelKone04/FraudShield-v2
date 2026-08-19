@@ -90,7 +90,7 @@ export function DecompositionScore({
                   Observé : {facteur.valeurObservee} · Attendu :{" "}
                   {facteur.valeurAttendue}
                 </div>
-                <div className="mt-0.5 flex items-start gap-1 text-[10px] leading-snug text-muted-foreground/60">
+                <div className="mt-0.5 flex items-start gap-1 text-[10px] leading-snug text-muted-foreground-subtle">
                   <Info size={9} className="mt-[3px] shrink-0" />
                   {facteur.source}
                 </div>
@@ -126,7 +126,7 @@ export function DecompositionScore({
         })}
       </ul>
 
-      <p className="text-[11px] leading-snug text-muted-foreground/70">
+      <p className="text-[11px] leading-snug text-muted-foreground-subtle">
         {explication.modele}. Les contributions sont exprimées en points de
         score et s'ajoutent à la valeur de base
         {attenuants(explication).length > 0
@@ -163,7 +163,7 @@ export function ComparatifContextuel({
             key={`${c.cohorte}-${c.libelle}`}
             className="rounded-lg border border-border/50 bg-white/[0.02] p-3"
           >
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground-subtle">
               {c.cohorte}
             </div>
             <div className="mt-1 text-xs leading-snug text-foreground">
@@ -196,11 +196,11 @@ export function ComparatifContextuel({
                   {ecart}
                 </span>
               )}
-              <span className="text-muted-foreground/70">
+              <span className="text-muted-foreground-subtle">
                 {rapportCohorte(c) ?? "référence indisponible"}
               </span>
             </div>
-            <div className="mt-1 text-[10px] leading-snug text-muted-foreground/60">
+            <div className="mt-1 text-[10px] leading-snug text-muted-foreground-subtle">
               {c.effectif}
             </div>
           </li>
@@ -226,7 +226,7 @@ function Barre({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-2 text-[11px]">
-        <span className="text-muted-foreground/70">{titre}</span>
+        <span className="text-muted-foreground-subtle">{titre}</span>
         <span
           className={`font-mono ${accent ? "font-semibold text-foreground" : "text-muted-foreground"}`}
         >

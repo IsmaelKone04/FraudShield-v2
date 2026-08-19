@@ -36,7 +36,7 @@ export function CarteSynthese({
         <div className={`mb-1 text-3xl font-bold ${accent ?? "text-foreground"}`}>
           {valeur}
         </div>
-        <div className="text-xs text-muted-foreground/60">{precision}</div>
+        <div className="text-xs text-muted-foreground-subtle">{precision}</div>
       </CardContent>
     </Card>
   )

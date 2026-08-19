@@ -244,7 +244,7 @@ export function RapportsClient({ data }: { data: RapportsData }) {
                 <div className={`text-3xl font-bold mb-1 ${color}`}>
                   {stat.valueFormate}
                 </div>
-                <div className="text-xs text-muted-foreground/60">
+                <div className="text-xs text-muted-foreground-subtle">
                   {stat.description}
                 </div>
               </CardContent>
@@ -363,7 +363,7 @@ export function RapportsClient({ data }: { data: RapportsData }) {
             </CardContent>
           </Card>
         ) : (
-          rapportsFiltres.map((r, i) => {
+          rapportsFiltres.map((r) => {
             const catConf    = categorieCfg[r.categorie]
             const CatIcon    = catConf?.icon || FileText
             const fmtConf    = formatCfg[r.format]
@@ -376,7 +376,6 @@ export function RapportsClient({ data }: { data: RapportsData }) {
             return (
               <Card key={r.id}
                 className="border-border/50 bg-card hover:border-emerald-500/20 transition-colors"
-                style={{ animationDelay: `${i * 30}ms` }}
               >
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
@@ -531,7 +530,7 @@ export function RapportsClient({ data }: { data: RapportsData }) {
                             </div>
                           )}
 
-                          <p className="text-[11px] text-muted-foreground/70 leading-relaxed">
+                          <p className="text-[11px] text-muted-foreground-subtle leading-relaxed">
                             {SANS_FICHIER}
                           </p>
                         </div>

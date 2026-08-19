@@ -4,6 +4,76 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 5 — Finition · Accessibilité, contrastes, et le leurre d'authentification
+
+P5-1, P5-2, P5-4 et P5-7. Ce qu'on ne voit pas en regardant l'écran : ce qui ne
+s'atteint pas au clavier, ce qui ne s'annonce pas à voix haute, et ce qui ne se
+lit qu'avec de bons yeux.
+
+### Corrigé — sécurité
+
+- **L'empreinte-leurre était celle du compte administrateur.** `src/auth.ts`
+  comparait le mot de passe saisi à une empreinte factice quand l'e-mail est
+  inconnu — pour que la réponse prenne le même temps, et qu'on ne puisse pas
+  énumérer les comptes au chronomètre. Cette empreinte factice était, à
+  l'identique, celle de l'administrateur. Sans conséquence aujourd'hui grâce à
+  la garde `!user ||`, mais c'est un piège armé pour la prochaine
+  refactorisation. Le leurre est désormais l'empreinte d'un secret aléatoire de
+  32 octets jamais conservé, et **une garde au démarrage refuse de lancer
+  l'application** si un jour il redevenait celui d'un compte réel.
+
+### Corrigé — accessibilité
+
+- **Deux commandes n'existaient que pour la souris** : le dépli d'un dossier
+  d'instruction, et **chaque entité du graphe de réseaux**. Elles deviennent des
+  commandes à part entière, atteignables à la tabulation, qui annoncent ce
+  qu'elles désignent et leur état ([ADR-029](docs/DECISIONS.md)).
+- **Le clavier traverse le graphe dans l'ordre où il se lit** — colonne par
+  colonne — et non dans celui où le service renvoie ses nœuds.
+- **L'échec de connexion n'était jamais lu à voix haute.** Il est maintenant
+  dans une région `role="alert"` présente en permanence ; les champs déclarent
+  ce qu'ils attendent (`autoComplete`), et le bouton se désactive pendant
+  l'authentification au lieu d'accepter une seconde soumission.
+- **Quatre libellés lus par les lecteurs d'écran étaient en anglais**, restés du
+  gabarit : « Toggle Sidebar », « Displays the mobile sidebar », « Close ».
+- Les en-têtes des deux derniers tableaux déclarent leur portée (`scope`).
+
+### Corrigé — contrastes
+
+- **Le gris de second plan était sous le seuil**, et ses variantes atténuées
+  très en dessous : de 3,68 pour `text-muted-foreground` à **1,79** pour
+  `text-muted-foreground/50`, là où 4,5 est requis. Deux jetons mesurés les
+  remplacent, et les 55 occurrences en pourcentage disparaissent. Le rouge de
+  `text-destructive` (3,95) est éclairci lui aussi
+  ([ADR-028](docs/DECISIONS.md)).
+- Les teintes vives, elles, passaient déjà toutes largement — la plus basse à
+  6,84. L'inquiétude notée dans la feuille de route (« le rouge sur sombre »)
+  n'était pas la bonne.
+
+### Retiré
+
+- Les quatre composants de navigation du gabarit (`nav-main`, `nav-user`,
+  `nav-documents`, `nav-secondary`) que plus rien n'importait — et qui
+  portaient les dernières commandes sans nom accessible.
+- Un décalage d'animation posé sur des cartes qui n'en jouent aucune.
+
+### Vérification
+
+`typecheck` et `build` sans erreur ; `lint` inchangé à 2 erreurs
+préexistantes. **15 vérifications d'accessibilité** sur le HTML servi, et
+**24 couleurs de texte mesurées** contre le seuil de 4,5 — le contrôle lit les
+jetons dans `globals.css` et échouera sur toute teinte ajoutée sans être
+mesurée. Deux audits de code (commandes sans nom accessible, éléments cliquables
+inatteignables au clavier) passent à zéro. L'ensemble des suites antérieures
+rejouées sans régression.
+
+### Ce qui demande encore un œil
+
+Le parcours réel à la tabulation et le rendu de l'anneau de focus dans le
+graphe : ils se vérifient à l'écran, pas dans du HTML.
+
+---
+
 ## Phase 4 — Les différenciateurs · Correction · Navigation et sens des liens
 
 Deux défauts relevés à l'écran, l'un dans le graphe, l'autre dans toute la

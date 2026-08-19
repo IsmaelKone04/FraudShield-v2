@@ -51,7 +51,7 @@ export async function SectionCards() {
                 {kpi.valueFormatted}
               </div>
               <div className="text-xs text-muted-foreground">{kpi.label}</div>
-              <div className="text-xs text-muted-foreground/50 mt-0.5">{kpi.periode}</div>
+              <div className="text-xs text-muted-foreground-subtle mt-0.5">{kpi.periode}</div>
             </CardContent>
           </Card>
         )

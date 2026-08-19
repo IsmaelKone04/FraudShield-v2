@@ -488,9 +488,9 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                   <thead>
                     <tr className="border-b border-border/30">
                       {["Utilisateur","Email","Rôle","Dernière connexion","Statut","Action"].map(h => (
-                        <th key={h}
+                        <th key={h} scope="col"
                           className="text-left text-[10px] font-semibold uppercase
-                                     tracking-wider text-muted-foreground/60 px-4 py-3">
+                                     tracking-wider text-muted-foreground-subtle px-4 py-3">
                           {h}
                         </th>
                       ))}
@@ -570,9 +570,9 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                   <thead>
                     <tr className="border-b border-border/30">
                       {["Modèle","Type","Version","Précision","Dossiers traités","Dernier entraînement","Statut"].map(h => (
-                        <th key={h}
+                        <th key={h} scope="col"
                           className="text-left text-[10px] font-semibold uppercase
-                                     tracking-wider text-muted-foreground/60 px-4 py-3">
+                                     tracking-wider text-muted-foreground-subtle px-4 py-3">
                           {h}
                         </th>
                       ))}

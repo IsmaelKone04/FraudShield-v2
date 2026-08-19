@@ -355,13 +355,13 @@ export function SimulationClient({
           </span>
         </div>
 
-        <p className="mt-3 max-w-prose text-[11px] text-muted-foreground/70">
+        <p className="mt-3 max-w-prose text-[11px] text-muted-foreground-subtle">
           Le rappel est une <strong>borne haute</strong> : une tranche où le
           sondage n&apos;a trouvé aucune fraude n&apos;en fait estimer aucune, ce
           qui n&apos;est pas la même chose que d&apos;affirmer qu&apos;il n&apos;y
           en a pas. Les fraudes réellement manquées sont donc au moins celles-là.
         </p>
-        <p className="mt-1.5 max-w-prose text-[11px] text-muted-foreground/70">
+        <p className="mt-1.5 max-w-prose text-[11px] text-muted-foreground-subtle">
           Point de contrôle : au seuil de {population.seuilActuel} %, ce
           graphique donne {pourcentage(pointCollecte.precision, 1)} de précision
           et {pourcentage(pointCollecte.rappel, 1)} de rappel — exactement les
@@ -475,7 +475,7 @@ function Chiffre({
         </p>
         {ecart && (
           <p className="mt-0.5 font-mono text-xs text-blue-300">
-            {ecart} <span className="text-muted-foreground/60">vs seuil actuel</span>
+            {ecart} <span className="text-muted-foreground-subtle">vs seuil actuel</span>
           </p>
         )}
         <p className="mt-1 text-[11px] text-muted-foreground">{precision}</p>

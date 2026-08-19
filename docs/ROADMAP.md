@@ -515,16 +515,28 @@ projet d'un tableau de bord de plus.
 
 ### Phase 5 — Finition et publication · **M5**
 
-| # | Tâche | Est. |
-|---|---|---|
-| **P5-1** | Accessibilité : `aria-label` sur les boutons à icône seule, `role="alert"` sur l'erreur de connexion, `autoComplete` sur les champs du login, état de chargement/désactivé à la soumission, `scope="col"` sur les `<th>`. | 1 |
-| **P5-2** | Retirer les `cursor-pointer` restants sur les éléments non cliquables (4 emplacements) et les `animationDelay` sans animation (3 emplacements). | 0,25 |
-| **P5-3** | Thème clair/sombre : `next-themes` est installé, aucun `ThemeProvider` n'est monté, `dark` est figé sur `<html>`. Monter le fournisseur et l'interrupteur, ou retirer la dépendance. | 0,5 |
-| **P5-4** | Parcours clavier complet, contrastes vérifiés sur les badges de risque (rouge sur sombre : à mesurer). | 0,5 |
-| **P5-5** | Tests : Vitest + Testing Library sur le service, la validation Zod, le calcul de score et le simulateur. Puis un parcours Playwright login → alerte → décision. | 2 |
-| **P5-6** | Responsive : les tableaux sur mobile, la sidebar sur tablette. | 1 |
-| **P5-7** | Durcissement de `src/auth.ts` : `DUMMY_HASH` est actuellement l'empreinte réelle du compte admin. La garde `!user ||` protège aujourd'hui, mais réutiliser une empreinte valide comme leurre est un piège qu'une future refactorisation déclenchera. Générer un leurre dédié. | 0,25 |
-| **P5-8** | **Documentation finale** : README complet avec captures, `docs/ARCHITECTURE.md`, `docs/API-CONTRACT.md` (le contrat que la vraie API doit respecter — utile au coéquipier), CHANGELOG v2.0. | 1,5 |
+| # | Tâche | Est. | État |
+|---|---|---|---|
+| **P5-1** | Accessibilité : `aria-label` sur les boutons à icône seule, `role="alert"` sur l'erreur de connexion, `autoComplete` sur les champs du login, état de chargement/désactivé à la soumission, `scope="col"` sur les `<th>`. | 1 | ✅ |
+| **P5-2** | Retirer les `cursor-pointer` restants sur les éléments non cliquables (4 emplacements) et les `animationDelay` sans animation (3 emplacements). | 0,25 | ✅ |
+| **P5-3** | Thème clair/sombre : `next-themes` est installé, aucun `ThemeProvider` n'est monté, `dark` est figé sur `<html>`. Monter le fournisseur et l'interrupteur, ou retirer la dépendance. | 0,5 | |
+| **P5-4** | Parcours clavier complet, contrastes vérifiés sur les badges de risque (rouge sur sombre : à mesurer). | 0,5 | ✅ |
+| **P5-5** | Tests : Vitest + Testing Library sur le service, la validation Zod, le calcul de score et le simulateur. Puis un parcours Playwright login → alerte → décision. | 2 | |
+| **P5-6** | Responsive : les tableaux sur mobile, la sidebar sur tablette. | 1 | |
+| **P5-7** | Durcissement de `src/auth.ts` : `DUMMY_HASH` est actuellement l'empreinte réelle du compte admin. La garde `!user ||` protège aujourd'hui, mais réutiliser une empreinte valide comme leurre est un piège qu'une future refactorisation déclenchera. Générer un leurre dédié. | 0,25 | ✅ |
+| **P5-8** | **Documentation finale** : README complet avec captures, `docs/ARCHITECTURE.md`, `docs/API-CONTRACT.md` (le contrat que la vraie API doit respecter — utile au coéquipier), CHANGELOG v2.0. | 1,5 | |
+
+**Écarts constatés — P5**
+
+- **Le contraste qui posait problème n'était pas celui qu'on surveillait.** Les
+  badges de risque passaient déjà largement (6,8 au plus bas) ; c'est le gris
+  discret, atténué à 50–70 %, qui tombait à 1,8. Mesurer plutôt qu'apprécier a
+  déplacé le défaut.
+- **Le graphe de réseaux était entièrement inaccessible au clavier.** L'écran
+  dont tout l'intérêt est l'exploration était le seul qu'on ne pouvait explorer
+  qu'à la souris.
+- **Quatre composants du gabarit subsistaient sans être importés nulle part**,
+  et concentraient les dernières commandes sans nom accessible.
 
 **Total ≈ 7 j.**
 

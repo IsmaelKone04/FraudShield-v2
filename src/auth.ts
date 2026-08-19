@@ -85,12 +85,33 @@ const credentialsSchema = z.object({
 })
 
 /**
- * Empreinte factice utilisée quand aucun compte ne correspond à l'e-mail saisi.
+ * Empreinte-leurre, utilisée quand aucun compte ne correspond à l'e-mail saisi.
+ *
  * On effectue quand même une comparaison bcrypt : sans cela, un e-mail inconnu
- * répondrait bien plus vite qu'un e-mail connu, ce qui permettrait d'énumérer les
- * comptes existants en mesurant le temps de réponse.
+ * répondrait bien plus vite qu'un e-mail connu, ce qui permettrait d'énumérer
+ * les comptes existants en mesurant le temps de réponse. Le coût du leurre doit
+ * donc être celui des vraies empreintes — d'où le même facteur 12.
+ *
+ * **C'est l'empreinte d'un secret aléatoire de 32 octets qui n'a jamais été
+ * conservé** : aucun mot de passe ne peut lui correspondre. Elle reprenait
+ * jusqu'ici, à l'identique, l'empreinte du compte administrateur. La garde
+ * `!user ||` en dessous rendait cela sans conséquence — la comparaison ne
+ * décide rien quand le compte n'existe pas — mais réutiliser une empreinte
+ * valide comme leurre est un piège armé pour la prochaine refactorisation :
+ * il suffit qu'un jour la condition soit réordonnée en `valid && user` pour
+ * que le mot de passe de l'administrateur ouvre n'importe quel e-mail inconnu.
  */
-const DUMMY_HASH = "$2b$12$0MYDQb4NjKNC1SkGNOkzEuSHtwNlBYu2Yl7OI9Ufqal/iOupMu5KO"
+const EMPREINTE_LEURRE =
+  "$2b$12$kbrkMx7.h.bjQbGmLEqoc.4p2ysVgdjtyceZHdcqFnjlSPmK3Ywqu"
+
+// Le leurre ne doit être l'empreinte d'aucun compte réel. La règle est
+// vérifiée au démarrage plutôt que confiée à la relecture : c'est exactement
+// l'erreur qui vient d'être corrigée, et rien n'empêchait de la refaire.
+if ([...EMPREINTES.values()].includes(EMPREINTE_LEURRE)) {
+  throw new Error(
+    "L'empreinte-leurre est celle d'un compte réel : en générer une dédiée."
+  )
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -110,7 +131,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const valid = await bcrypt.compare(
           password,
-          user?.passwordHash ?? DUMMY_HASH
+          user?.passwordHash ?? EMPREINTE_LEURRE
         )
         if (!user || !valid) return null
 

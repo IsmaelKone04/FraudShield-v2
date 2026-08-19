@@ -104,7 +104,7 @@ export function SelecteurAssignation({
         aria-label={`${role} ${article} ${id}`}
         className={cn(
           "h-6 border-transparent px-2 text-[11px]",
-          assigneA ? "text-foreground" : "text-muted-foreground/70",
+          assigneA ? "text-foreground" : "text-muted-foreground-subtle",
           enCours && "opacity-60",
           className
         )}

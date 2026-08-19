@@ -56,7 +56,7 @@ export function BandeauDerive({
                   {pourcentage(derive.seuil)} ({derive.tranches} dossiers
                   tranchés).
                 </span>
-                <span className="mt-0.5 block text-muted-foreground/70">
+                <span className="mt-0.5 block text-muted-foreground-subtle">
                   {derive.justification}
                 </span>
               </li>

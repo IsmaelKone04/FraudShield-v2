@@ -67,6 +67,7 @@ export function ReseauClient({
 }) {
   const [selection, setSelection] = useState<string | null>(selectionInitiale)
   const [survol, setSurvol] = useState<string | null>(null)
+  const [focalise, setFocalise] = useState<string | null>(null)
   const [profondeur, setProfondeur] = useState<1 | 2>(1)
   const [zoom, setZoom] = useState(1)
   const [decalage, setDecalage] = useState({ x: 0, y: 0 })
@@ -86,6 +87,24 @@ export function ReseauClient({
   const coordonnees = useMemo(
     () => new Map(positions.map((p) => [p.id, p])),
     [positions]
+  )
+
+  /**
+   * Les entités dans l'ordre où on les lit : colonne par colonne, de haut en
+   * bas. Cet ordre est aussi celui du parcours au clavier, puisqu'il devient
+   * l'ordre du DOM — un graphe qu'on tabule doit se traverser comme il se lit,
+   * et non dans l'ordre où le service a renvoyé ses nœuds.
+   */
+  const ordreDeLecture = useMemo(
+    () =>
+      [...graphe.noeuds].sort((a, b) => {
+        const colonne = COLONNES[a.type] - COLONNES[b.type]
+        if (colonne !== 0) return colonne
+        return (
+          (coordonnees.get(a.id)?.y ?? 0) - (coordonnees.get(b.id)?.y ?? 0)
+        )
+      }),
+    [graphe.noeuds, coordonnees]
   )
 
   /** Les nœuds mis en évidence : le sélectionné et son voisinage. */
@@ -349,14 +368,20 @@ export function ReseauClient({
                   y2={vers.y}
                   stroke="currentColor"
                   className={
-                    mise ? "text-muted-foreground/50" : "text-muted-foreground/5"
+                    mise ? "text-muted-foreground-subtle" : "text-muted-foreground/5"
                   }
                   strokeWidth={mise ? 1.3 : 1}
                 />
               )
             })}
 
-            {graphe.noeuds.map((n) => {
+            {/*
+              Les entités sont dessinées — et donc parcourues à la tabulation —
+              dans l'ordre où elles se lisent : colonne par colonne, de haut en
+              bas. Sans ce tri, le clavier sauterait d'un bout à l'autre du
+              graphe dans l'ordre où le service a renvoyé les nœuds.
+            */}
+            {ordreDeLecture.map((n) => {
               const p = coordonnees.get(n.id)
               if (!p) return null
               const mise = !evidence || evidence.has(n.id)
@@ -375,19 +400,53 @@ export function ReseauClient({
                 <g
                   key={n.id}
                   transform={`translate(${p.x} ${p.y})`}
-                  className="cursor-pointer"
+                  className="cursor-pointer focus:outline-none"
                   opacity={mise ? 1 : 0.15}
+                  /*
+                    Un `<g>` cliquable n'existe pas pour la tabulation : le
+                    graphe entier était inatteignable au clavier. Il devient une
+                    commande à part entière, qui annonce ce qu'elle désigne et
+                    si elle est déjà choisie.
+                  */
+                  tabIndex={0}
+                  role="button"
+                  aria-label={titreNoeud(n)}
+                  aria-pressed={choisi}
                   onClick={(e) => {
                     e.stopPropagation()
                     if (aGlisse.current) return
                     setSelection(choisi ? null : n.id)
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter" && e.key !== " ") return
+                    // Sans quoi l'espace ferait défiler la page sous le graphe.
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setSelection(choisi ? null : n.id)
+                  }}
+                  onFocus={() => setFocalise(n.id)}
+                  onBlur={() => setFocalise(null)}
                   onPointerEnter={() => setSurvol(n.id)}
                   onPointerLeave={() => setSurvol(null)}
                 >
                   <title>{titreNoeud(n)}</title>
                   {/* Cible de clic élargie : un disque de huit unités se rate. */}
                   <circle r={rayon + 10} fill="transparent" />
+                  {/*
+                    L'anneau de focus est dessiné à la main : le contour du
+                    navigateur sur un `<g>` encadre sa boîte englobante — donc
+                    le libellé et la cible élargie — et non la forme.
+                  */}
+                  {focalise === n.id && (
+                    <circle
+                      r={rayon + 7}
+                      fill="none"
+                      stroke="#f8fafc"
+                      strokeWidth={1.5}
+                      strokeDasharray="3 2"
+                      className="pointer-events-none"
+                    />
+                  )}
                   <Forme
                     type={n.type}
                     rayon={rayon}
@@ -495,7 +554,7 @@ export function ReseauClient({
                       {noeudSelectionne.libelle}
                     </span>
                   </div>
-                  <p className="mt-0.5 font-mono text-[11px] text-muted-foreground/70">
+                  <p className="mt-0.5 font-mono text-[11px] text-muted-foreground-subtle">
                     {NOEUDS[noeudSelectionne.type].libelle} ·{" "}
                     {noeudSelectionne.id}
                   </p>
@@ -619,7 +678,7 @@ export function ReseauClient({
                         <span className="font-mono text-foreground">{a.id}</span>{" "}
                         · {a.type}
                       </span>
-                      <span className="shrink-0 text-muted-foreground/70">
+                      <span className="shrink-0 text-muted-foreground-subtle">
                         {a.scoreIA}
                       </span>
                     </Link>
@@ -717,13 +776,13 @@ function ListeIndicateur({
   return (
     <div>
       <div className="mb-2 flex items-center gap-2">
-        <Icone size={13} className="text-muted-foreground/70" />
+        <Icone size={13} className="text-muted-foreground-subtle" />
         <span className="text-[11px] font-medium text-muted-foreground">
           {titre}
         </span>
       </div>
       {entrees.length === 0 ? (
-        <p className="text-xs text-muted-foreground/60">{vide}</p>
+        <p className="text-xs text-muted-foreground-subtle">{vide}</p>
       ) : (
         <ul className="space-y-2">
           {entrees.map((e) => (
@@ -741,7 +800,7 @@ function ListeIndicateur({
                     {e.compte}
                   </Badge>
                 </div>
-                <div className="truncate text-[10px] text-muted-foreground/60">
+                <div className="truncate text-[10px] text-muted-foreground-subtle">
                   {e.detail}
                 </div>
               </button>

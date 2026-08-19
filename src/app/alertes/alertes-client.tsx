@@ -231,7 +231,7 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
                 <div className={`text-3xl font-bold mb-1 ${color}`}>
                   {stat.valueFormate}
                 </div>
-                <div className="text-xs text-muted-foreground/60">
+                <div className="text-xs text-muted-foreground-subtle">
                   {stat.description}
                 </div>
               </CardContent>
@@ -370,7 +370,7 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
 
         <span className="text-xs text-muted-foreground ml-auto">
           {alertesAffichees.length} résultat{alertesAffichees.length > 1 ? "s" : ""}
-          <span className="text-muted-foreground/60"> · seuil {seuil} %</span>
+          <span className="text-muted-foreground-subtle"> · seuil {seuil} %</span>
         </span>
       </div>
 
@@ -382,7 +382,7 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
               <tr className="border-b border-border/30">
                 {["ID","Type","Assuré","Établissement","Montant","Score IA","Risque","Date","Assigné à","Statut"].map(h => (
                   <th key={h} scope="col"
-                    className="text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 px-4 py-3 whitespace-nowrap">
+                    className="text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground-subtle px-4 py-3 whitespace-nowrap">
                     {h}
                   </th>
                 ))}
@@ -441,7 +441,7 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
                             <span
                               title={`Sous le seuil de ${seuil} % : avec la configuration actuelle, cette alerte ne serait pas levée.`}
                               className="text-[9px] font-semibold uppercase tracking-wide
-                                         text-muted-foreground/70 whitespace-nowrap"
+                                         text-muted-foreground-subtle whitespace-nowrap"
                             >
                               &lt; seuil
                             </span>
@@ -471,7 +471,7 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
                           href={`/alertes/${a.id}`}
                           aria-label={`Ouvrir le dossier ${a.id}`}
                           title="Ouvrir le dossier"
-                          className="flex size-7 items-center justify-center rounded-lg text-muted-foreground/60 transition-colors hover:bg-white/[0.04] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                          className="flex size-7 items-center justify-center rounded-lg text-muted-foreground-subtle transition-colors hover:bg-white/[0.04] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                         >
                           <ChevronRight size={15} />
                         </Link>

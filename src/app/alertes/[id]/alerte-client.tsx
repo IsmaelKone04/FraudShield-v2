@@ -113,9 +113,9 @@ function Champ({
 }) {
   return (
     <div className="flex items-start gap-2.5">
-      <Icone size={14} className="mt-0.5 shrink-0 text-muted-foreground/60" />
+      <Icone size={14} className="mt-0.5 shrink-0 text-muted-foreground-subtle" />
       <div className="min-w-0">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground-subtle">
           {libelle}
         </div>
         <div className="text-sm text-foreground">{valeur}</div>
@@ -335,9 +335,9 @@ export function AlerteClient({
             precision={`${dossier.actes.length} acte${dossier.actes.length > 1 ? "s" : ""} facturé${dossier.actes.length > 1 ? "s" : ""}`}
           />
           <div className="flex items-start gap-2.5">
-            <AlertTriangle size={14} className="mt-0.5 shrink-0 text-muted-foreground/60" />
+            <AlertTriangle size={14} className="mt-0.5 shrink-0 text-muted-foreground-subtle" />
             <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground-subtle">
                 Score du moteur
               </div>
               <div
@@ -347,7 +347,7 @@ export function AlerteClient({
                 {dossier.scoreIA} / 100
               </div>
               <ScoreIA score={dossier.scoreIA} className="mt-1.5 max-w-[140px]" />
-              <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground/70">
+              <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground-subtle">
                 {dossier.explication.facteurs.length} facteurs, détaillés
                 ci-dessous.
               </p>
@@ -412,7 +412,7 @@ export function AlerteClient({
               <p className="mt-2 max-w-prose text-sm text-muted-foreground">
                 {dossier.decision.motif}
               </p>
-              <p className="mt-2 text-[11px] text-muted-foreground/70">
+              <p className="mt-2 text-[11px] text-muted-foreground-subtle">
                 {nomDuCompte(dossier.decision.acteur)} ·{" "}
                 {formaterHorodatage(dossier.decision.horodatage)}
               </p>
@@ -497,7 +497,7 @@ export function AlerteClient({
                       {cause ? (
                         <>
                           {CAUSES[cause].aide}{" "}
-                          <span className="text-muted-foreground/70">
+                          <span className="text-muted-foreground-subtle">
                             {CAUSES[cause].imputableAuModele
                               ? "Compte dans la dérive du modèle."
                               : "Ne compte pas dans la dérive : la correction est ailleurs."}
@@ -575,7 +575,7 @@ export function AlerteClient({
                   <th
                     key={h}
                     scope="col"
-                    className="whitespace-nowrap px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60"
+                    className="whitespace-nowrap px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground-subtle"
                   >
                     {h}
                   </th>
@@ -616,7 +616,7 @@ export function AlerteClient({
                     </td>
                     <td className="whitespace-nowrap px-3 py-3 font-mono text-xs">
                       {ecart === 0 ? (
-                        <span className="text-muted-foreground/50">—</span>
+                        <span className="text-muted-foreground-subtle">—</span>
                       ) : (
                         <span className="text-red-400">
                           +{francs(ecart)}
@@ -640,7 +640,7 @@ export function AlerteClient({
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 font-mono text-xs font-semibold">
                   {totalActes - totalReference === 0 ? (
-                    <span className="text-muted-foreground/50">—</span>
+                    <span className="text-muted-foreground-subtle">—</span>
                   ) : (
                     <span className="text-red-400">
                       +{francs(totalActes - totalReference)}
@@ -656,7 +656,7 @@ export function AlerteClient({
           le montant de l'alerte : ce total est donc toujours celui affiché en
           en-tête, et pas seulement « en principe ».
         */}
-        <p className="mt-3 text-[11px] text-muted-foreground/70">
+        <p className="mt-3 text-[11px] text-muted-foreground-subtle">
           Le total des actes correspond au montant réclamé. Les tarifs de
           référence sont ceux de la nomenclature en vigueur.
         </p>
@@ -679,7 +679,7 @@ export function AlerteClient({
               </div>
               <div className="min-w-0 pb-1">
                 <div className="text-sm text-foreground">{e.libelle}</div>
-                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground/70">
+                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground-subtle">
                   <span>{formaterHorodatage(e.horodatage)}</span>
                   <span>·</span>
                   <span>{e.acteur ? nomDuCompte(e.acteur) : "Moteur de détection"}</span>
@@ -720,7 +720,7 @@ export function AlerteClient({
                   <p className="whitespace-pre-wrap text-sm text-foreground">
                     {note.texte}
                   </p>
-                  <p className="mt-1.5 text-[11px] text-muted-foreground/70">
+                  <p className="mt-1.5 text-[11px] text-muted-foreground-subtle">
                     {nomDuCompte(note.auteur)} · {formaterHorodatage(note.horodatage)}
                   </p>
                 </div>
@@ -776,7 +776,7 @@ export function AlerteClient({
         </Button>
       </Section>
 
-      <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60">
+      <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground-subtle">
         <Calendar size={11} />
         Alerte levée le {dossier.dateFormate}.
         {USE_MOCK &&

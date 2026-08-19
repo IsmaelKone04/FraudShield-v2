@@ -93,7 +93,7 @@ export function AppSidebar({
       <SidebarContent>
         {NAVIGATION.map(group => (
           <SidebarGroup key={group.label}>
-            <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+            <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground-subtle">
               {group.label}
             </SidebarGroupLabel>
 
@@ -153,7 +153,7 @@ export function AppSidebar({
 
                       {/* Chevron si actif */}
                       {isActive && (
-                        <ChevronRight size={12} className="text-emerald-400/60 shrink-0 group-data-[collapsible=icon]:hidden" />
+                        <ChevronRight size={12} className="text-emerald-400/80 shrink-0 group-data-[collapsible=icon]:hidden" />
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>

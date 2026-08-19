@@ -54,7 +54,7 @@ export function DataTable({ data }: { data: Alerte[] }) {
             <thead>
               <tr className="border-b border-border/30">
                 {COLONNES.map(h => (
-                  <th key={h} scope="col" className="text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 px-4 py-3">
+                  <th key={h} scope="col" className="text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground-subtle px-4 py-3">
                     {h}
                   </th>
                 ))}
@@ -107,7 +107,7 @@ export function DataTable({ data }: { data: Alerte[] }) {
                       href={`/alertes/${a.id}`}
                       aria-label={`Ouvrir le dossier ${a.id}`}
                       title="Ouvrir le dossier"
-                      className="flex size-7 items-center justify-center rounded-lg text-muted-foreground/60 transition-colors hover:bg-white/[0.04] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                      className="flex size-7 items-center justify-center rounded-lg text-muted-foreground-subtle transition-colors hover:bg-white/[0.04] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
                       <ChevronRight size={15} />
                     </Link>

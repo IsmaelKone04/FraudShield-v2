@@ -201,7 +201,7 @@ export function InvestigationsClient({
                 <div className={`text-3xl font-bold mb-1 ${color}`}>
                   {stat.valueFormate}
                 </div>
-                <div className="text-xs text-muted-foreground/60">
+                <div className="text-xs text-muted-foreground-subtle">
                   {stat.description}
                 </div>
               </CardContent>
@@ -271,13 +271,19 @@ export function InvestigationsClient({
             return (
               <Card
                 key={inv.id}
-                className="border-border/50 bg-card overflow-hidden cursor-pointer
+                className="border-border/50 bg-card overflow-hidden
                            hover:border-emerald-500/20 transition-colors"
-                onClick={() => toggle(inv.id)}
               >
-                {/* ── Header de la carte ── */}
+                {/* ── Header de la carte : la commande de dépli ── */}
                 <CardContent className="p-0">
-                  <div className="flex items-center gap-4 p-5">
+                  <button
+                    type="button"
+                    onClick={() => toggle(inv.id)}
+                    aria-expanded={isOpen}
+                    aria-controls={`detail-${inv.id}`}
+                    className="flex w-full cursor-pointer items-center gap-4 p-5 text-left
+                               transition-colors hover:bg-white/[0.02]"
+                  >
 
                     {/* Icône */}
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20
@@ -336,11 +342,14 @@ export function InvestigationsClient({
                         : <ChevronRight size={16} className="text-muted-foreground" />
                       }
                     </div>
-                  </div>
+                  </button>
 
                   {/* ── Contenu expandé ── */}
                   {isOpen && (
-                    <div className="border-t border-border/30 px-5 pb-5 pt-4">
+                    <div
+                      id={`detail-${inv.id}`}
+                      className="border-t border-border/30 px-5 pb-5 pt-4"
+                    >
 
                       {/* Description */}
                       <p className="text-sm text-muted-foreground mb-5 leading-relaxed">

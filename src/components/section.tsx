@@ -32,7 +32,7 @@ export function Section({
     <Card className="border-border/50 bg-card">
       <CardContent className="p-5">
         <div className="mb-4 flex flex-wrap items-baseline gap-2">
-          <Icone size={15} className="translate-y-0.5 text-muted-foreground/70" />
+          <Icone size={15} className="translate-y-0.5 text-muted-foreground-subtle" />
           <h2 className="text-sm font-semibold text-foreground">{titre}</h2>
           {compte && <span className="text-xs text-muted-foreground">{compte}</span>}
           {action && <div className="ms-auto self-center">{action}</div>}

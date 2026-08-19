@@ -251,7 +251,7 @@ export function QualiteClient({
             </span>
           ))}
         </div>
-        <p className="mt-3 max-w-prose text-[11px] text-muted-foreground/70">
+        <p className="mt-3 max-w-prose text-[11px] text-muted-foreground-subtle">
           Le taux de faux positifs n&apos;est pas tracé : il est le complément
           exact de la précision, et deux courbes symétriques n&apos;apprennent
           rien de plus. Seule la part imputable au modèle est portée, parce
@@ -398,7 +398,7 @@ export function QualiteClient({
                   <span className="text-muted-foreground">
                     {CAUSES[etablissement.causePrincipale].libelle}
                   </span>
-                  <span className="block text-[10px] text-muted-foreground/60">
+                  <span className="block text-[10px] text-muted-foreground-subtle">
                     {CAUSES[etablissement.causePrincipale].imputableAuModele
                       ? "se corrige dans le modèle"
                       : "se corrige en amont"}
@@ -443,7 +443,7 @@ function Chiffre({
         </p>
         <p className="mt-1 text-[11px] text-muted-foreground">{precision}</p>
         {reserve && (
-          <p className="mt-1 text-[11px] italic text-muted-foreground/60">
+          <p className="mt-1 text-[11px] italic text-muted-foreground-subtle">
             {reserve}
           </p>
         )}
@@ -490,7 +490,7 @@ function BlocCauses({
                   }}
                 />
               </div>
-              <p className="mt-1 text-[11px] text-muted-foreground/70">
+              <p className="mt-1 text-[11px] text-muted-foreground-subtle">
                 {CAUSES[ligne.cause].aide}
               </p>
             </li>

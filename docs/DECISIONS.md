@@ -1114,3 +1114,95 @@ racontent bien deux choses différentes.
 décrit la chaîne dans son sens naturel — un assuré déclare un sinistre, pris en
 charge par un praticien, facturé par un établissement — et n'a jamais été lue
 depuis un bout.
+
+---
+
+## ADR-028 — Les contrastes se mesurent, ils ne s'apprécient pas
+
+**Statut** : accepté · **Portée** : `globals.css`, toutes les couleurs de texte
+
+**Constat.** La feuille de route demandait de vérifier « le rouge sur sombre ».
+Mesuré, ce rouge passe largement : `red-400` porte un rapport de 6,84 sur le
+fond des cartes, et la plus basse des douze teintes vives employées ne descend
+pas sous 6,8. Le défaut était ailleurs — là où personne ne regardait, parce que
+du gris discret **a l'air** discret et non illisible :
+
+| Couleur | Rapport mesuré | Seuil |
+| --- | --- | --- |
+| `text-muted-foreground` | 3,68 | 4,5 |
+| `text-muted-foreground/70` | 2,41 | 4,5 |
+| `text-muted-foreground/60` | 2,08 | 4,5 |
+| `text-muted-foreground/50` | 1,79 | 4,5 |
+| `text-destructive` | 3,95 | 4,5 |
+
+Ces valeurs portaient les libellés de colonnes de tableau, les précisions sous
+les chiffres, les mentions de bas de carte — et le message d'échec de connexion.
+En taille 10 à 12 pixels.
+
+**Décision.** Deux niveaux de gris, tous deux **mesurés sur le fond le plus
+clair des deux** (celui des cartes, qui contraint) :
+
+- `--color-muted-foreground` → 5,50 : le texte secondaire ;
+- `--color-muted-foreground-subtle` → 4,63 : les mentions, au strict minimum.
+
+Le rouge est éclairci à 4,63, sans risque pour les fonds : `bg-destructive`
+n'est employé qu'à 10, 20 ou 30 % d'opacité, jamais en aplat sous du texte
+clair.
+
+**Les variantes en pourcentage disparaissent.** Cinquante-cinq occurrences de
+`text-muted-foreground/50|60|70` sont remplacées par le jeton dédié. Une
+opacité ne se mesure pas en relisant une feuille de style : elle dépend du fond
+sur lequel elle tombe, et se dégrade en silence dès qu'on la recopie ailleurs.
+
+**Ce qui reste atténué.** `text-muted-foreground/5`, une seule occurrence :
+le trait des liens du graphe qu'on estompe hors du voisinage sélectionné. Ce
+n'est pas du texte, et l'information revient dès qu'on désélectionne.
+
+**Comment cela ne se redégradera pas.** Un contrôle lit les jetons **dans**
+`globals.css`, parcourt les classes de couleur réellement employées dans le
+code, recompose les opacités comme le fait le navigateur, et échoue si l'une
+d'elles descend sous 4,5. Vingt-quatre couleurs sont mesurées aujourd'hui ; une
+vingt-cinquième ajoutée demain sans être mesurée fera échouer le contrôle.
+
+---
+
+## ADR-029 — Ce qui se clique doit s'atteindre au clavier, et le dire
+
+**Statut** : accepté · **Portée** : dossiers d'instruction, graphe de réseaux
+
+**Constat.** Deux commandes de la console n'existaient que pour la souris :
+
+- la carte d'un dossier d'instruction portait le `onClick` de son dépli. Une
+  `<Card>` est un `<div>` : à la tabulation, elle n'existe pas, et rien
+  n'annonçait qu'il y avait quelque chose à ouvrir ni si c'était ouvert ;
+- **le graphe entier**, dont chaque entité est un `<g>` de SVG. Le seul écran
+  dont tout l'intérêt est l'exploration était le seul entièrement inaccessible
+  au clavier.
+
+**Décision — la carte.** L'en-tête devient un `<button>` qui porte
+`aria-expanded` et `aria-controls`. La zone cliquable ne change pas d'un
+pixel ; elle entre simplement dans l'ordre de tabulation et déclare son état.
+
+**Décision — le graphe.** Chaque entité devient une commande à part entière :
+`tabIndex`, `role="button"`, `aria-label` reprenant l'infobulle,
+`aria-pressed` pour dire si elle est déjà choisie, et Entrée ou Espace pour la
+choisir — l'Espace étant intercepté, sans quoi il ferait défiler la page sous le
+graphe.
+
+**L'ordre de tabulation est celui de la lecture.** Les entités sont désormais
+dessinées triées par colonne puis par hauteur : assurés, sinistres, praticiens,
+établissements. Sans ce tri, le clavier aurait sauté d'un bout à l'autre du
+graphe dans l'ordre où le service renvoie ses nœuds — un ordre qui n'a aucun
+sens à l'écran. L'ordre du DOM **est** l'ordre du clavier ; le faire coïncider
+avec l'ordre visuel n'est pas un détail d'implémentation.
+
+**L'anneau de focus est dessiné à la main.** Le contour que le navigateur pose
+sur un `<g>` encadre sa boîte englobante — donc le libellé et la cible de clic
+élargie — et non la forme. Un cercle pointillé au rayon de la forme dit
+précisément où l'on se trouve.
+
+**Contrepartie assumée.** Un réseau dense ajoute vingt-sept arrêts de
+tabulation. C'est beaucoup pour une page ; c'est infiniment moins que zéro.
+Un déplacement aux flèches avec un seul point d'entrée dans le graphe serait le
+motif idéal — il est noté pour une reprise, pas improvisé ici.
+

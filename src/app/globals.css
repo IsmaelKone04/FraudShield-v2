@@ -19,11 +19,30 @@
   --color-secondary: oklch(0.226 0.027 259.7);
   --color-secondary-foreground: oklch(0.953 0.005 247.9);
   --color-muted: oklch(0.226 0.027 259.7);
-  --color-muted-foreground: oklch(0.536 0.048 256.8);
+  /*
+    Le gris de second plan portait un rapport de contraste de 3,7 sur le fond
+    des cartes — sous les 4,5 exigés pour du texte courant. Et il était employé
+    à 70, 60 puis 50 % d'opacité, ce qui le faisait tomber entre 1,8 et 2,4 :
+    illisible au sens strict, sur les libellés de colonnes de tableau et les
+    précisions sous les chiffres. Deux niveaux le remplacent, tous deux mesurés
+    sur le fond le plus clair des deux (celui des cartes) :
+      · muted-foreground        → 5,50  (texte secondaire)
+      · muted-foreground-subtle → 4,50  (le strict minimum, pour les mentions)
+    Les variantes en pourcentage n'ont plus lieu d'être : une opacité ne se
+    mesure pas en relisant une feuille de style.
+  */
+  --color-muted-foreground: oklch(0.634 0.048 256.8);
+  --color-muted-foreground-subtle: oklch(0.591 0.048 256.8);
   --color-accent: oklch(0.226 0.027 259.7);
   --color-accent-foreground: oklch(0.953 0.005 247.9);
   
-  --color-destructive: oklch(0.579 0.214 27.2);
+  /*
+    Le rouge servait aussi de couleur de texte — le message d'échec de
+    connexion, les chiffres de cas confirmés — à 3,95 de contraste, sous les
+    4,5 requis. Il est éclairci. Sans risque pour les fonds : `bg-destructive`
+    n'est employé qu'à 10, 20 ou 30 %, jamais en aplat.
+  */
+  --color-destructive: oklch(0.617 0.214 27.2);
   --color-destructive-foreground: oklch(0.953 0.005 247.9);
   
   --color-border: oklch(0.226 0.027 259.7);
