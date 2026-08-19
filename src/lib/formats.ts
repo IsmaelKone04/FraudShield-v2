@@ -29,9 +29,23 @@ export function separerMilliers(valeur: number): string {
  * suffit, et le résultat est identique des deux côtés.
  */
 export function formaterHorodatage(iso: string): string {
-  const [date, heure] = iso.split("T")
-  const [annee, mois, jour] = date.split("-")
-  return `${jour}/${mois}/${annee} à ${heure.slice(0, 5)}`
+  return `${formaterDate(iso)} à ${formaterHeure(iso)}`
+}
+
+/**
+ * « 20/05/2026 » et « 06:12 », séparément.
+ *
+ * Le journal d'audit les exporte en deux colonnes : « 20/05/2026 à 06:12 » est
+ * du texte pour un tableur, là où une colonne de dates se trie et se filtre.
+ * Même découpage, même absence de conversion de fuseau.
+ */
+export function formaterDate(iso: string): string {
+  const [annee, mois, jour] = iso.split("T")[0].split("-")
+  return `${jour}/${mois}/${annee}`
+}
+
+export function formaterHeure(iso: string): string {
+  return iso.split("T")[1].slice(0, 5)
 }
 
 /**

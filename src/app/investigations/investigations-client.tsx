@@ -118,7 +118,7 @@ export function InvestigationsClient({ data }: { data: InvestigationsData }) {
     const cible: StatutInvestigation =
       statut === "Clôturée" ? "En cours" : "Clôturée"
     try {
-      await changerStatut(id, cible)
+      await changerStatut(id, cible, statut)
       toast.success(`${id} — dossier ${cible === "Clôturée" ? "clôturé" : "rouvert"}`, {
         description: USE_MOCK
           ? "Enregistré dans ce navigateur uniquement (mode démonstration)."

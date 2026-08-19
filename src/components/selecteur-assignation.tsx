@@ -64,10 +64,12 @@ export function SelecteurAssignation({
 
     setEnCours(true)
     try {
+      // `assigneA` est l'affectation antérieure, que le journal réclame et que
+      // le store n'a pas : lui seul l'affiche.
       if (estAlerte) {
-        await assignerAlerte(id, destinataire)
+        await assignerAlerte(id, destinataire, assigneA)
       } else if (destinataire) {
-        await assignerInvestigation(id, destinataire)
+        await assignerInvestigation(id, destinataire, assigneA)
       }
       toast.success(
         destinataire

@@ -400,13 +400,50 @@ c'était toute la courbe.
 | Le pas de simulation est de 5 points, celui de la distribution fournie. | Données au score près, si l'API en rend |
 | Le simulateur ne rejoue que mai 2026. | Population glissante, ou choix de la période |
 
-#### D5 — Piste d'audit
+#### D5 — Piste d'audit ✅ terminé
 
-| # | Tâche | Est. |
-|---|---|---|
-| **P4-18** | Journalisation de toute action métier : acteur, horodatage, avant/après, motif. | 0,5 |
-| **P4-19** | Écran « journal d'audit » réservé au rôle ADMINISTRATEUR — l'occasion de créer enfin `/dashboard/admin`, documenté et protégé par `proxy.ts` mais inexistant. | 0,5 |
-| **P4-20** | Export du journal (CSV) pour un contrôle externe. | 0,25 |
+| # | Tâche | Est. | |
+|---|---|---|---|
+| **P4-18** | Journalisation de toute action métier : acteur, horodatage, avant/après, motif. | 0,5 | ✅ |
+| **P4-19** | Écran « journal d'audit » réservé au rôle ADMINISTRATEUR — l'occasion de créer enfin `/dashboard/admin`, documenté et protégé par `proxy.ts` mais inexistant. | 0,5 | ✅ |
+| **P4-20** | Export du journal (CSV) pour un contrôle externe. | 0,25 | ✅ |
+
+#### Écarts constatés — D5
+
+- **Le journal est un store à part**, en ajout seul, avec sa propre clé de stockage. Logé
+  avec les modifications, il aurait été effacé par « Réinitialiser » — le bouton dont il
+  doit précisément garder la trace — et exposé au rejet en bloc de son `merge` (ADR-022).
+  Il valide donc son contenu **entrée par entrée** : une entrée corrompue est écartée
+  seule.
+- **Les actions du store reçoivent l'état antérieur de ce qu'elles modifient.** Le store ne
+  connaît que les écarts (ADR-004) : il ignore le statut d'une alerte qu'il n'a jamais
+  touchée, et le deviner produirait « de — à Résolu ». Le paramètre est requis, comme
+  `statutAnterieur` l'est depuis la phase 3.
+- **La trace est exigée par le point de passage des écritures**, en cinquième paramètre :
+  un appel qui l'oublie ne compile pas. La garde a été prouvée en la retirant.
+- **La page refait le contrôle d'accès du proxy.** Éprouvé en neutralisant le filtre du
+  proxy : la page renvoie alors l'analyste d'elle-même, sans servir une ligne du journal.
+  Le statut reste 200 — la page est derrière une frontière de chargement — d'où une
+  vérification portée sur ce qui est servi plutôt que sur le code de statut (ADR-023).
+- **La barre de navigation affichait « Admin Diallo · Administrateur » à tout le monde.**
+  Corrigé : elle porte l'identité connectée. Elle reçoit le rôle **mis en forme**, jamais
+  son code — une vérification de la phase 2 a repris en défaut la première version du
+  câblage, qui laissait « SUPERVISEUR » passer dans le HTML servi.
+- **L'identité n'est lue que sur les écrans qui écrivent.** La poser dans le layout racine
+  aurait rendu dynamiques les huit écrans pré-rendus, dont quatre n'écrivent rien. Trois
+  routes basculent — `/investigations`, `/parametres`, `/simulation` — et cinq restent
+  statiques.
+- **`lib/formats.ts` gagne `formaterDate()` et `formaterHeure()`**, dont
+  `formaterHorodatage()` devient la composition : l'export CSV les veut en deux colonnes.
+
+#### Dette reportée — D5
+
+| Constat | Vers |
+|---|---|
+| Le journal est celui d'un navigateur : il ne remonte pas les actions faites ailleurs. L'écran l'annonce. | Journal serveur — même mécanisme, écrit au même endroit ; le point de passage unique existe déjà |
+| Les écritures refusées par le service ne sont pas tracées. | Un journal serveur les enregistrerait, avec le refus |
+| La consultation et l'export du journal ne sont pas eux-mêmes journalisés. | Trace des lectures, si une exigence de conformité la demande |
+| Les 500 entrées sont une borne de stockage, pas une durée de rétention. | `retentionDonnees` existe déjà dans les réglages et ne pilote rien |
 
 | **P4-21** | **Documentation M4** : section README « ce que FraudShield fait que les autres ne font pas », 4 captures, ADR par différenciateur, CHANGELOG. | 1 |
 
@@ -442,7 +479,7 @@ Unité : la demi-journée de travail effectif.
 | P1 | Fondations | 6,25 | 8 | ✅ |
 | P2 | Interactions | 5,25 | 13,25 | ✅ |
 | P3 | Détail d'alerte | 2,75 | 16 | ✅ |
-| P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) · D2 ✅ (3) · D4 ✅ (2,75) |
+| P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) · D2 ✅ (3) · D4 ✅ (2,75) · D5 ✅ (1,5) |
 | P5 | Finition | 7 | 39 | |
 
 **≈ 39 demi-journées**, soit une vingtaine de jours pleins. Les phases 0 à 3 (16 demi-journées)

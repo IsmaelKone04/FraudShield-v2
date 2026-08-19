@@ -105,11 +105,11 @@ export function SimulationClient({
     try {
       // Seuls les réglages qui s'écartent du serveur sont conservés (ADR-006) :
       // le seuil est posé sur les valeurs courantes, et l'écart en est déduit.
+      const apres = { ...parametres, seuilAlerteIA: seuil }
       await enregistrer(
-        ecartParametres(parametresReference, {
-          ...parametres,
-          seuilAlerteIA: seuil,
-        })
+        ecartParametres(parametresReference, apres),
+        parametres,
+        apres
       )
       toast.success(`Seuil de déclenchement porté à ${seuil} %`, {
         description: USE_MOCK

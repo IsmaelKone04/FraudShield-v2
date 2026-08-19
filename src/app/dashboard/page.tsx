@@ -44,7 +44,17 @@ export default async function Page() {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      {/*
+        La barre de navigation reçoit l'identité connectée : elle affichait
+        jusqu'ici « Admin Diallo » à tout le monde, et c'est elle qui décide
+        d'ouvrir ou non l'entrée « Journal d'audit ».
+      */}
+      <AppSidebar
+        variant="inset"
+        email={session?.user?.email ?? null}
+        roleLibelle={libelleDuRole(role)}
+        estAdministrateur={role === "ADMINISTRATEUR"}
+      />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">

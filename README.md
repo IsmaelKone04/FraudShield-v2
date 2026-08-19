@@ -116,7 +116,8 @@ La console **modifie** des données. Elle ne se contente plus d'afficher.
 | **Imprimer la note d'explication** | `/alertes/[id]/note` | Document autonome, à enregistrer en PDF depuis le navigateur |
 | Assigner une alerte, réassigner un dossier | `/alertes`, `/investigations` | Aux comptes ci-dessus, avec filtre « Mes dossiers » |
 | Clôturer ou rouvrir un dossier | `/investigations` | |
-| Exporter en CSV | `/alertes`, `/investigations`, `/rapports` | Fichier produit par le navigateur |
+| Exporter en CSV | `/alertes`, `/investigations`, `/rapports`, `/dashboard/admin` | Fichier produit par le navigateur |
+| **Relire la piste d'audit** | `/dashboard/admin` | Toute action métier, avec son acteur, son avant/après et son motif — réservé au rôle administrateur |
 | **Simuler puis appliquer un seuil** | `/simulation` | Curseur, effets en direct sur les alertes et la charge, puis écriture du réglage |
 | Régler le seuil de déclenchement | `/parametres` | Agit sur `/alertes` : les scores sous le seuil sont atténués, marqués, et masquables |
 
@@ -233,6 +234,48 @@ pourquoi : *le frein est le nombre d'analystes, pas le modèle.*
 > depuis un autre jeu de données par un autre chemin. Deux écrans, un seul résultat ; un
 > test le vérifie au chiffre près.
 
+## 🧾 Ce qui reste d'une décision annulée
+
+Quatrième différenciateur, et une exigence de conformité. Une console qui décide doit
+pouvoir dire qui a décidé — surtout quand la décision a été défaite.
+
+Quand un analyste revient sur une décision, le dossier retrouve son statut d'avant, le
+motif s'efface, et plus rien n'indique qu'elle a existé. C'est le comportement attendu du
+dossier. Ce n'est pas le comportement acceptable d'un système auditable.
+
+Sur `/dashboard/admin`, réservé au rôle administrateur, chaque action métier est inscrite
+avec son acteur, son horodatage, son état d'avant, son état d'après, et son motif quand
+l'action en exige un.
+
+- **Le journal est un store à part, en ajout seul.** Logé avec les modifications, il aurait
+  été effacé par « Réinitialiser » — le bouton dont il doit garder la trace. La remise à
+  zéro y est donc journalisée, et le journal lui survit ([ADR-022](docs/DECISIONS.md)).
+- **Aucune écriture ne peut y échapper.** Toute modification d'alerte ou de dossier
+  traverse une seule fonction, qui réclame la description de l'action en paramètre : un
+  appel qui l'oublie ne compile pas.
+- **L'état d'avant vient de l'écran, pas du store.** Le store ne connaît que les écarts :
+  il ignore le statut d'une alerte qu'il n'a jamais touchée, et le deviner produirait
+  « de — à Résolu ».
+- **Le journal dit ce qui a eu lieu, pas ce qui a été tenté.** L'entrée est écrite après
+  l'envoi : une modification refusée par le service est défaite à l'écran, et n'y laisse
+  rien.
+- **Une entrée corrompue est écartée seule.** Un statut perdu se repose ; un fait perdu ne
+  se retrouve pas — le journal ne repart donc jamais de zéro.
+- **La page refait le contrôle d'accès du proxy.** Une page réservée doit dire elle-même à
+  qui elle s'adresse : le proxy filtre une expression régulière de chemin, qu'un
+  déplacement de route suffirait à contourner ([ADR-023](docs/DECISIONS.md)).
+- **Export CSV** du journal, filtres compris, pour un contrôle externe.
+
+> **Ce que le journal seul conserve.** Une décision annulée y figure deux fois — la
+> décision et son retrait, chacune avec son motif et son auteur. Une note supprimée y
+> conserve son texte. C'est la seule page de la console dont le contenu ne se déduit
+> d'aucune autre.
+
+**Limite, affichée sur l'écran :** ce journal est celui d'un navigateur. Il enregistre les
+actions faites depuis cette console, quel que soit le compte connecté, et ne remonte pas
+celles faites ailleurs — faute d'API à qui les transmettre. Une piste d'audit opposable se
+tiendrait côté serveur ; le mécanisme serait le même, écrit au même endroit.
+
 ## 🧱 Structure
 
 Chaque écran suit le même découpage : `page.tsx` (serveur) charge via le service et
@@ -244,6 +287,7 @@ src/
 │   ├── api/auth/[...nextauth]/   # Montage des routes NextAuth
 │   ├── error.tsx  loading.tsx  not-found.tsx
 │   ├── dashboard/        # Vue d'ensemble : KPIs, tendances, dernières alertes
+│   │   └── admin/        # Journal d'audit, réservé au rôle ADMINISTRATEUR
 │   ├── alertes/          # Liste des alertes, filtres, statuts
 │   │   └── [id]/         # Le dossier : score expliqué, actes, chronologie, décision, notes
 │   │       └── note/     # La note d'explication, mise en page pour l'impression
@@ -265,6 +309,7 @@ src/
 │   ├── store/            # Écarts au jeu de données (Zustand), persistés localement
 │   ├── csv.ts            # Génération CSV, exports.ts  # Colonnes des deux exports
 │   ├── explication.ts    # Des facteurs à la phrase en français (déterministe)
+│   ├── journal.ts        # Piste d'audit : libellés, tri, filtres, relecture du stocké
 │   ├── qualite.ts        # Précision, rappel, dérive — calculés depuis des comptages
 │   ├── simulation.ts     # Rejeu à seuil variable, courbe, point recommandé
 │   ├── decisions.ts      # Ce qu'une décision entraîne, et les causes de faux positif
@@ -284,9 +329,11 @@ Les arbitrages structurants sont consignés dans [`docs/DECISIONS.md`](docs/DECI
 `/login` est ouverte (avec les routes `/api/auth/*`, nécessaires à la connexion elle-même).
 Une page ajoutée demain est donc protégée sans qu'on ait à y penser.
 
-Le rôle est porté par le jeton JWT et exposé dans la session. La restriction du préfixe
-`/dashboard/admin` au rôle `ADMINISTRATEUR` est en place, mais **la page correspondante
-n'existe pas encore** : elle est prévue en phase 4 pour accueillir le journal d'audit.
+Le rôle est porté par le jeton JWT et exposé dans la session. Le préfixe
+`/dashboard/admin` est réservé au rôle `ADMINISTRATEUR`, et **la page vérifie la même
+chose de son côté** : le proxy filtre une expression régulière de chemin, qu'un
+déplacement de route suffirait à contourner. Une page réservée doit dire elle-même à qui
+elle s'adresse ([ADR-023](docs/DECISIONS.md)).
 
 > À noter : Next.js 16 a renommé le fichier `middleware.ts` en `proxy.ts`. Ce n'est pas
 > un fichier exotique, c'est bien le mécanisme de middleware standard.
@@ -314,10 +361,11 @@ n'existe pas encore** : elle est prévue en phase 4 pour accueillir le journal d
   écrites dans le `localStorage`, jamais transmises. Rien n'est partagé entre deux
   utilisateurs ni entre deux machines — c'est attendu tant que le service de détection
   n'est pas branché (voir « Ce qui est réellement interactif »).
-- **Le rôle ne conditionne presque rien** : il est porté par le JWT, exposé dans la
-  session, et protège les routes via `proxy.ts` — mais il ne restreint aucune action.
-  Un analyste peut réassigner un dossier comme un superviseur. Décider qui a le droit de
-  quoi est une règle métier, traitée en phase 4 avec la piste d'audit.
+- **Le rôle ouvre un écran, il ne restreint aucune action.** Il est porté par le JWT,
+  exposé dans la session, et réserve `/dashboard/admin` à l'administrateur — mais un
+  analyste peut toujours réassigner un dossier comme un superviseur. Décider qui a le
+  droit de quoi reste une règle métier à trancher ; ce que la console sait faire pour
+  l'instant, c'est **dire qui a fait quoi**, ce qui n'est pas la même chose.
 - **Le score n'est pas recalculé depuis ses facteurs** : la décomposition explique le score
   du jeu de données, elle ne le produit pas. Modifier une contribution ne changera donc pas
   le score — le contrôle de cohérence refusera simplement le dossier. Le rejeu à seuil
@@ -337,6 +385,13 @@ n'existe pas encore** : elle est prévue en phase 4 pour accueillir le journal d
 - **Le simulateur ne rejoue que mai 2026**, par tranches de 5 points de score — la
   finesse à laquelle la distribution est fournie. La capacité de la cellule y est une
   constante : ni effectif variable, ni temps d'instruction par type de fraude.
+- **Le journal d'audit est celui d'un navigateur**, pas d'un serveur : il enregistre les
+  actions faites depuis cette console, quel que soit le compte connecté, et ne remonte pas
+  celles faites ailleurs. Les écritures refusées par le service n'y figurent pas — le
+  journal dit ce qui a eu lieu, pas ce qui a été tenté — et la consultation du journal
+  n'est pas elle-même journalisée. Il est borné à 500 entrées, ce qui est une contrainte
+  de stockage et non une durée de rétention ; l'écran l'annonce dès que la borne est
+  atteinte.
 - **404 souple sur un identifiant d'alerte inconnu** : la page « introuvable » s'affiche
   bien, mais la réponse porte le statut 200. La frontière de streaming posée par
   `src/app/loading.tsx` envoie l'en-tête avant que `notFound()` ne soit atteint — cause
@@ -354,7 +409,7 @@ les arbitrages. Résumé :
 | **P1** | Fondations : service généralisé, validation Zod, gestion d'erreurs | ✅ terminée |
 | **P2** | Interactions : statuts, assignation, export, paramètres persistés | ✅ terminée |
 | **P3** | Détail d'alerte (`/alertes/[id]`) | ✅ terminée |
-| **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · simulateur de seuils ✅ · graphe de réseaux · piste d'audit | en cours |
+| **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · simulateur de seuils ✅ · piste d'audit ✅ · graphe de réseaux | en cours |
 | **P5** | Accessibilité, thème, tests, responsive, documentation finale | à venir |
 
 La phase 4 porte le parti pris du projet : **mettre l'analyste au centre plutôt que le

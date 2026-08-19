@@ -1,5 +1,7 @@
 export { useModificationsStore } from "./modifications.store"
 export type { StoreModifications } from "./modifications.store"
+export { journaliser, useJournalStore } from "./journal.store"
+export type { StoreJournal, Trace } from "./journal.store"
 export {
   ecartParametres,
   fusionnerAlerte,

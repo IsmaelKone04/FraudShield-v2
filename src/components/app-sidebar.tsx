@@ -11,6 +11,7 @@ import {
   FileText,
   Gauge,
   Settings,
+  ScrollText,
   SlidersHorizontal,
   Shield,
   Activity,
@@ -29,6 +30,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { Badge } from "@/components/ui/badge"
+import { initialesDuCompte, nomDuCompte } from "@/lib/utilisateurs"
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 const navItems = [
@@ -94,12 +96,58 @@ const navItems = [
         icon: Settings,
         description: "Configuration",
       },
+      {
+        title: "Journal d'audit",
+        href: "/dashboard/admin",
+        icon: ScrollText,
+        description: "Qui a décidé quoi",
+        // L'entrée n'apparaît qu'au compte qui peut ouvrir la page. Sans ce
+        // filtre, elle mènerait les deux autres à une redirection — un lien
+        // qui punit celui qui le suit.
+        //
+        // Ce n'est pas un contrôle d'accès : celui-là est fait par `proxy.ts`
+        // et par la page elle-même, tous deux côté serveur. Ici on ne décide
+        // que ce qui s'affiche.
+        reserveeAuxAdministrateurs: true,
+      },
     ],
   },
 ]
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+/**
+ * La barre de navigation, et l'identité qu'elle affiche.
+ *
+ * Le pied de page annonçait « Admin Diallo · Administrateur » quel que soit le
+ * compte connecté : un analyste s'y voyait administrateur. Sur une console qui
+ * tient désormais une piste d'audit, afficher une identité qui n'est pas la
+ * sienne n'est plus seulement inexact — c'est là que l'utilisateur lit sous
+ * quel nom ses actions vont être inscrites.
+ */
+export function AppSidebar({
+  email,
+  roleLibelle,
+  estAdministrateur,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  /** Adresse du compte connecté ; `null` si la session a expiré. */
+  email: string | null
+  /**
+   * Le rôle **déjà mis en forme**, et non son code.
+   *
+   * La session transporte « SUPERVISEUR » : un code de comparaison, qui n'a
+   * rien à faire dans le navigateur. Le convertir ici obligerait à l'y envoyer,
+   * et le code brut se retrouverait dans le HTML servi.
+   */
+  roleLibelle: string
+  /**
+   * Décidé côté serveur, transmis comme un fait acquis. Un composant client qui
+   * comparerait lui-même un code de rôle ressemblerait à un contrôle d'accès
+   * sans en être un — les vrais sont dans `proxy.ts` et dans la page.
+   */
+  estAdministrateur: boolean
+}) {
   const pathname = usePathname()
 
   return (
@@ -144,7 +192,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarGroupLabel>
 
             <SidebarMenu>
-              {group.items.map(item => {
+              {group.items
+                .filter(item => !("reserveeAuxAdministrateurs" in item) || estAdministrateur)
+                .map(item => {
                 const isActive =
                   pathname === item.href ||
                   (item.href !== "/dashboard" && pathname.startsWith(item.href))
@@ -214,14 +264,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" render={<Link href="/parametres" />}>
               <div className="flex size-8 items-center justify-center rounded-lg bg-emerald-500 text-black font-bold text-xs shrink-0">
-                AD
+                {initialesDuCompte(email)}
               </div>
               <div className="flex flex-col gap-0.5 leading-none min-w-0">
                 <span className="text-sm font-semibold text-foreground truncate">
-                  Admin Diallo
+                  {nomDuCompte(email)}
                 </span>
                 <span className="text-xs text-muted-foreground truncate">
-                  Administrateur
+                  {roleLibelle}
                 </span>
               </div>
             </SidebarMenuButton>

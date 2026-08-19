@@ -50,7 +50,8 @@ export function SelecteurStatut({
 
     setEnCours(true)
     try {
-      await changerStatut(id, nouveau)
+      // Le statut affiché est l'état antérieur : le store ne le connaît pas.
+      await changerStatut(id, nouveau, statut)
       toast.success(`${id} — statut « ${nouveau} »`, {
         description: USE_MOCK
           ? "Enregistré dans ce navigateur uniquement (mode démonstration)."

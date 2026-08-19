@@ -4,6 +4,95 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 4 — Les différenciateurs · D5 — Piste d'audit
+
+Une console qui décide doit pouvoir dire qui a décidé. Surtout quand la décision
+a été défaite.
+
+### Ajouté
+
+- **`/dashboard/admin`** : le journal d'audit, réservé au rôle administrateur.
+  Chaque action métier y est inscrite — acteur, horodatage, état d'avant, état
+  d'après, motif quand l'action en exige un. Recherche libre, filtre par compte,
+  filtre par type d'action, et une synthèse : actions enregistrées, dont
+  effacements, comptes intervenus, dernière action.
+  La route existait dans `proxy.ts` depuis la phase 2 et ne menait à rien : un
+  contrôle d'accès sur une page absente.
+- **Un store de journal distinct**, en ajout seul. Onze types d'action, une liste
+  fermée : ce que la console sait faire est ce qu'elle sait journaliser, et le
+  compilateur le rappelle.
+- **La trace est exigée par le point de passage des écritures.** Toute
+  modification d'alerte ou de dossier traverse une seule fonction, qui réclame la
+  description de l'action en paramètre — un appel qui l'oublie ne compile pas.
+- **Export CSV du journal** pour un contrôle externe, filtres compris. Date et
+  heure en deux colonnes, une colonne « Effacement », et la protection contre
+  l'injection de formules déjà en place sur les autres exports.
+- **Un contrôle d'accès dans la page elle-même**, en plus de celui du proxy. Il a
+  été éprouvé en neutralisant le proxy : la page renvoie alors l'analyste
+  d'elle-même, sans servir une ligne du journal.
+
+### Modifié
+
+- **La barre de navigation affiche enfin l'identité connectée.** Son pied de page
+  annonçait « Admin Diallo · Administrateur » quel que soit le compte : un
+  analyste s'y voyait administrateur. C'est pourtant là qu'on lit sous quel nom
+  ses actions vont être inscrites.
+- **Elle reçoit un rôle mis en forme, jamais son code.** « SUPERVISEUR » est un
+  code de comparaison qui n'a rien à faire dans le HTML servi. Une vérification
+  de la phase 2 l'a rappelé en reprenant en défaut la première version du
+  câblage.
+- **Les actions du store reçoivent l'état antérieur de ce qu'elles modifient.**
+  Le store ne connaît que les écarts : il ignore le statut d'une alerte qu'il n'a
+  jamais touchée. Le deviner produirait « de — à Résolu ».
+- `lib/formats.ts` gagne `formaterDate()` et `formaterHeure()`, dont
+  `formaterHorodatage()` est désormais la composition. L'export les veut en deux
+  colonnes : « 20/05/2026 à 06:12 » est du texte pour un tableur.
+
+### Arbitrages
+
+| Décision | Pourquoi |
+|---|---|
+| Le journal est un store séparé | Logé avec les modifications, il aurait été effacé par le bouton dont il doit garder la trace ([ADR-022](docs/DECISIONS.md)) |
+| Validé entrée par entrée, pas en bloc | Un statut perdu se repose ; un fait perdu ne se retrouve pas. Une entrée corrompue est écartée seule |
+| L'état d'avant vient de l'écran, pas du store | Le store ne connaît que les écarts. Seul l'écran affiche la valeur courante |
+| Écrit après l'envoi, jamais avant | Le journal dit ce qui a eu lieu, pas ce qui a été tenté. Contrepartie : les refus ne sont pas tracés |
+| Des états lisibles, pas des valeurs typées | Un contrôleur relit le journal sans la console sous les yeux. Contrepartie : il se lit, il ne se recalcule pas |
+| Une entrée par réglage déplacé | « Qui a baissé le seuil, et de combien » ; une ligne « paramètres modifiés » n'y répond pas |
+| Le motif reste nul quand l'action n'en exige pas | Un motif inventé vaut moins que pas de motif |
+| Borné à 500 entrées, et l'écran le dit | Sans borne, l'écriture finirait par échouer — et ferait perdre la modification, pas seulement sa trace ([ADR-022](docs/DECISIONS.md)) |
+| La page refait le contrôle du proxy | Le proxy filtre une expression régulière de chemin. Une page réservée doit dire elle-même à qui elle s'adresse ([ADR-023](docs/DECISIONS.md)) |
+| L'identité n'est lue que sur les écrans qui écrivent | La poser dans le layout racine aurait rendu dynamiques huit écrans, dont quatre n'écrivent rien |
+
+### Ce que l'écran finit par dire
+
+Une décision annulée disparaît du dossier : le statut revient en arrière, le
+motif s'efface, et rien n'indique qu'elle a existé. Le journal, lui, conserve les
+deux entrées — la décision et son retrait, chacune avec son motif et son auteur.
+Même chose pour une note supprimée, dont le texte ne subsiste plus que là. C'est
+la seule page de la console dont le contenu ne se déduit d'aucune autre.
+
+### Dette laissée sciemment
+
+- Le journal est celui d'un navigateur, pas d'un serveur : il ne remonte pas les
+  actions faites ailleurs. L'écran l'annonce.
+- Les écritures refusées par le service ne sont pas tracées.
+- La consultation et l'export du journal ne sont pas eux-mêmes journalisés.
+- Les 500 entrées sont une borne de stockage, pas une durée de rétention.
+
+### Vérifié
+
+`typecheck` et `build` sans erreur (16 routes, `/dashboard/admin` comprise) ;
+`lint` inchangé à 2 erreurs préexistantes. **36 vérifications** sur le HTML servi
+avec trois comptes réellement connectés, **68 tests** unitaires sur les fonctions
+pures et le contrat d'une entrée, **38 tests** sur les vrais stores — dont les
+trois qui portent la tranche : une décision annulée laisse son motif au journal,
+« Réinitialiser » n'efface pas le journal et s'y inscrit, et une écriture refusée
+n'y laisse rien. **4 gardes prouvées** en les provoquant. Non-régression des
+phases 2, 3, de D1, D2 et D4 rejouée : 17/17, 8/8, 24/24, 45/45, 51/51, 34/34,
+72/72, 62/62, 16/16 et 62/62.
+
+---
+
 ## Phase 4 — Les différenciateurs · D4 — Simulateur de seuils
 
 Ailleurs, on change le seuil de déclenchement et on attend un mois pour savoir ce

@@ -759,3 +759,137 @@ comme un optimum.
 l'effectif varie, ou dont le temps d'instruction dépend du type de fraude,
 demanderait un modèle de charge plus fin ; `capaciteJour` est le paramètre par
 lequel il entrerait.
+
+---
+
+## ADR-022 — Le journal est un store à part, en ajout seul, et le « avant » vient de l'appelant
+
+**Contexte.** P4-18 demande la journalisation de toute action métier : acteur,
+horodatage, avant/après, motif. Le store des modifications semblait l'endroit
+évident — il applique déjà toutes les écritures. Il ne l'est pas.
+
+**Décision : deux stores, deux clés de stockage, deux cycles de vie.** Le store
+des modifications ne conserve que l'**état courant** des écarts ; c'est son
+contrat, et c'est ce qui l'empêche de diverger du serveur (ADR-004). Un journal
+a besoin du contraire : il retient les faits dans l'ordre où ils se sont
+produits, et rien ne les efface. Trois conséquences décidaient à elles seules :
+
+- **« Revenir sur la décision » supprime la décision du store.** Le dossier
+  retrouve son statut antérieur et plus rien n'atteste qu'une décision a été
+  prise, ni qu'elle a été défaite. C'est exactement ce qu'un contrôleur vient
+  chercher. Idem pour une note supprimée : son texte n'existe plus nulle part
+  ailleurs que dans l'entrée de journal qui le relève **avant** la suppression.
+- **« Réinitialiser » vide les écarts.** Un journal logé dans le même store
+  aurait été effacé par le bouton dont il doit garder la trace. La remise à zéro
+  est donc journalisée — et le journal lui survit.
+- **Le `merge` du store des modifications repart de zéro** quand le contenu
+  local est illisible. Acceptable pour un statut, qu'il suffit de reposer ;
+  inacceptable pour une piste d'audit, dont les faits perdus ne se retrouvent
+  pas. Le journal valide donc **entrée par entrée** : une entrée corrompue est
+  écartée seule, les autres passent, et l'écart est signalé.
+
+**Le « avant » est fourni par l'appelant, et le paramètre est requis.** Le store
+ne connaît que les écarts : sur une alerte encore intacte, il ignore quel statut
+elle porte. Le deviner produirait « de — à Résolu », c'est-à-dire la moitié de
+l'information demandée. L'écran, lui, affiche la valeur courante ; c'est donc
+lui qui la transmet — comme la barre de décision le fait déjà depuis la phase 3
+avec `statutAnterieur`. Requis, pour qu'un point d'appel ajouté demain ne puisse
+pas l'omettre.
+
+**Toute écriture d'alerte ou de dossier passe par une fonction unique, qui exige
+sa trace.** `appliquer()` prend la description de l'action en cinquième
+paramètre : un appel qui l'oublierait ne compile pas. C'est ce qui rend la
+promesse « toute action métier laisse une trace » vérifiable plutôt que
+déclarative — un test la reprend d'ailleurs à l'envers, en vérifiant que chacun
+des onze types déclarés est réellement émis quelque part.
+
+**L'entrée est écrite après l'envoi, jamais avant.** Le journal consigne ce qui
+a eu lieu, pas ce qui a été tenté : une modification refusée par le service est
+défaite à l'écran, et la journaliser laisserait croire à un changement dont il
+ne reste rien. *Limite assumée* : les tentatives refusées ne sont donc pas
+tracées. Un journal serveur les enregistrerait, avec le refus.
+
+**Les états sont écrits tels qu'ils s'affichaient.** « Sow Analyst » plutôt
+qu'une adresse, « activé » plutôt que `true`, « Classée sans suite — Donnée de
+référence erronée » plutôt qu'un couple de codes. Un contrôleur relit le journal
+des mois après, sans la console sous les yeux. Contrepartie : le journal se lit,
+il ne se recalcule pas — reconstituer un état à partir de la piste demanderait
+des valeurs typées, ce qu'on ne lui demande pas.
+
+**Le motif n'est porté que par les actions qui en exigent un.** Une décision en
+a un par contrat ; un changement de statut depuis la liste n'en demande pas. Le
+champ reste `null` plutôt que de recevoir une phrase que personne n'a écrite.
+
+**Une entrée par réglage déplacé, et non une par enregistrement.** « Qui a
+baissé le seuil de déclenchement, et de combien » est la question posée ; une
+ligne « paramètres modifiés » n'y répondrait pas. L'écart enregistré ne suffit
+pas à la produire : un réglage ramené à la valeur du serveur en *sort*, si bien
+que la modification la plus intéressante — celle qui défait — n'y figurerait
+pas. Les valeurs effectives d'avant et d'après accompagnent donc l'écart.
+
+**Le journal est borné à 500 entrées.** Il vit dans le `localStorage`, dont la
+capacité est partagée avec les modifications ; sans borne, il finirait par faire
+échouer l'écriture, c'est-à-dire par faire perdre la modification elle-même et
+pas seulement sa trace. La borne est assumée et **annoncée à l'écran dès qu'elle
+est atteinte** : un journal qui déborde en silence est pire qu'un journal qui
+dit qu'il déborde.
+
+**Sans session nommée, l'entrée est écrite quand même**, sous une mention
+explicite. Un journal qui perd des faits quand il ne sait pas les attribuer est
+moins fiable qu'un journal qui dit ne pas savoir. Le cas ne devrait pas se
+produire — `proxy.ts` exige une session avant tout rendu — d'où l'avertissement
+s'il survient.
+
+**Limite principale, affichée sur l'écran.** Ce journal est celui d'un
+navigateur : il enregistre les actions faites depuis cette console, quel que
+soit le compte connecté, et ne remonte pas celles faites ailleurs. Une piste
+d'audit opposable se tiendrait côté serveur. Le mécanisme serait le même, écrit
+au même endroit — le point de passage unique existe déjà.
+
+---
+
+## ADR-023 — Une page réservée se protège elle-même, et n'envoie pas de code de rôle au navigateur
+
+**Contexte.** `proxy.ts` réservait `/dashboard/admin` au rôle ADMINISTRATEUR
+depuis la phase 2. La page n'a jamais existé : un contrôle d'accès sur une
+absence, c'est-à-dire une redirection vers une 404.
+
+**Décision : le contrôle est refait dans la page, et ce n'est pas une
+redondance.** Le proxy filtre sur un chemin, à partir d'une expression
+régulière de `matcher` : un préfixe changé, une route déplacée, et la page
+s'ouvrirait à tous sans que rien ne le signale. Une page réservée doit dire
+elle-même à qui elle s'adresse. La garde a été éprouvée en neutralisant le
+filtre du proxy : la page renvoie alors l'analyste d'elle-même, et **pas une
+ligne du journal n'est servie au passage**.
+
+Le code de statut reste 200 dans ce cas, et ce n'est pas un défaut : la page est
+derrière une frontière de chargement, si bien que Next.js envoie le squelette
+avant de rendre la page, puis délivre le renvoi dans le flux. Ce qui compte
+n'est donc pas le statut mais ce qui est servi — le test le vérifie ainsi.
+
+**Le navigateur reçoit un rôle mis en forme, jamais son code.** La session
+transporte « SUPERVISEUR » : un code de comparaison, qui n'a rien à faire dans
+le HTML. La barre de navigation reçoit donc le libellé déjà calculé et un
+booléen `estAdministrateur` décidé côté serveur. Un composant client qui
+comparerait lui-même un code de rôle ressemblerait à un contrôle d'accès sans en
+être un ; ici, il ne décide que ce qui s'affiche. C'est une vérification de la
+phase 2 qui l'a rappelé : elle refuse depuis toujours que le code brut
+apparaisse dans le HTML servi, et elle a repris en défaut la première version de
+ce câblage.
+
+**L'entrée « Journal d'audit » n'apparaît qu'à qui peut l'ouvrir.** La proposer
+aux deux autres comptes les mènerait à une redirection — un lien qui punit celui
+qui le suit.
+
+**Au passage : la barre affiche enfin l'identité connectée.** Son pied de page
+annonçait « Admin Diallo · Administrateur » à tout le monde ; un analyste s'y
+voyait administrateur. Sur une console qui tient désormais une piste d'audit,
+afficher une identité qui n'est pas la sienne n'est plus seulement inexact —
+c'est là que l'utilisateur lit sous quel nom ses actions vont être inscrites.
+
+**L'identité n'est chargée que là où elle est engagée.** Lire la session revient
+à lire les cookies de la requête, ce qui rend la page dynamique. La poser dans
+le layout racine aurait été plus simple et aurait fait basculer les huit écrans
+pré-rendus, dont quatre n'écrivent rien. Un composant discret la porte donc sur
+les seuls écrans qui écrivent : trois routes changent de régime — celles qui
+enregistrent désormais qui les a modifiées — et cinq restent statiques.

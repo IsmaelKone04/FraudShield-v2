@@ -190,7 +190,13 @@ export function ParametresClient({ data }: { data: ParametresData }) {
     setEnCours(true)
     try {
       // Seuls les réglages qui s'écartent du serveur sont conservés (ADR-006).
-      await enregistrer(ecartParametres(data.parametresSysteme, brouillon))
+      // Les valeurs effectives d'avant et d'après accompagnent l'écart : c'est
+      // d'elles que le journal tire « de 75 à 60 », l'écart seul ne le dirait pas.
+      await enregistrer(
+        ecartParametres(data.parametresSysteme, brouillon),
+        enregistres,
+        brouillon
+      )
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
       toast.success("Paramètres enregistrés", {

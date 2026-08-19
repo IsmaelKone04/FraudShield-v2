@@ -15,7 +15,8 @@ import {
 } from "@/lib/api/mutations"
 import type { StatutAlerte } from "@/lib/schemas/commun"
 import type { StatutInvestigation } from "@/lib/schemas/investigations.schema"
-import { DECISIONS } from "@/lib/decisions"
+import type { ParametresSysteme } from "@/lib/schemas/parametres.schema"
+import { CAUSES, DECISIONS } from "@/lib/decisions"
 import {
   etatPersisteSchema,
   VERSION_STOCKAGE,
@@ -23,6 +24,8 @@ import {
   type EtatPersiste,
   type Note,
 } from "@/lib/schemas/modifications.schema"
+import { journaliser, type Trace } from "./journal.store"
+import { nomDuCompte } from "@/lib/utilisateurs"
 
 /**
  * État mutable de la console : ce que l'utilisateur a changé depuis le chargement.
@@ -35,6 +38,29 @@ import {
 const CLE_STOCKAGE = "fraudshield.modifications"
 
 const maintenant = () => new Date().toISOString()
+
+/**
+ * Le journal enregistre les états **tels qu'ils s'affichaient**, et non les
+ * valeurs internes : « Sow Analyst » plutôt qu'une adresse, « activé » plutôt
+ * que `true`, « Classée sans suite — Seuil trop bas » plutôt qu'un couple de
+ * codes. Un contrôleur relit le journal des mois après, sans la console sous
+ * les yeux ; il doit y retrouver ce que l'analyste avait devant lui.
+ *
+ * Conséquence assumée : le journal se lit, il ne se recalcule pas. Reconstituer
+ * un état à partir de la piste demanderait des valeurs typées — ce n'est pas ce
+ * qu'on lui demande.
+ */
+const libelleAssignation = (email: string | null): string =>
+  email ? nomDuCompte(email) : "Non assignée"
+
+const libelleReglage = (valeur: unknown): string =>
+  typeof valeur === "boolean" ? (valeur ? "activé" : "désactivé") : String(valeur)
+
+/** L'intitulé de la décision, suivi de sa cause quand elle en porte une. */
+const libelleDecision = (decision: Pick<Decision, "type" | "cause">): string =>
+  decision.cause
+    ? `${DECISIONS[decision.type].resume} — ${CAUSES[decision.cause].libelle}`
+    : DECISIONS[decision.type].resume
 
 /**
  * Stockage neutre pendant le rendu serveur : il n'y a pas de navigateur à
@@ -97,9 +123,28 @@ export function defaireDecisionsNonQualifiees(contenu: unknown): unknown {
   return { ...etat, alertes: Object.fromEntries(reprises) }
 }
 
+/**
+ * Chaque action reçoit l'état **antérieur** de ce qu'elle modifie.
+ *
+ * Le store ne connaît que les écarts, jamais le jeu du serveur (ADR-004) : sur
+ * une alerte encore intacte, il ne sait pas quel statut elle porte. Deviner
+ * produirait un journal qui annonce « de — à Résolu », c'est-à-dire la moitié de
+ * l'information qu'on lui demande. L'écran, lui, affiche la valeur courante :
+ * c'est donc lui qui la transmet. Le paramètre est requis, pour qu'un point
+ * d'appel ajouté demain ne puisse pas l'omettre — la décision d'alerte le fait
+ * déjà depuis la phase 3 avec `statutAnterieur`.
+ */
 type Actions = {
-  changerStatutAlerte: (id: string, statut: StatutAlerte) => Promise<void>
-  assignerAlerte: (id: string, analyste: string | null) => Promise<void>
+  changerStatutAlerte: (
+    id: string,
+    statut: StatutAlerte,
+    anterieur: StatutAlerte
+  ) => Promise<void>
+  assignerAlerte: (
+    id: string,
+    analyste: string | null,
+    anterieur: string | null
+  ) => Promise<void>
   /**
    * Enregistre la conclusion de l'analyste et le statut qui en découle.
    *
@@ -119,14 +164,29 @@ type Actions = {
   supprimerNote: (id: string, noteId: string) => Promise<void>
   changerStatutInvestigation: (
     id: string,
-    statut: StatutInvestigation
+    statut: StatutInvestigation,
+    anterieur: StatutInvestigation
   ) => Promise<void>
-  assignerInvestigation: (id: string, analyste: string) => Promise<void>
+  assignerInvestigation: (
+    id: string,
+    analyste: string,
+    anterieur: string | null
+  ) => Promise<void>
   /**
    * Enregistre les réglages qui s'écartent de ceux du serveur. Un écart vide
    * efface l'entrée : revenir aux valeurs d'origine ne laisse pas de trace.
+   *
+   * `avant` et `apres` portent les valeurs **effectives**, celles que le
+   * formulaire montrait avant et après. L'écart seul ne suffirait pas au
+   * journal : un réglage ramené à la valeur du serveur en *sort*, si bien que
+   * la modification la plus intéressante — celle qui défait — n'y figurerait
+   * pas.
    */
-  enregistrerParametres: (ecart: PatchParametres) => Promise<void>
+  enregistrerParametres: (
+    ecart: PatchParametres,
+    avant: ParametresSysteme,
+    apres: ParametresSysteme
+  ) => Promise<void>
   /** Rend aux réglages leurs valeurs d'origine. */
   reinitialiserParametres: () => void
   /**
@@ -150,18 +210,28 @@ export const useModificationsStore = create<StoreModifications>()(
   persist(
     (set, get) => {
       /**
-       * Applique la modification tout de suite, l'envoie, et revient à l'état
-       * antérieur si l'envoi échoue.
+       * Applique la modification tout de suite, l'envoie, la journalise, et
+       * revient à l'état antérieur si l'envoi échoue.
        *
        * L'affichage réagit donc au clic sans attendre le réseau, mais ne ment
        * jamais : un refus de l'API annule le changement à l'écran et l'erreur
        * remonte à l'appelant, qui l'affiche.
+       *
+       * `trace` n'est pas optionnel, et c'est le point : toute écriture d'alerte
+       * ou de dossier passe par ici, donc aucune ne peut échapper au journal. Un
+       * appel qui oublierait de décrire son action ne compile pas.
+       *
+       * L'entrée est écrite **après** l'envoi, jamais avant : le journal
+       * consigne ce qui a eu lieu, pas ce qui a été tenté. Une modification
+       * refusée par le service est défaite à l'écran — la journaliser laisserait
+       * croire à un changement dont il ne reste rien.
        */
       async function appliquer<C extends "alertes" | "investigations">(
         collection: C,
         id: string,
         patch: C extends "alertes" ? PatchAlerte : PatchInvestigation,
-        envoi: () => Promise<void>
+        envoi: () => Promise<void>,
+        trace: Trace
       ): Promise<void> {
         const avant = get()[collection][id]
 
@@ -183,26 +253,60 @@ export const useModificationsStore = create<StoreModifications>()(
           })
           throw erreur
         }
+
+        journaliser(trace)
       }
 
       return {
         ...ETAT_INITIAL,
 
-        changerStatutAlerte: (id, statut) =>
-          appliquer("alertes", id, { statut }, () =>
-            envoyerModificationAlerte(id, { statut })
+        changerStatutAlerte: (id, statut, anterieur) =>
+          appliquer(
+            "alertes",
+            id,
+            { statut },
+            () => envoyerModificationAlerte(id, { statut }),
+            {
+              action: "statut_alerte",
+              cible: id,
+              avant: anterieur,
+              apres: statut,
+              motif: null,
+            }
           ),
 
-        assignerAlerte: (id, analyste) =>
-          appliquer("alertes", id, { assigneA: analyste }, () =>
-            envoyerModificationAlerte(id, { assigneA: analyste })
+        assignerAlerte: (id, analyste, anterieur) =>
+          appliquer(
+            "alertes",
+            id,
+            { assigneA: analyste },
+            () => envoyerModificationAlerte(id, { assigneA: analyste }),
+            {
+              action: "assignation_alerte",
+              cible: id,
+              avant: libelleAssignation(anterieur),
+              apres: libelleAssignation(analyste),
+              motif: null,
+            }
           ),
 
         deciderAlerte: (id, decision) => {
           const complete: Decision = { ...decision, horodatage: maintenant() }
           const statut = DECISIONS[decision.type].statut
-          return appliquer("alertes", id, { decision: complete, statut }, () =>
-            envoyerModificationAlerte(id, { decision: complete, statut })
+          return appliquer(
+            "alertes",
+            id,
+            { decision: complete, statut },
+            () => envoyerModificationAlerte(id, { decision: complete, statut }),
+            {
+              action: "decision",
+              cible: id,
+              // Le dossier n'était pas décidé : l'avant est son statut, seul
+              // état que la décision remplace.
+              avant: decision.statutAnterieur,
+              apres: libelleDecision(decision),
+              motif: decision.motif,
+            }
           )
         },
 
@@ -216,8 +320,24 @@ export const useModificationsStore = create<StoreModifications>()(
             decision: undefined,
             statut: decision.statutAnterieur,
           }
-          return appliquer("alertes", id, patch, () =>
-            envoyerModificationAlerte(id, patch)
+          return appliquer(
+            "alertes",
+            id,
+            patch,
+            () => envoyerModificationAlerte(id, patch),
+            {
+              /*
+                L'entrée qui justifie à elle seule un journal séparé : la
+                décision disparaît du dossier, et sans cette ligne plus rien
+                n'attesterait qu'elle a existé. On y reporte donc son motif —
+                celui de la décision défaite, seule chose qui reste à en dire.
+              */
+              action: "annulation_decision",
+              cible: id,
+              avant: libelleDecision(decision),
+              apres: decision.statutAnterieur,
+              motif: decision.motif,
+            }
           )
         },
 
@@ -226,36 +346,78 @@ export const useModificationsStore = create<StoreModifications>()(
             ...(get().alertes[id]?.notes ?? []),
             { ...note, id: crypto.randomUUID(), horodatage: maintenant() },
           ]
-          return appliquer("alertes", id, { notes }, () =>
-            envoyerModificationAlerte(id, { notes })
+          return appliquer(
+            "alertes",
+            id,
+            { notes },
+            () => envoyerModificationAlerte(id, { notes }),
+            {
+              action: "note_ajoutee",
+              cible: id,
+              avant: null,
+              apres: note.texte,
+              motif: null,
+            }
           )
         },
 
         supprimerNote: (id, noteId) => {
-          const notes = (get().alertes[id]?.notes ?? []).filter(
-            (note) => note.id !== noteId
-          )
-          return appliquer("alertes", id, { notes }, () =>
-            envoyerModificationAlerte(id, { notes })
+          const existantes = get().alertes[id]?.notes ?? []
+          const supprimee = existantes.find((note) => note.id === noteId)
+          const notes = existantes.filter((note) => note.id !== noteId)
+          return appliquer(
+            "alertes",
+            id,
+            { notes },
+            () => envoyerModificationAlerte(id, { notes }),
+            {
+              action: "note_supprimee",
+              cible: id,
+              // Le texte est relevé avant la suppression : après, il n'existe
+              // plus nulle part ailleurs que dans cette entrée.
+              avant: supprimee?.texte ?? null,
+              apres: null,
+              motif: null,
+            }
           )
         },
 
-        changerStatutInvestigation: (id, statut) =>
-          appliquer("investigations", id, { statut }, () =>
-            envoyerModificationInvestigation(id, { statut })
+        changerStatutInvestigation: (id, statut, anterieur) =>
+          appliquer(
+            "investigations",
+            id,
+            { statut },
+            () => envoyerModificationInvestigation(id, { statut }),
+            {
+              action: "statut_investigation",
+              cible: id,
+              avant: anterieur,
+              apres: statut,
+              motif: null,
+            }
           ),
 
-        assignerInvestigation: (id, analyste) =>
-          appliquer("investigations", id, { assigne: analyste }, () =>
-            envoyerModificationInvestigation(id, { assigne: analyste })
+        assignerInvestigation: (id, analyste, anterieur) =>
+          appliquer(
+            "investigations",
+            id,
+            { assigne: analyste },
+            () => envoyerModificationInvestigation(id, { assigne: analyste }),
+            {
+              action: "assignation_investigation",
+              cible: id,
+              avant: libelleAssignation(anterieur),
+              apres: libelleAssignation(analyste),
+              motif: null,
+            }
           ),
 
         /**
          * Même contrat optimiste que les alertes, sans la mécanique par
          * identifiant : les réglages sont uniques pour la console.
          */
-        enregistrerParametres: async (ecart) => {
-          const avant = get().parametres
+        enregistrerParametres: async (ecart, avant, apres) => {
+          const precedent = get().parametres
 
           set({
             parametres:
@@ -267,15 +429,60 @@ export const useModificationsStore = create<StoreModifications>()(
           try {
             await envoyerModificationParametres(ecart)
           } catch (erreur) {
-            set({ parametres: avant })
+            set({ parametres: precedent })
             throw erreur
+          }
+
+          /*
+            Une entrée par réglage effectivement déplacé, et non une pour
+            l'enregistrement. « Qui a baissé le seuil de déclenchement, et de
+            combien » est la question que pose un contrôleur ; une ligne
+            « paramètres modifiés » ne lui répondrait pas.
+          */
+          for (const cle of Object.keys(apres) as (keyof ParametresSysteme)[]) {
+            if (avant[cle] === apres[cle]) continue
+            journaliser({
+              action: "parametre_modifie",
+              cible: cle,
+              avant: libelleReglage(avant[cle]),
+              apres: libelleReglage(apres[cle]),
+              motif: null,
+            })
           }
         },
 
-        reinitialiserParametres: () => set({ parametres: null }),
+        reinitialiserParametres: () => {
+          if (get().parametres === null) return
+          set({ parametres: null })
+          journaliser({
+            action: "parametres_reinitialises",
+            cible: null,
+            avant: null,
+            apres: null,
+            motif: null,
+          })
+        },
 
-        reinitialiser: () =>
-          set({ alertes: {}, investigations: {} }),
+        reinitialiser: () => {
+          const { alertes, investigations } = get()
+          const nombre =
+            Object.keys(alertes).length + Object.keys(investigations).length
+          if (nombre === 0) return
+
+          set({ alertes: {}, investigations: {} })
+          /*
+            La remise à zéro est elle-même journalisée, et le journal n'en fait
+            pas partie : un bouton qui effacerait la trace de ce qu'il efface
+            annulerait la piste d'audit d'un clic.
+          */
+          journaliser({
+            action: "modifications_reinitialisees",
+            cible: null,
+            avant: `${nombre} élément(s) modifié(s)`,
+            apres: null,
+            motif: null,
+          })
+        },
       }
     },
     {

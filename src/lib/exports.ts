@@ -4,6 +4,9 @@ import {
   telechargerCSV,
   type Colonne,
 } from "./csv"
+import { formaterDate, formaterHeure } from "./formats"
+import { ACTIONS, libelleAction } from "./journal"
+import type { EntreeJournal } from "./schemas/journal.schema"
 import type {
   AlerteAvecModifications,
   InvestigationAvecModifications,
@@ -59,6 +62,32 @@ const COLONNES_INVESTIGATIONS: Colonne<InvestigationAvecModifications>[] = [
   colonneModification<InvestigationAvecModifications>(),
 ]
 
+/**
+ * Le journal d'audit, tel qu'un contrôle externe le demande.
+ *
+ * Date et heure en deux colonnes : « 20/05/2026 à 06:12 » est du texte pour un
+ * tableur, là où une colonne de dates se trie. L'ordre des colonnes suit la
+ * question qu'on pose au journal — quand, qui, quoi, sur quoi, de quel état à
+ * quel état, et pourquoi.
+ */
+const COLONNES_JOURNAL: Colonne<EntreeJournal>[] = [
+  { entete: "Date", valeur: (e) => formaterDate(e.horodatage) },
+  { entete: "Heure", valeur: (e) => formaterHeure(e.horodatage) },
+  { entete: "Acteur", valeur: (e) => e.acteur },
+  { entete: "Action", valeur: (e) => libelleAction(e.action) },
+  { entete: "Portée", valeur: (e) => ACTIONS[e.action].portee },
+  { entete: "Cible", valeur: (e) => e.cible },
+  { entete: "Avant", valeur: (e) => e.avant },
+  { entete: "Après", valeur: (e) => e.apres },
+  { entete: "Motif", valeur: (e) => e.motif },
+  // Sans cette colonne, un contrôleur ne pourrait pas distinguer les entrées
+  // dont l'effet ne se lit plus nulle part ailleurs.
+  {
+    entete: "Effacement",
+    valeur: (e) => (ACTIONS[e.action].effacement ? "oui" : "non"),
+  },
+]
+
 /** Télécharge les alertes fournies et renvoie le nom du fichier produit. */
 export function exporterAlertes(alertes: AlerteAvecModifications[]): string {
   const nomFichier = nomFichierDate("alertes")
@@ -78,8 +107,16 @@ export function exporterInvestigations(
   return nomFichier
 }
 
-/** Exposées pour les tests : les écrans passent par les deux fonctions ci-dessus. */
+/** Télécharge le journal d'audit et renvoie le nom du fichier produit. */
+export function exporterJournal(entrees: EntreeJournal[]): string {
+  const nomFichier = nomFichierDate("journal-audit")
+  telechargerCSV(nomFichier, construireCSV(entrees, COLONNES_JOURNAL))
+  return nomFichier
+}
+
+/** Exposées pour les tests : les écrans passent par les fonctions ci-dessus. */
 export const COLONNES = {
   alertes: COLONNES_ALERTES,
   investigations: COLONNES_INVESTIGATIONS,
+  journal: COLONNES_JOURNAL,
 }

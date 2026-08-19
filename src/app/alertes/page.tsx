@@ -1,4 +1,5 @@
 import { auth } from "@/auth"
+import { ActeurJournal } from "@/components/acteur-journal"
 import { alertesService, dashboardService, parametresService } from "@/lib/services"
 import { AlertesClient } from "./alertes-client"
 
@@ -20,16 +21,19 @@ export default async function AlertesPage() {
   ])
 
   return (
-    <AlertesClient
-      alertes={alertes}
-      stats={stats}
-      alertesTrend={alertesTrend}
-      // Valeur de référence du seuil : un réglage enregistré dans le navigateur
-      // la recouvre côté client.
-      seuilParDefaut={parametres.seuilAlerteIA}
-      // Sert au filtre « Mes dossiers ». La session est lue ici plutôt que côté
-      // client : cela évite de monter un `SessionProvider` pour une seule adresse.
-      utilisateur={session?.user?.email ?? null}
-    />
+    <>
+      <ActeurJournal email={session?.user?.email ?? null} />
+      <AlertesClient
+        alertes={alertes}
+        stats={stats}
+        alertesTrend={alertesTrend}
+        // Valeur de référence du seuil : un réglage enregistré dans le navigateur
+        // la recouvre côté client.
+        seuilParDefaut={parametres.seuilAlerteIA}
+        // Sert au filtre « Mes dossiers ». La session est lue ici plutôt que côté
+        // client : cela évite de monter un `SessionProvider` pour une seule adresse.
+        utilisateur={session?.user?.email ?? null}
+      />
+    </>
   )
 }
