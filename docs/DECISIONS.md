@@ -1311,3 +1311,66 @@ besoin. Le graphique du tableau de bord, qui forçait sa période depuis un effe
 déduit maintenant son défaut au rendu — et distingue « personne n'a choisi » de
 « on a choisi la période courte ». Les deux dernières erreurs de `npm run lint`
 disparaissent avec eux.
+
+---
+
+## ADR-032 — Les tests rentrent dans le dépôt
+
+**Statut** : accepté · **Portée** : `vitest.config.mts`, `src/**/*.test.ts(x)`,
+`npm test`
+
+**Constat.** Le projet n'était pas dépourvu de tests : il en comptait près de
+deux mille sept cents lignes, réparties en onze suites. Aucune ne vivait dans le
+dépôt. Elles exigeaient une compilation TypeScript préalable vers un dossier
+temporaire, puis un crochet posé sur `Module._resolveFilename` pour que `@/`
+désigne cette compilation-là. Autrement dit : personne d'autre que leur auteur
+ne pouvait les lancer, et rien ne les lançait au moment de valider une
+modification. Une suite qu'on ne peut pas exécuter n'est pas un filet, c'est une
+archive.
+
+**Décision.** Vitest, avec Testing Library pour ce qui monte un composant.
+`npm test` suffit. Le choix n'a rien d'audacieux — c'est le lanceur que Vite
+sert nativement, et le projet est bâti sur Next : la résolution de `@/`, le
+TypeScript et le JSX marchent sans transpilation à écrire.
+
+**L'environnement est déclaré par fichier, pas globalement.** La très grande
+majorité des suites porte sur des fonctions pures, qui n'ont que faire d'un DOM ;
+monter `jsdom` pour toutes coûterait une seconde à chaque exécution sans rien
+apporter. Les fichiers qui rendent un composant ouvrent par
+`// @vitest-environment jsdom`, et eux seuls.
+
+**Ce que ces tests éprouvent.** Pas la mise en page. Ce qui est vérifié est ce
+qui distingue cette console d'un tableau de bord : que la décomposition d'un
+score **referme** ce score, qu'une explication reste identique d'une exécution à
+l'autre — condition pour figurer dans une pièce de dossier —, qu'un dossier
+refermé sans conclusion ne compte ni comme réussite ni comme échec du modèle,
+qu'un classement sans suite non qualifié soit refusé, et que le simulateur ne
+mélange jamais ce qui a été mesuré avec ce qui est estimé.
+
+**Un schéma qui n'a jamais rien rejeté n'est pas un contrat**, c'est un type
+écrit deux fois. La suite du contrat porte donc d'abord sur les refus : un score
+hors bornes, un statut inventé, une date à la française, une cause de faux
+positif sur une fraude confirmée. Et sur ce que le contrat laisse
+délibérément ouvert — un type de fraude inconnu passe, parce qu'un service de
+détection qui en introduit un nouveau ne doit pas faire échouer la validation du
+jeu entier.
+
+**Les contrôles du service sont prouvés en les provoquant.** Un contrôle qu'on
+n'a jamais vu échouer n'est pas un contrôle : c'est un bloc de code qu'on croit
+exécuté. Le jeu de données est donc abîmé en mémoire — un acte majoré d'un
+franc, un facteur alourdi d'un point — et le refus vérifié, message compris.
+Rien n'est touché sur le disque : `vi.doMock` remplace le module JSON avant que
+le service ne l'importe.
+
+**Une conséquence à connaître.** `vi.resetModules()` reconstruit toute la chaîne
+d'imports, `ApiError` compris : la classe levée par le service rechargé n'est
+plus celle importée en tête du fichier de test, et `toThrow(ApiError)` échoue
+sur une erreur pourtant correcte. Les refus provoqués se vérifient donc sur le
+message — ce qui est de toute façon ce qu'on veut éprouver, une erreur
+d'intégration qui ne nomme pas le fautif ne faisant que déplacer l'enquête.
+
+**Ce qui reste dehors.** La piste d'audit et les stores Zustand ont encore leurs
+suites hors dépôt ; elles suivront. Le parcours complet — se connecter, ouvrir
+une alerte, trancher — demande un navigateur, et relève de Playwright : un test
+de composant peut prouver qu'un bouton appelle la bonne fonction, pas qu'une
+session s'ouvre et qu'une décision survit à un rechargement.

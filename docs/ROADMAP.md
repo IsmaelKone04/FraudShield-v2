@@ -523,13 +523,19 @@ projet d'un tableau de bord de plus.
 | **P5-2** | Retirer les `cursor-pointer` restants sur les éléments non cliquables (4 emplacements) et les `animationDelay` sans animation (3 emplacements). | 0,25 | ✅ |
 | **P5-3** | Thème clair/sombre : `next-themes` est installé, aucun `ThemeProvider` n'est monté, `dark` est figé sur `<html>`. Monter le fournisseur et l'interrupteur, ou retirer la dépendance. | 0,5 | ✅ dépendance retirée (ADR-030) |
 | **P5-4** | Parcours clavier complet, contrastes vérifiés sur les badges de risque (rouge sur sombre : à mesurer). | 0,5 | ✅ |
-| **P5-5** | Tests : Vitest + Testing Library sur le service, la validation Zod, le calcul de score et le simulateur. Puis un parcours Playwright login → alerte → décision. | 2 | |
+| **P5-5a** | Tests : Vitest + Testing Library sur le service, la validation Zod, le calcul de score et le simulateur. | 1 | ✅ 180 tests, `npm test` (ADR-032) |
+| **P5-5b** | Le reste des suites hors dépôt (piste d'audit, stores Zustand), puis un parcours Playwright login → alerte → décision. | 1 | |
 | **P5-6** | Responsive : les tableaux sur mobile, la sidebar sur tablette. | 1 | ✅ seuil à 1024 px, planchers de tableaux (ADR-031) |
 | **P5-7** | Durcissement de `src/auth.ts` : `DUMMY_HASH` est actuellement l'empreinte réelle du compte admin. La garde `!user ||` protège aujourd'hui, mais réutiliser une empreinte valide comme leurre est un piège qu'une future refactorisation déclenchera. Générer un leurre dédié. | 0,25 | ✅ |
 | **P5-8** | **Documentation finale** : README complet avec captures, `docs/ARCHITECTURE.md`, `docs/API-CONTRACT.md` (le contrat que la vraie API doit respecter — utile au coéquipier), CHANGELOG v2.0. | 1,5 | |
 
 **Écarts constatés — P5**
 
+- **Les tests existaient, mais personne ne pouvait les lancer.** La carte disait
+  « écrire des tests » ; il y en avait déjà deux mille sept cents lignes, hors
+  dépôt, derrière une compilation temporaire et un crochet sur la résolution des
+  modules. Le travail n'était pas d'en écrire, c'était de les rendre exécutables
+  par quelqu'un d'autre — d'où la scission en P5-5a et P5-5b.
 - **La tablette était traitée comme un écran de bureau.** Le seuil hérité du
   gabarit valait 768 pixels — exactement la largeur d'une tablette en portrait,
   sur laquelle la barre latérale prélevait donc 288 pixels en permanence. La

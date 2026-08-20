@@ -4,6 +4,61 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 5 — Finition · Les tests rentrent dans le dépôt
+
+P5-5, première moitié. Le projet comptait déjà près de deux mille sept cents
+lignes de tests. Aucune ne vivait dans le dépôt, et rien ne les lançait.
+
+### Ajouté — un lanceur
+
+- **`npm test`** ([ADR-032](docs/DECISIONS.md)). Vitest, Testing Library, jsdom.
+  Les suites d'avant exigeaient une compilation TypeScript vers un dossier
+  temporaire, puis un crochet sur `Module._resolveFilename` pour que `@/`
+  désigne cette compilation-là : personne d'autre que leur auteur ne pouvait
+  les exécuter. Une suite qu'on ne peut pas lancer n'est pas un filet, c'est
+  une archive.
+- L'environnement est déclaré **par fichier**. Les fonctions pures n'ont que
+  faire d'un DOM ; seuls les fichiers qui montent un composant ouvrent par
+  `// @vitest-environment jsdom`.
+
+### Ajouté — 180 tests, sur ce qui fait la valeur de la console
+
+| Suite | Tests | Ce qu'elle éprouve |
+|---|---|---|
+| `lib/qualite` | 44 | Un dossier refermé sans conclusion n'est ni une réussite ni un échec du modèle. |
+| `lib/simulation` | 29 | Le rejeu à seuil variable ne mélange jamais le mesuré et l'estimé. |
+| `lib/schemas/contrat` | 27 | Ce que le contrat refuse — et ce qu'il laisse ouvert. |
+| `lib/formats` | 22 | Les mises en forme écrites à la main, caractère par caractère. |
+| `lib/explication` | 18 | La phrase opposable, identique d'une exécution à l'autre. |
+| `lib/services/alertes` | 16 | Le jeu servi, et les deux contrôles croisés du service. |
+| `lib/api/client` | 13 | Le point de passage obligé des données. |
+| `components/decomposition-score` | 11 | Ce qui rend un score contestable. |
+
+### Ce que la mise à l'épreuve a demandé de nommer
+
+- **Un contrôle qu'on n'a jamais vu échouer n'est pas un contrôle.** Les deux
+  contrôles croisés du service des alertes — le total des actes, la
+  décomposition qui referme le score — sont prouvés en les provoquant : le jeu
+  est abîmé en mémoire (un acte majoré d'un franc, un facteur alourdi d'un
+  point) et le refus vérifié, message compris. Rien n'est touché sur le disque.
+- **Un schéma qui n'a jamais rien rejeté est un type écrit deux fois.** La
+  suite du contrat porte d'abord sur les refus : score hors bornes, statut
+  inventé, date à la française, cause de faux positif sur une fraude confirmée.
+  Et sur ce qui reste délibérément ouvert — un type de fraude inconnu passe.
+- `vi.resetModules()` reconstruit `ApiError` avec le reste : la classe levée par
+  un service rechargé n'est plus celle importée en tête du test, et
+  `toThrow(ApiError)` échoue sur une erreur pourtant correcte. Les refus se
+  vérifient donc sur le message.
+
+### Ce qui reste
+
+La piste d'audit et les stores Zustand ont encore leurs suites hors dépôt. Le
+parcours complet — se connecter, ouvrir une alerte, trancher — demande un
+navigateur : un test de composant prouve qu'un bouton appelle la bonne
+fonction, pas qu'une session s'ouvre et qu'une décision survit au rechargement.
+
+---
+
 ## Phase 5 — Finition · L'écran étroit
 
 P5-6. La console était dessinée pour un écran large. Sur une tablette en
