@@ -1374,3 +1374,101 @@ suites hors dépôt ; elles suivront. Le parcours complet — se connecter, ouvr
 une alerte, trancher — demande un navigateur, et relève de Playwright : un test
 de composant peut prouver qu'un bouton appelle la bonne fonction, pas qu'une
 session s'ouvre et qu'une décision survit à un rechargement.
+
+---
+
+## ADR-033 — Un modèle appris, plutôt qu'un score écrit à la main
+
+**Statut** : accepté · **Portée** : `donnees/`, `scripts/modele/`,
+`src/lib/modele/`
+
+**Constat.** La console n'avait pas de modèle. `scoreIA` était un nombre écrit
+dans un fichier de démonstration, et `modele: "gradient boosting, version 4.2"`
+une chaîne de caractères. Ce n'était pas malhonnête — l'architecture a toujours
+supposé un service de détection extérieur, et `USE_MOCK` dit exactement où
+passe la frontière. Mais rien, dans ce dépôt, n'apprenait quoi que ce soit.
+
+**Ce que les deux jeux permettent, et ce qu'ils ne permettent pas.** Deux
+fichiers ont été fournis. `car_insurance_fraud_dataset.csv` porte 30 000
+déclarations et **une étiquette de fraude** — 11,47 % de positifs : on peut y
+apprendre. `Base_de_donnees.csv` porte 108 653 contrats français et **aucune
+étiquette** : `N_SINISTRE` compte les sinistres, il ne les qualifie pas. On ne
+peut pas apprendre un détecteur sur un fichier qui ne dit jamais ce qu'il
+faudrait prédire, et prétendre le contraire aurait été le premier mensonge du
+projet. Ce second jeu décrit en revanche un **portefeuille** — ce qui est normal
+pour un profil donné —, c'est-à-dire la matière des comparatifs que la console
+affiche déjà à côté d'un dossier. Cet usage-là reste à écrire.
+
+**Régression logistique, et ce n'est pas un pis-aller.** Le contrat de la
+console exige qu'une explication *referme* le score : valeur de base plus
+contributions doit redonner exactement le chiffre affiché, et le service refuse
+de servir un dossier où l'égalité ne tombe pas (ADR-007). Une régression
+logistique satisfait cette exigence par construction — le logit **est** une
+somme. Un modèle d'ensemble ne l'aurait satisfaite qu'au travers de valeurs de
+Shapley, c'est-à-dire d'une approximation coûteuse d'une propriété qu'on obtient
+ici gratuitement. L'exigence d'explication désigne le modèle ; elle ne s'en
+accommode pas.
+
+**C'est le logit qui est mis à l'échelle, pas la probabilité.** Le score est sur
+cent, la probabilité entre zéro et un, et le passage de l'un à l'autre est une
+sigmoïde — non linéaire. Une décomposition exprimée en points de probabilité ne
+totaliserait jamais, quel que soit le soin apporté aux arrondis. Le score est
+donc une transformation **affine du logit**, donc monotone de la probabilité :
+l'ordre des dossiers est le même, le seuil du simulateur garde son sens, et la
+probabilité calibrée est publiée à côté du score plutôt que confondue avec lui.
+
+**Les arrondis sont répartis au plus fort reste.** Arrondir chaque contribution
+séparément fait perdre ou gagner jusqu'à un point par facteur : le point
+manquant va donc à celui qui en était le plus près, comme aux élections.
+
+**L'écrêtage se lit au lieu de se deviner.** L'échelle s'arrête à 0 et à 100 ; le
+calcul, non. Un dossier dont tout concorde sort à cent huit points bruts, et ces
+huit points doivent aller quelque part — sans quoi la somme ne retombe pas, et
+le service refuse précisément les dossiers les plus graves. Les répartir sur les
+autres facteurs les fausserait tous. Ils forment donc une ligne à eux, qui dit
+ce qui s'est passé.
+
+**Le modèle a corrigé sa propre illisibilité.** Un premier apprentissage avait
+donné deux coefficients presque opposés — `claim_amount` +0,68 et
+`total_claim_amount` −0,63 — sur deux colonnes corrélées à 0,90. Le modèle avait
+trouvé le signal, mais l'exprimait sous une forme que personne ne pouvait lire.
+Ce signal est leur **différence** : le taux de fraude passe de 7,2 % dans le
+décile où le montant réclamé reste très en dessous de l'expertise à 17,1 % dans
+celui où il l'atteint ou la dépasse. Écrite explicitement, la variable ne change
+rien à la performance — l'aire sous la courbe reste à 0,6935 — et tout à
+l'explication : « le montant réclamé dépasse l'expertise de 1 200 » se conteste,
+deux coefficients qui s'annulent ne se contestent pas.
+
+**Ce que le modèle vaut, dit sans emphase.** Mesuré sur 7 500 déclarations tenues
+à l'écart de l'apprentissage :
+
+| | |
+|---|---|
+| Aire sous la courbe ROC | **0,6935** (0,5 = tirage au sort) |
+| Écart de calibration | **0,60 %** |
+| Au seuil 60 : précision | 24,3 % · rappel 48,0 % |
+| Dossiers à instruire par fraude trouvée | **4,1**, contre 8,7 au hasard |
+
+L'exactitude n'est pas rapportée, et c'est délibéré : à 11 % de fraudes, un
+modèle qui répond « non » à tout affiche 88,5 % d'exactitude sans avoir rien
+appris. Le chiffre serait juste et l'affirmation qu'il porte, mensongère. Ce que
+la mesure dit vraiment est plus modeste et plus utile : **la cellule instruit
+deux fois moins de dossiers pour trouver la même fraude**. La calibration
+importe autant que le classement — une aire sous la courbe excellente avec une
+calibration fausse donne un ordre juste et des chiffres inutilisables, or c'est
+le chiffre qui s'affiche à côté du dossier.
+
+**Ce que ce modèle ne fait pas.** Ces déclarations sont **automobiles** ; la
+console instruit des dossiers d'**assurance maladie** — actes, praticiens,
+nomenclature, francs CFA. Le modèle ne sait donc pas noter les alertes du jeu de
+démonstration, et rien dans le code ne prétend le contraire. C'est un second
+domaine, pas un remplacement du premier. Les faire communiquer demanderait soit
+des déclarations santé étiquetées, soit un ré-apprentissage sur le jeu de la
+console — qui n'a pas d'étiquette de fraude non plus.
+
+**Reproductibilité.** Le découpage est stratifié et la graine fixée : deux
+exécutions donnent les mêmes chiffres, sans quoi on ne saurait plus si une
+variation vient d'une modification ou du tirage. Le plan d'encodage — modalités,
+moyennes, écarts-types — est établi sur les seules lignes d'apprentissage : les
+établir sur le jeu entier ferait entrer dans le modèle une information tirée des
+lignes de contrôle, et les mesures qui suivraient seraient flatteuses et fausses.

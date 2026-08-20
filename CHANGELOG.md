@@ -4,6 +4,83 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 6 — Un modèle qui apprend · P6-1
+
+Jusqu'ici, `scoreIA` était un nombre écrit dans un fichier de démonstration et
+`modele: "gradient boosting, version 4.2"` une chaîne de caractères. Rien, dans
+ce dépôt, n'apprenait quoi que ce soit. Deux jeux de déclarations automobiles
+ont été fournis ; l'un d'eux permet d'y remédier.
+
+### Ajouté — l'apprentissage
+
+- **`npm run modele:entrainer`** ([ADR-033](docs/DECISIONS.md)). Lit le CSV,
+  apprend, mesure sur des lignes tenues à l'écart, écrit un artefact de 13 ko
+  que la console charge. Écrit en JavaScript, sans dépendance : aucune
+  bibliothèque d'apprentissage n'est ajoutée au projet.
+- **Régression logistique pénalisée**, et ce n'est pas faute de mieux. Le
+  contrat exige qu'une explication *referme* le score ; le logit **est** une
+  somme. Un modèle d'ensemble n'y serait parvenu qu'au travers de valeurs de
+  Shapley — une approximation coûteuse d'une propriété obtenue ici gratuitement.
+- **`src/lib/modele/scorer.ts`** applique le modèle et surtout **traduit**. Un
+  coefficient de +1,076 sur `authorities_contacted=None` ne se conteste pas ;
+  « aucune autorité n'a été contactée au moment du sinistre » se conteste.
+
+### Ce que le modèle vaut
+
+Mesuré sur 7 500 déclarations que l'apprentissage n'a jamais vues :
+
+| | |
+|---|---|
+| Aire sous la courbe ROC | **0,6935** (0,5 = tirage au sort) |
+| Écart de calibration | **0,60 %** |
+| Au seuil 60 | précision 24,3 % · rappel 48,0 % |
+| Dossiers instruits par fraude trouvée | **4,1**, contre 8,7 au hasard |
+
+L'exactitude n'est pas rapportée : à 11,47 % de fraudes, répondre « non » à tout
+donne 88,5 % d'exactitude sans avoir rien appris. Ce que la mesure dit vraiment
+est plus modeste et plus utile — **la cellule instruit deux fois moins de
+dossiers pour trouver la même fraude**.
+
+### Ce que la mise à l'épreuve a mis au jour
+
+- **Le modèle avait trouvé un signal qu'il exprimait de façon illisible.** Deux
+  coefficients presque opposés sur `claim_amount` (+0,68) et
+  `total_claim_amount` (−0,63), deux colonnes corrélées à 0,90 : le signal était
+  leur **différence**. Le taux de fraude passe de 7,2 % dans le décile où le
+  montant réclamé reste loin sous l'expertise à 17,1 % dans celui où il
+  l'atteint. Écrite explicitement, la variable ne change rien à la performance et
+  tout à l'explication.
+- **L'écrêtage de l'échelle cassait l'égalité.** Un dossier dont tout concorde
+  sort à cent huit points bruts ; les huit points en trop doivent aller quelque
+  part, sans quoi ce sont les dossiers les plus graves que le service refuse.
+  Ils forment désormais une ligne à eux, qui dit ce qui s'est passé.
+
+### Ce que les jeux permettent, et ce qu'ils ne permettent pas
+
+- `car_insurance_fraud_dataset.csv` porte une **étiquette de fraude** : on y
+  apprend. Versionné, malgré ses 4,6 Mo — sans lui, les chiffres publiés ne
+  seraient plus vérifiables.
+- `Base_de_donnees.csv` (108 653 contrats français) n'en porte **aucune** :
+  `N_SINISTRE` compte les sinistres, il ne les qualifie pas. On ne peut pas
+  apprendre un détecteur sur un fichier qui ne dit jamais ce qu'il faudrait
+  prédire. Il décrit en revanche un **portefeuille** — ce qui est normal pour un
+  profil donné —, soit la matière des comparatifs de la console. Cet usage reste
+  à écrire (P6-2).
+- Ces déclarations sont **automobiles**. La console instruit des dossiers
+  d'**assurance maladie**. Le modèle ne sait donc pas noter les alertes du jeu de
+  démonstration, et rien dans le code ne le prétend : c'est un second domaine,
+  pas un remplacement du premier.
+
+### Ajouté — vérification
+
+- **20 tests** sur le modèle, dont l'égalité qui referme le score vérifiée sur
+  **2 000 déclarations réelles** — le cas isolé prouve peu, les arrondis ne se
+  trahissent qu'en nombre. Et sur les extrêmes, là où l'échelle sature.
+- La décomposition produite passe le même schéma Zod que les dossiers du jeu de
+  démonstration : elle pourra être servie aux écrans existants sans les toucher.
+
+---
+
 ## Phase 5 — Finition · Les tests rentrent dans le dépôt
 
 P5-5, première moitié. Le projet comptait déjà près de deux mille sept cents

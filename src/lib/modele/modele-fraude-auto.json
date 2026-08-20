@@ -1,0 +1,545 @@
+{
+  "version": 1,
+  "entraineLe": "2026-08-20T09:41:59.302Z",
+  "source": {
+    "fichier": "car_insurance_fraud_dataset.csv",
+    "lignes": 30000,
+    "apprentissage": 22500,
+    "controle": 7500,
+    "tauxDeBase": 0.11466666666666667
+  },
+  "algorithme": "régression logistique pénalisée (L2), descente de gradient",
+  "echelle": {
+    "pente": 27.408923136586388,
+    "origine": 106.83451941178626
+  },
+  "biais": -2.4830343215433666,
+  "variables": [
+    {
+      "nom": "policy_deductible",
+      "coefficient": 0.017772731510256247
+    },
+    {
+      "nom": "policy_annual_premium",
+      "coefficient": -0.007350293329467948
+    },
+    {
+      "nom": "insured_age",
+      "coefficient": -0.171911574009371
+    },
+    {
+      "nom": "incident_hour_of_the_day",
+      "coefficient": -0.0035727223597826242
+    },
+    {
+      "nom": "number_of_vehicles_involved",
+      "coefficient": -0.03164708487854066
+    },
+    {
+      "nom": "bodily_injuries",
+      "coefficient": 0.02457363296090538
+    },
+    {
+      "nom": "witnesses",
+      "coefficient": -0.2638993707427886
+    },
+    {
+      "nom": "total_claim_amount",
+      "coefficient": 0.08782656773297264
+    },
+    {
+      "nom": "ecart_montant",
+      "coefficient": 0.3211651505400131
+    },
+    {
+      "nom": "policy_state=FL",
+      "coefficient": 0.023719730220548962
+    },
+    {
+      "nom": "policy_state=GA",
+      "coefficient": -0.01720935702670893
+    },
+    {
+      "nom": "policy_state=IL",
+      "coefficient": -0.06446018609337005
+    },
+    {
+      "nom": "policy_state=MI",
+      "coefficient": -0.051506566581607474
+    },
+    {
+      "nom": "policy_state=NC",
+      "coefficient": 0.01628474618356562
+    },
+    {
+      "nom": "policy_state=NY",
+      "coefficient": -0.159836683416312
+    },
+    {
+      "nom": "policy_state=OH",
+      "coefficient": -0.05271270568325722
+    },
+    {
+      "nom": "policy_state=PA",
+      "coefficient": -0.06294212152634594
+    },
+    {
+      "nom": "policy_state=TX",
+      "coefficient": 0.025442187363628396
+    },
+    {
+      "nom": "insured_sex=MALE",
+      "coefficient": 0.07546073699019712
+    },
+    {
+      "nom": "insured_sex=OTHER",
+      "coefficient": 0.02126043352854717
+    },
+    {
+      "nom": "insured_education_level=High School",
+      "coefficient": 0.06373150788348608
+    },
+    {
+      "nom": "insured_education_level=Masters",
+      "coefficient": 0.03779713013237271
+    },
+    {
+      "nom": "insured_education_level=PhD",
+      "coefficient": 0.06619360943620967
+    },
+    {
+      "nom": "insured_occupation=Doctor",
+      "coefficient": -0.25124050538299847
+    },
+    {
+      "nom": "insured_occupation=Engineer",
+      "coefficient": -0.3508368149061817
+    },
+    {
+      "nom": "insured_occupation=Lawyer",
+      "coefficient": -0.17642912037131167
+    },
+    {
+      "nom": "insured_occupation=Manager",
+      "coefficient": -0.1993149377930831
+    },
+    {
+      "nom": "insured_occupation=Sales",
+      "coefficient": 0.0853945375759431
+    },
+    {
+      "nom": "insured_occupation=Teacher",
+      "coefficient": -0.27930457174337453
+    },
+    {
+      "nom": "insured_occupation=Technician",
+      "coefficient": -0.23712221829500094
+    },
+    {
+      "nom": "insured_hobbies=chess",
+      "coefficient": 0.014680474089856002
+    },
+    {
+      "nom": "insured_hobbies=hiking",
+      "coefficient": -0.014488068490104195
+    },
+    {
+      "nom": "insured_hobbies=movies",
+      "coefficient": -0.02993646362584629
+    },
+    {
+      "nom": "insured_hobbies=paintball",
+      "coefficient": 0.03646328218306095
+    },
+    {
+      "nom": "insured_hobbies=reading",
+      "coefficient": -0.07337107639376236
+    },
+    {
+      "nom": "insured_hobbies=yachting",
+      "coefficient": -0.11554055443972468
+    },
+    {
+      "nom": "incident_type=Parked Car",
+      "coefficient": -0.11726264867124123
+    },
+    {
+      "nom": "incident_type=Single Vehicle Collision",
+      "coefficient": 0.0020439219959866067
+    },
+    {
+      "nom": "incident_type=Vehicle Theft",
+      "coefficient": 0.00843936397737908
+    },
+    {
+      "nom": "collision_type=Rear",
+      "coefficient": -0.0018793063292352214
+    },
+    {
+      "nom": "collision_type=Side",
+      "coefficient": -0.01328089288356614
+    },
+    {
+      "nom": "collision_type=Unknown",
+      "coefficient": 0.017194983297599446
+    },
+    {
+      "nom": "incident_severity=Minor Damage",
+      "coefficient": 0.00235622151334044
+    },
+    {
+      "nom": "incident_severity=Total Loss",
+      "coefficient": 0.5740038850055321
+    },
+    {
+      "nom": "authorities_contacted=Fire",
+      "coefficient": -0.042581685308091026
+    },
+    {
+      "nom": "authorities_contacted=None",
+      "coefficient": 1.0762472222772934
+    },
+    {
+      "nom": "authorities_contacted=Police",
+      "coefficient": -0.08905616973985676
+    },
+    {
+      "nom": "incident_state=FL",
+      "coefficient": -0.03118885901579721
+    },
+    {
+      "nom": "incident_state=GA",
+      "coefficient": 0.11648577900008593
+    },
+    {
+      "nom": "incident_state=IL",
+      "coefficient": 0.08379309484941211
+    },
+    {
+      "nom": "incident_state=MI",
+      "coefficient": -0.1183911241702166
+    },
+    {
+      "nom": "incident_state=NC",
+      "coefficient": 0.026532170611684752
+    },
+    {
+      "nom": "incident_state=NY",
+      "coefficient": -0.03144731419145235
+    },
+    {
+      "nom": "incident_state=OH",
+      "coefficient": -0.007834397173653553
+    },
+    {
+      "nom": "incident_state=PA",
+      "coefficient": -0.010553756843350798
+    },
+    {
+      "nom": "incident_state=TX",
+      "coefficient": 0.02742339445478618
+    },
+    {
+      "nom": "police_report_available=Yes",
+      "coefficient": -0.04061106070282381
+    }
+  ],
+  "encodage": {
+    "numeriques": [
+      "policy_deductible",
+      "policy_annual_premium",
+      "insured_age",
+      "incident_hour_of_the_day",
+      "number_of_vehicles_involved",
+      "bodily_injuries",
+      "witnesses",
+      "total_claim_amount",
+      "ecart_montant"
+    ],
+    "categorielles": [
+      "policy_state",
+      "insured_sex",
+      "insured_education_level",
+      "insured_occupation",
+      "insured_hobbies",
+      "incident_type",
+      "collision_type",
+      "incident_severity",
+      "authorities_contacted",
+      "incident_state",
+      "police_report_available"
+    ],
+    "modalites": {
+      "policy_state": {
+        "reference": "CA",
+        "autres": [
+          "FL",
+          "GA",
+          "IL",
+          "MI",
+          "NC",
+          "NY",
+          "OH",
+          "PA",
+          "TX"
+        ]
+      },
+      "insured_sex": {
+        "reference": "FEMALE",
+        "autres": [
+          "MALE",
+          "OTHER"
+        ]
+      },
+      "insured_education_level": {
+        "reference": "College",
+        "autres": [
+          "High School",
+          "Masters",
+          "PhD"
+        ]
+      },
+      "insured_occupation": {
+        "reference": "Clerk",
+        "autres": [
+          "Doctor",
+          "Engineer",
+          "Lawyer",
+          "Manager",
+          "Sales",
+          "Teacher",
+          "Technician"
+        ]
+      },
+      "insured_hobbies": {
+        "reference": "camping",
+        "autres": [
+          "chess",
+          "hiking",
+          "movies",
+          "paintball",
+          "reading",
+          "yachting"
+        ]
+      },
+      "incident_type": {
+        "reference": "Multi-vehicle Collision",
+        "autres": [
+          "Parked Car",
+          "Single Vehicle Collision",
+          "Vehicle Theft"
+        ]
+      },
+      "collision_type": {
+        "reference": "Front",
+        "autres": [
+          "Rear",
+          "Side",
+          "Unknown"
+        ]
+      },
+      "incident_severity": {
+        "reference": "Major Damage",
+        "autres": [
+          "Minor Damage",
+          "Total Loss"
+        ]
+      },
+      "authorities_contacted": {
+        "reference": "Ambulance",
+        "autres": [
+          "Fire",
+          "None",
+          "Police"
+        ]
+      },
+      "incident_state": {
+        "reference": "CA",
+        "autres": [
+          "FL",
+          "GA",
+          "IL",
+          "MI",
+          "NC",
+          "NY",
+          "OH",
+          "PA",
+          "TX"
+        ]
+      },
+      "police_report_available": {
+        "reference": "No",
+        "autres": [
+          "Yes"
+        ]
+      }
+    },
+    "stats": {
+      "policy_deductible": {
+        "moyenne": 563.5511111111111,
+        "ecartType": 250.98900075255244
+      },
+      "policy_annual_premium": {
+        "moyenne": 1052.6768755555531,
+        "ecartType": 260.2210777875831
+      },
+      "insured_age": {
+        "moyenne": 46.455511111111115,
+        "ecartType": 16.681575287486925
+      },
+      "incident_hour_of_the_day": {
+        "moyenne": 11.523644444444445,
+        "ecartType": 6.893773103817227
+      },
+      "number_of_vehicles_involved": {
+        "moyenne": 2.5081333333333333,
+        "ecartType": 1.1186402777976445
+      },
+      "bodily_injuries": {
+        "moyenne": 1.9976444444444443,
+        "ecartType": 1.4132213030371452
+      },
+      "witnesses": {
+        "moyenne": 2.5055111111111112,
+        "ecartType": 1.7115855757776894
+      },
+      "total_claim_amount": {
+        "moyenne": 12759.115513777797,
+        "ecartType": 7031.058181646609
+      },
+      "ecart_montant": {
+        "moyenne": -1926.283300444451,
+        "ecartType": 3124.8937214685498
+      }
+    }
+  },
+  "mesures": {
+    "aireSousROC": 0.6934867960212945,
+    "ecartDeCalibration": 0.005922529161328162,
+    "calibration": [
+      {
+        "borneBasse": 0,
+        "borneHaute": 0.1,
+        "effectif": 4264,
+        "promis": 0.06212976281366543,
+        "constate": 0.05933395872420263
+      },
+      {
+        "borneBasse": 0.1,
+        "borneHaute": 0.2,
+        "effectif": 2254,
+        "promis": 0.1399825477783671,
+        "constate": 0.15084294587400177
+      },
+      {
+        "borneBasse": 0.2,
+        "borneHaute": 0.3,
+        "effectif": 700,
+        "promis": 0.24088202905169578,
+        "constate": 0.24428571428571427
+      },
+      {
+        "borneBasse": 0.3,
+        "borneHaute": 0.4,
+        "effectif": 230,
+        "promis": 0.33948998463728874,
+        "constate": 0.3391304347826087
+      },
+      {
+        "borneBasse": 0.4,
+        "borneHaute": 0.5,
+        "effectif": 46,
+        "promis": 0.4420722456529042,
+        "constate": 0.34782608695652173
+      },
+      {
+        "borneBasse": 0.5,
+        "borneHaute": 0.6,
+        "effectif": 5,
+        "promis": 0.5198249019460676,
+        "constate": 0.4
+      },
+      {
+        "borneBasse": 0.6,
+        "borneHaute": 0.7,
+        "effectif": 1,
+        "promis": 0.6185988247779982,
+        "constate": 0
+      }
+    ],
+    "pointsDeFonctionnement": [
+      {
+        "seuil": 30,
+        "alertes": 5708,
+        "vraisPositifs": 758,
+        "fauxPositifs": 4950,
+        "fauxNegatifs": 102,
+        "vraisNegatifs": 1690,
+        "precision": 0.13279607568325158,
+        "rappel": 0.8813953488372093,
+        "f1": 0.23081607795371498,
+        "dossiersParFraude": 7.530343007915567
+      },
+      {
+        "seuil": 40,
+        "alertes": 4189,
+        "vraisPositifs": 667,
+        "fauxPositifs": 3522,
+        "fauxNegatifs": 193,
+        "vraisNegatifs": 3118,
+        "precision": 0.15922654571496778,
+        "rappel": 0.7755813953488372,
+        "f1": 0.2642107347989701,
+        "dossiersParFraude": 6.280359820089955
+      },
+      {
+        "seuil": 50,
+        "alertes": 2798,
+        "vraisPositifs": 566,
+        "fauxPositifs": 2232,
+        "fauxNegatifs": 294,
+        "vraisNegatifs": 4408,
+        "precision": 0.20228734810578985,
+        "rappel": 0.6581395348837209,
+        "f1": 0.3094587206123565,
+        "dossiersParFraude": 4.943462897526501
+      },
+      {
+        "seuil": 60,
+        "alertes": 1702,
+        "vraisPositifs": 413,
+        "fauxPositifs": 1289,
+        "fauxNegatifs": 447,
+        "vraisNegatifs": 5351,
+        "precision": 0.24265569917743832,
+        "rappel": 0.48023255813953486,
+        "f1": 0.3224043715846994,
+        "dossiersParFraude": 4.121065375302663
+      },
+      {
+        "seuil": 70,
+        "alertes": 915,
+        "vraisPositifs": 250,
+        "fauxPositifs": 665,
+        "fauxNegatifs": 610,
+        "vraisNegatifs": 5975,
+        "precision": 0.273224043715847,
+        "rappel": 0.29069767441860467,
+        "f1": 0.28169014084507044,
+        "dossiersParFraude": 3.66
+      },
+      {
+        "seuil": 80,
+        "alertes": 398,
+        "vraisPositifs": 122,
+        "fauxPositifs": 276,
+        "fauxNegatifs": 738,
+        "vraisNegatifs": 6364,
+        "precision": 0.3065326633165829,
+        "rappel": 0.14186046511627906,
+        "f1": 0.19395866454689983,
+        "dossiersParFraude": 3.262295081967213
+      }
+    ]
+  }
+}

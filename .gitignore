@@ -42,3 +42,9 @@ next-env.d.ts
 # Fichiers d'instructions pour agents, régénérés par `next dev` (Next.js 16)
 /AGENTS.md
 /CLAUDE.md
+
+# jeux de données bruts — voir donnees/LISEZMOI.md
+# Le portefeuille français pèse 17 Mo et ne porte aucune étiquette de fraude :
+# il ne sert pas à l'apprentissage. Le jeu de déclarations, lui, est versionné :
+# sans lui, `npm run modele:entrainer` n'est pas reproductible.
+/donnees/Base_de_donnees.csv

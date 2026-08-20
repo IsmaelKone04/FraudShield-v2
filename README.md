@@ -21,6 +21,16 @@ risque, montants — sont inventés et ne proviennent d'aucun organisme réel.
 
 Le code a toutefois été écrit pour que le branchement à la vraie API soit immédiat.
 
+**Une exception, depuis la phase 6 :** le dépôt contient désormais un modèle
+réellement appris, sur 30 000 déclarations d'assurance **automobile** portant une
+étiquette de fraude (`npm run modele:entrainer`, [ADR-033](docs/DECISIONS.md)).
+Ses performances sont mesurées sur 7 500 déclarations tenues à l'écart — aire
+sous la courbe ROC 0,6935, écart de calibration 0,60 %, 4,1 dossiers à instruire
+par fraude trouvée contre 8,7 au hasard. Ce modèle **ne note pas** les alertes de
+la console : celles-ci relèvent de l'assurance maladie, lui de l'automobile. Les
+deux coexistent sans se mélanger, et les chiffres du jeu de démonstration restent
+fictifs.
+
 ## 🔌 Bascule données fictives → API réelle
 
 **Aucun composant n'importe de données.** Chaque écran est un composant serveur qui
@@ -84,8 +94,9 @@ npm run dev              # http://localhost:3000
 | `npm run build` | build de production |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint 9 (Next 16 a supprimé `next lint`) |
-| `npm test` | Vitest — 180 tests unitaires ([ADR-032](docs/DECISIONS.md)) |
+| `npm test` | Vitest — 200 tests unitaires ([ADR-032](docs/DECISIONS.md)) |
 | `npm run test:watch` | les mêmes, en surveillance |
+| `npm run modele:entrainer` | réapprend le modèle de détection ([ADR-033](docs/DECISIONS.md)) |
 
 ### Comptes de démonstration
 
@@ -487,6 +498,7 @@ les arbitrages. Résumé :
 | **P3** | Détail d'alerte (`/alertes/[id]`) | ✅ terminée |
 | **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · simulateur de seuils ✅ · piste d'audit ✅ · graphe de réseaux ✅ | terminée |
 | **P5** | Accessibilité ✅ · contrastes ✅ · leurre d'authentification ✅ · thème ✅ · responsive ✅ · tests unitaires ✅ · parcours de bout en bout · documentation finale | en cours |
+| **P6** | Un modèle appris sur 30 000 déclarations ✅ · portefeuille de référence · écran de notation | en cours |
 
 La phase 4 porte le parti pris du projet : **mettre l'analyste au centre plutôt que le
 modèle**. Les outils du marché produisent un score et une file d'alertes ; ils

@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "modele:entrainer": "node scripts/modele/entrainer.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

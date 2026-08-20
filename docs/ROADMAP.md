@@ -574,6 +574,35 @@ projet d'un tableau de bord de plus.
 
 ---
 
+### Phase 6 — Un modèle qui apprend · **M6**
+
+Hors plan initial. Deux jeux de déclarations d'assurance automobile ont été
+fournis, dont l'un porte une étiquette de fraude : la console peut cesser
+d'afficher un score écrit à la main.
+
+| # | Tâche | Est. | État |
+|---|---|---|---|
+| **P6-1** | Apprentissage sur les 30 000 déclarations étiquetées : lecture, encodage, découpage stratifié, régression logistique pénalisée, mesure sur un jeu de contrôle. Artefact chargé par la console, application traduite en français. | 2 | ✅ AUC 0,6935 · calibration 0,60 % (ADR-033) |
+| **P6-2** | Le portefeuille français (108 653 contrats) comme **référence de normalité** : alimenter les comparatifs de la console (valeur du dossier, valeur de la cohorte, effectif) à partir de comptages réels plutôt que de valeurs écrites à la main. | 1,5 | |
+| **P6-3** | Un écran de notation : soumettre une déclaration, voir le score, sa décomposition et la probabilité calibrée. Réutilise `DecompositionScore`, déjà écrit et déjà testé. | 1 | |
+| **P6-4** | Publier ce que vaut le modèle **dans la console** — aire sous la courbe, calibration, points de fonctionnement — plutôt que dans un fichier de décisions. Un modèle dont on ne peut pas lire les mesures se présente comme meilleur qu'il n'est. | 0,75 | |
+
+**Écarts constatés — P6**
+
+- **Un des deux jeux ne permet pas d'apprendre.** `Base_de_donnees.csv` ne porte
+  aucune étiquette de fraude : `N_SINISTRE` compte les sinistres, il ne les
+  qualifie pas. Le dire tôt évite de bâtir sur un malentendu — et lui trouve son
+  vrai usage, qui est de décrire ce qui est normal.
+- **Le domaine ne recouvre pas celui de la console.** Ces déclarations sont
+  automobiles, la console instruit de l'assurance maladie. Le modèle est un
+  second domaine, pas un remplacement du premier.
+- **Le premier modèle avait raison et était illisible.** Deux coefficients qui
+  s'annulaient sur deux colonnes corrélées : le signal était leur différence.
+  L'écrire explicitement n'a rien changé à la performance et tout à
+  l'explication.
+
+---
+
 ## 4. Récapitulatif
 
 Unité : la demi-journée de travail effectif.
@@ -586,6 +615,7 @@ Unité : la demi-journée de travail effectif.
 | P3 | Détail d'alerte | 2,75 | 16 | ✅ |
 | P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) · D2 ✅ (3) · D3 ✅ (4,5) · D4 ✅ (2,75) · D5 ✅ (1,5) |
 | P5 | Finition | 7 | 39 | |
+| P6 | Un modèle qui apprend | 5,25 | 44,25 | P6-1 ✅ (2) |
 
 **≈ 39 demi-journées**, soit une vingtaine de jours pleins. Les phases 0 à 3 (16 demi-journées)
 donnent une application saine et démontrable ; la phase 4 est celle qui donne au projet
