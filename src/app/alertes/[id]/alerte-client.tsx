@@ -252,7 +252,7 @@ export function AlerteClient({
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
 
       {/* ── Retour ── */}
       <Link
@@ -568,7 +568,7 @@ export function AlerteClient({
         compte={`${dossier.actes.length} ligne${dossier.actes.length > 1 ? "s" : ""}`}
       >
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full min-w-[720px] border-collapse">
             <thead>
               <tr className="border-b border-border/30">
                 {["Code", "Acte", "Date", "Qté", "Facturé", "Référence", "Écart"].map((h) => (

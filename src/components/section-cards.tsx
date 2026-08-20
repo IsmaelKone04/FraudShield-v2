@@ -31,7 +31,7 @@ export async function SectionCards() {
   const kpis = await dashboardService.getKPIs()
 
   return (
-    <div className="grid grid-cols-2 gap-4 px-4 lg:grid-cols-4 lg:px-6">
+    <div className="grid gap-4 px-4 sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
       {kpis.map((kpi) => {
         const color = colorMap[kpi.id] ?? COULEUR_PAR_DEFAUT
         const isUp  = kpi.trend === "up"

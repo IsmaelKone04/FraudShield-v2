@@ -216,7 +216,7 @@ export function ParametresClient({ data }: { data: ParametresData }) {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
 
       {/* ── En-tête ── */}
       <div className="flex items-start justify-between">
@@ -255,18 +255,24 @@ export function ParametresClient({ data }: { data: ParametresData }) {
         </div>
       )}
 
-      <div className="grid grid-cols-[220px_1fr] gap-6">
+      {/*
+        Le sommaire tient dans une colonne de 220 pixels dès qu'il y a la place
+        pour deux colonnes. En dessous, cette largeur fixe ne laissait au panneau
+        qu'une centaine de pixels et poussait la page hors de l'écran : le
+        sommaire passe alors au-dessus, en une rangée qui défile.
+      */}
+      <div className="grid gap-6 md:grid-cols-[220px_1fr]">
 
-        {/* ── Nav latérale ── */}
-        <div className="flex flex-col gap-1">
+        {/* ── Sommaire des sections ── */}
+        <div className="-mx-4 flex gap-1 overflow-x-auto px-4 md:mx-0 md:flex-col md:overflow-visible md:px-0">
           {sections.map(s => {
             const isActive = activeSection === s.id
             return (
               <button
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
-                            font-medium transition-all text-left
+                className={`flex shrink-0 items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+                            font-medium transition-all text-left whitespace-nowrap
                             ${isActive
                               ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                               : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground"
@@ -484,71 +490,73 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b border-border/30">
-                      {["Utilisateur","Email","Rôle","Dernière connexion","Statut","Action"].map(h => (
-                        <th key={h} scope="col"
-                          className="text-left text-[10px] font-semibold uppercase
-                                     tracking-wider text-muted-foreground-subtle px-4 py-3">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.utilisateurs.map(u => (
-                      <tr key={u.id}
-                        className="border-b border-border/20 hover:bg-white/[0.02] transition-colors">
-                        <td className="px-4 py-3.5">
-                          <div className="flex items-center gap-3">
-                            <div className={`size-8 rounded-full ${u.color} flex items-center
-                                            justify-center text-xs font-bold text-white shrink-0`}>
-                              {u.initiales}
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-foreground">
-                                {u.nom}
-                              </div>
-                              <div className="text-[10px] font-mono text-muted-foreground">
-                                {u.id}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                          {u.email}
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <Badge variant="outline"
-                            className={`text-[10px] font-semibold ${roleCfg[u.role]}`}>
-                            {u.role}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <Clock size={11} />
-                            {u.derniereCo}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <Badge variant="outline"
-                            className={`text-[10px] ${statutUserCfg[u.statut]}`}>
-                            {u.statut}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <Button size="sm" variant="ghost"
-                            disabled
-                            title={SANS_ADMINISTRATION}
-                            className="h-7 text-xs text-muted-foreground hover:text-foreground">
-                            Éditer
-                          </Button>
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[720px] border-collapse">
+                    <thead>
+                      <tr className="border-b border-border/30">
+                        {["Utilisateur","Email","Rôle","Dernière connexion","Statut","Action"].map(h => (
+                          <th key={h} scope="col"
+                            className="text-left text-[10px] font-semibold uppercase
+                                       tracking-wider text-muted-foreground-subtle px-4 py-3">
+                            {h}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {data.utilisateurs.map(u => (
+                        <tr key={u.id}
+                          className="border-b border-border/20 hover:bg-white/[0.02] transition-colors">
+                          <td className="px-4 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <div className={`size-8 rounded-full ${u.color} flex items-center
+                                              justify-center text-xs font-bold text-white shrink-0`}>
+                                {u.initiales}
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {u.nom}
+                                </div>
+                                <div className="text-[10px] font-mono text-muted-foreground">
+                                  {u.id}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3.5 text-xs text-muted-foreground">
+                            {u.email}
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <Badge variant="outline"
+                              className={`text-[10px] font-semibold ${roleCfg[u.role]}`}>
+                              {u.role}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <Clock size={11} />
+                              {u.derniereCo}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <Badge variant="outline"
+                              className={`text-[10px] ${statutUserCfg[u.statut]}`}>
+                              {u.statut}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <Button size="sm" variant="ghost"
+                              disabled
+                              title={SANS_ADMINISTRATION}
+                              className="h-7 text-xs text-muted-foreground hover:text-foreground">
+                              Éditer
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -566,81 +574,83 @@ export function ParametresClient({ data }: { data: ParametresData }) {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b border-border/30">
-                      {["Modèle","Type","Version","Précision","Dossiers traités","Dernier entraînement","Statut"].map(h => (
-                        <th key={h} scope="col"
-                          className="text-left text-[10px] font-semibold uppercase
-                                     tracking-wider text-muted-foreground-subtle px-4 py-3">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.modeles.map(m => {
-                      const statConf = statutModeleCfg[m.statut]
-                      const StatIcon = statConf?.icon
-                      return (
-                        <tr key={m.id}
-                          className="border-b border-border/20 hover:bg-white/[0.02] transition-colors">
-                          <td className="px-4 py-3.5">
-                            <div className="text-sm font-semibold text-foreground">{m.nom}</div>
-                            <div className="text-[10px] font-mono text-muted-foreground">{m.id}</div>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <Badge variant="outline"
-                              className="text-[10px] bg-blue-500/10 text-blue-400 border-blue-500/20">
-                              {m.type}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <span className="font-mono text-xs text-muted-foreground">
-                              {m.version}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <div className="flex items-center gap-2">
-                              <div className="w-16 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                <div
-                                  style={{ width: `${m.precision}%` }}
-                                  className="h-full bg-emerald-500 rounded-full"
-                                />
-                              </div>
-                              <span className="text-xs font-bold text-emerald-400 font-mono">
-                                {m.precision}%
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[720px] border-collapse">
+                    <thead>
+                      <tr className="border-b border-border/30">
+                        {["Modèle","Type","Version","Précision","Dossiers traités","Dernier entraînement","Statut"].map(h => (
+                          <th key={h} scope="col"
+                            className="text-left text-[10px] font-semibold uppercase
+                                       tracking-wider text-muted-foreground-subtle px-4 py-3">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.modeles.map(m => {
+                        const statConf = statutModeleCfg[m.statut]
+                        const StatIcon = statConf?.icon
+                        return (
+                          <tr key={m.id}
+                            className="border-b border-border/20 hover:bg-white/[0.02] transition-colors">
+                            <td className="px-4 py-3.5">
+                              <div className="text-sm font-semibold text-foreground">{m.nom}</div>
+                              <div className="text-[10px] font-mono text-muted-foreground">{m.id}</div>
+                            </td>
+                            <td className="px-4 py-3.5">
+                              <Badge variant="outline"
+                                className="text-[10px] bg-blue-500/10 text-blue-400 border-blue-500/20">
+                                {m.type}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-3.5">
+                              <span className="font-mono text-xs text-muted-foreground">
+                                {m.version}
                               </span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <span className="font-mono text-xs text-foreground">
-                              {m.dossiersTraites.toLocaleString("fr-FR")}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                              <Clock size={11} />
-                              {m.dernierEntrainement}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <Badge variant="outline"
-                              className={`text-[10px] flex items-center gap-1 w-fit ${statConf?.className}`}>
-                              {StatIcon && (
-                                <StatIcon
-                                  size={9}
-                                  className={m.statut === "Entraînement" ? "animate-spin" : ""}
-                                />
-                              )}
-                              {m.statut}
-                            </Badge>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
+                            </td>
+                            <td className="px-4 py-3.5">
+                              <div className="flex items-center gap-2">
+                                <div className="w-16 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                  <div
+                                    style={{ width: `${m.precision}%` }}
+                                    className="h-full bg-emerald-500 rounded-full"
+                                  />
+                                </div>
+                                <span className="text-xs font-bold text-emerald-400 font-mono">
+                                  {m.precision}%
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3.5">
+                              <span className="font-mono text-xs text-foreground">
+                                {m.dossiersTraites.toLocaleString("fr-FR")}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3.5">
+                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Clock size={11} />
+                                {m.dernierEntrainement}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3.5">
+                              <Badge variant="outline"
+                                className={`text-[10px] flex items-center gap-1 w-fit ${statConf?.className}`}>
+                                {StatIcon && (
+                                  <StatIcon
+                                    size={9}
+                                    className={m.statut === "Entraînement" ? "animate-spin" : ""}
+                                  />
+                                )}
+                                {m.statut}
+                              </Badge>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </CardContent>
             </Card>
           )}

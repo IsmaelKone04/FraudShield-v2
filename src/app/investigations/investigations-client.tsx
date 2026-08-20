@@ -143,7 +143,7 @@ export function InvestigationsClient({
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
 
       {/* ── En-tête ── */}
       <div className="flex items-start justify-between">
@@ -185,7 +185,7 @@ export function InvestigationsClient({
       )}
 
       {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statsAJour.map(stat => {
           const Icon  = statIconMap[stat.id]
           const color = statColorMap[stat.color] || statColorMap.default

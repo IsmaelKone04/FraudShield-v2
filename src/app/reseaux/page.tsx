@@ -32,7 +32,7 @@ export default async function ReseauxPage() {
   ])
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
       <Link
         href="/investigations"
         className="flex w-fit items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -51,7 +51,7 @@ export default async function ReseauxPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <CarteSynthese
           icone={Share2}
           libelle="Sinistres au graphe"
@@ -117,7 +117,13 @@ export default async function ReseauxPage() {
                   )}
                 </div>
 
-                <div className="mt-auto grid grid-cols-3 gap-3 border-t border-border/40 pt-4">
+                {/*
+                  Trois mesures côte à côte demandent une carte large. Sur un
+                  téléphone elles tiennent sur deux rangs, le montant en pleine
+                  largeur : tronqué à quatre-vingt-dix pixels, « 12 400 000
+                  FCFA » ne dit plus rien.
+                */}
+                <div className="mt-auto grid grid-cols-2 gap-3 border-t border-border/40 pt-4 sm:grid-cols-3">
                   <Mesure
                     valeur={separerMilliers(r.sinistres)}
                     libelle="sinistres"
@@ -128,11 +134,13 @@ export default async function ReseauxPage() {
                     libelle="entités"
                     precision="assurés, praticiens, établissements"
                   />
-                  <Mesure
-                    valeur={r.montantFormate}
-                    libelle="en jeu"
-                    precision="montant des sinistres"
-                  />
+                  <div className="col-span-2 sm:col-span-1">
+                    <Mesure
+                      valeur={r.montantFormate}
+                      libelle="en jeu"
+                      precision="montant des sinistres"
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>

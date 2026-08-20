@@ -22,7 +22,7 @@ import type { AnalysesData } from "@/lib/schemas/analyses.schema"
 
 export function AnalysesClient({ data }: { data: AnalysesData }) {
   return (
-    <div className="space-y-6 w-full">
+    <div className="flex w-full flex-col gap-6 p-4 md:p-6">
       {/* En-tête */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Laboratoire d'Analyse</h1>
@@ -105,7 +105,7 @@ export function AnalysesClient({ data }: { data: AnalysesData }) {
             <CardDescription className="text-xs">Indexé selon la récurrence et la volumétrie des anomalies</CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
+            <Table className="min-w-[560px]">
               <TableHeader>
                 <TableRow className="border-border">
                   <TableHead className="text-xs">Établissement</TableHead>
@@ -145,7 +145,7 @@ export function AnalysesClient({ data }: { data: AnalysesData }) {
           <CardDescription className="text-xs">Typologies de déclenchement des alertes automatiques de l'IA</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
+          <Table className="min-w-[560px]">
             <TableHeader>
               <TableRow className="border-border">
                 <TableHead className="text-xs">Indicateur de comportement</TableHead>

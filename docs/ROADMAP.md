@@ -125,6 +125,8 @@ ne pouvait aboutir puisque toutes les routes `/api/auth/*` répondaient 404.
 
 **Dette reportée** : 15 erreurs ESLint (13 `no-explicit-any` → P1-4 ; 2
 `set-state-in-effect` → P5), et les vulnérabilités remontées par `npm audit` → P1-11.
+*Les deux `set-state-in-effect` sont tombés en P5-6 : tous deux servaient à
+réagir à la largeur de l'écran.*
 
 ---
 
@@ -522,12 +524,24 @@ projet d'un tableau de bord de plus.
 | **P5-3** | Thème clair/sombre : `next-themes` est installé, aucun `ThemeProvider` n'est monté, `dark` est figé sur `<html>`. Monter le fournisseur et l'interrupteur, ou retirer la dépendance. | 0,5 | ✅ dépendance retirée (ADR-030) |
 | **P5-4** | Parcours clavier complet, contrastes vérifiés sur les badges de risque (rouge sur sombre : à mesurer). | 0,5 | ✅ |
 | **P5-5** | Tests : Vitest + Testing Library sur le service, la validation Zod, le calcul de score et le simulateur. Puis un parcours Playwright login → alerte → décision. | 2 | |
-| **P5-6** | Responsive : les tableaux sur mobile, la sidebar sur tablette. | 1 | |
+| **P5-6** | Responsive : les tableaux sur mobile, la sidebar sur tablette. | 1 | ✅ seuil à 1024 px, planchers de tableaux (ADR-031) |
 | **P5-7** | Durcissement de `src/auth.ts` : `DUMMY_HASH` est actuellement l'empreinte réelle du compte admin. La garde `!user ||` protège aujourd'hui, mais réutiliser une empreinte valide comme leurre est un piège qu'une future refactorisation déclenchera. Générer un leurre dédié. | 0,25 | ✅ |
 | **P5-8** | **Documentation finale** : README complet avec captures, `docs/ARCHITECTURE.md`, `docs/API-CONTRACT.md` (le contrat que la vraie API doit respecter — utile au coéquipier), CHANGELOG v2.0. | 1,5 | |
 
 **Écarts constatés — P5**
 
+- **La tablette était traitée comme un écran de bureau.** Le seuil hérité du
+  gabarit valait 768 pixels — exactement la largeur d'une tablette en portrait,
+  sur laquelle la barre latérale prélevait donc 288 pixels en permanence. La
+  carte parlait de « la sidebar sur tablette » sans dire que c'était un seuil
+  mal placé, et non une mise en page à revoir.
+- **Un conteneur qui défile ne suffit pas à faire défiler un tableau.** Un
+  tableau `w-full` se tasse jusqu'à la largeur minimale de son contenu : il lui
+  faut aussi une largeur plancher. Six des dix tableaux avaient le conteneur et
+  pas le plancher ; deux n'avaient ni l'un ni l'autre.
+- **Les deux dernières erreurs de lint étaient du responsive.** Les deux
+  `setState` dans un effet portés depuis le début du projet servaient tous deux
+  à réagir à la largeur de l'écran. Ils tombent avec la réécriture du crochet.
 - **Le thème était la question, les variables CSS étaient le problème.** En
   relisant ce que `next-themes` pilotait, huit variables sont apparues qui ne
   désignaient rien : les noms de jetons de shadcn, que ce projet n'a jamais

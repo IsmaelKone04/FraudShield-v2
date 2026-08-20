@@ -1256,3 +1256,58 @@ l'exécution par un composant nommément désigné.
 second jeu de jetons, la reprise des couleurs écrites en dur, et une seconde
 passe de mesure des contrastes. La décision d'aujourd'hui est de ne pas faire
 semblant de l'avoir avec une dépendance que personne ne monte.
+
+---
+
+## ADR-031 — La barre latérale s'efface à 1024 pixels, et les tableaux défilent au lieu de se tasser
+
+**Statut** : accepté · **Portée** : `use-mobile.ts`, `ui/sidebar.tsx`, les onze
+écrans de la console
+
+**Constat.** Le seuil hérité du gabarit valait 768 pixels. Une tablette en
+portrait fait exactement 768 pixels de large : elle était donc traitée comme un
+écran de bureau, et la barre latérale y prélevait 288 pixels en permanence. Il
+restait 480 pixels pour un tableau de onze colonnes. Le seuil du crochet passe à
+1024 pixels, celui à partir duquel un écran peut réellement porter les deux.
+
+Le nom a suivi la mesure : le drapeau ne dit plus `isMobile` mais `enTiroir` —
+« l'écran est trop étroit pour porter la barre à côté du contenu ». Ce n'est
+plus une question de téléphone. Les classes de rendu serveur suivent le même
+seuil (`lg:` au lieu de `md:`), faute de quoi la barre s'afficherait sur une
+tablette le temps de l'hydratation, avant de disparaître.
+
+**Un tableau `w-full` dans un conteneur qui défile ne défile pas.** Il se tasse
+jusqu'à la largeur minimale de son contenu : les colonnes se réduisent à un mot
+par ligne, et le tableau reste illisible sans jamais glisser. Il lui faut une
+largeur plancher. Les dix tableaux de la console en ont désormais une, calée sur
+leur nombre de colonnes ; deux d'entre eux — les comptes et les modèles, sur
+l'écran Paramètres — n'avaient même pas de conteneur et poussaient la page
+entière hors de l'écran.
+
+**L'identifiant reste accroché.** Sur le tableau des alertes, onze colonnes ne
+tiennent sur aucun téléphone. La première colonne est fixée à gauche : sans
+elle, on perd de vue la ligne qu'on est en train de lire dès la troisième
+colonne. Son fond est opaque — une colonne qui passe par-dessus les autres ne
+peut pas être translucide —, ce qui la prive du survol de la ligne. Le compromis
+est assumé : lire la bonne ligne compte plus que la voir s'éclaircir.
+
+**Le montant décide de la grille.** Les cartes d'indicateurs étaient sur deux
+colonnes dès le premier pixel. À 360 pixels, cela laisse environ 120 pixels à un
+chiffre en corps 30 : `128 400 000 FCFA` en demande plus du double. Elles
+s'empilent donc en dessous de 640 pixels. Le même raisonnement vaut pour les
+trois mesures d'une carte de réseau, où le montant prend seul toute la largeur.
+
+**Ce que le contrôle atteint, et ce qu'il n'atteint pas.** `verif-responsive`
+lit le code, pas l'écran. Il refuse un tableau sans conteneur ou sans plancher,
+une grille de trois colonnes ou plus qui ignore le téléphone, une largeur écrite
+en dur au-delà de 360 pixels. Sur l'état d'avant, il relevait douze défauts.
+Deux colonnes à 360 pixels restent un choix de mise en page et non un défaut :
+il ne s'en mêle pas. Rien de tout cela ne remplace un téléphone dans la main.
+
+**Effet de bord.** Le crochet de largeur reposait sur un `useState` synchronisé
+dans un effet, ce que l'analyse statique signalait depuis le début du projet.
+Réécrit avec `useSyncExternalStore`, il lit la largeur au moment où React en a
+besoin. Le graphique du tableau de bord, qui forçait sa période depuis un effet,
+déduit maintenant son défaut au rendu — et distingue « personne n'a choisi » de
+« on a choisi la période courte ». Les deux dernières erreurs de `npm run lint`
+disparaissent avec eux.

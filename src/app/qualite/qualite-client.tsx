@@ -130,7 +130,7 @@ export function QualiteClient({
     periodes.find((periode) => periode.mois === mois)?.baseEstimation ?? ""
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
       <Link
         href="/dashboard"
         className="flex w-fit items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -265,7 +265,7 @@ export function QualiteClient({
         icone={Gauge}
         compte={`dérive mesurée sur ${libelleDernierMois}`}
       >
-        <Table>
+        <Table className="min-w-[560px]">
           <TableHeader>
             <TableRow className="border-border">
               <TableHead className="text-xs">Type de fraude</TableHead>
@@ -367,7 +367,7 @@ export function QualiteClient({
           doublons de transmission n&apos;appelle pas un réentraînement : il
           appelle un appel téléphonique.
         </p>
-        <Table>
+        <Table className="min-w-[560px]">
           <TableHeader>
             <TableRow className="border-border">
               <TableHead className="text-xs">Établissement</TableHead>

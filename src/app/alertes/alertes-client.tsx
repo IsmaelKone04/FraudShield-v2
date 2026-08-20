@@ -171,7 +171,7 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
 
       {/* ── En-tête ── */}
       <div className="flex items-start justify-between">
@@ -215,7 +215,7 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
       )}
 
       {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statsAJour.map(stat => {
           const Icon  = statIconMap[stat.id]
           const color = statColorMap[stat.color] || statColorMap.total
@@ -377,12 +377,20 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
       {/* ── Tableau ── */}
       <Card className="border-border/50 bg-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full min-w-[1040px] border-collapse">
             <thead>
               <tr className="border-b border-border/30">
-                {["ID","Type","Assuré","Établissement","Montant","Score IA","Risque","Date","Assigné à","Statut"].map(h => (
+                {/*
+                  Onze colonnes ne tiennent sur aucun téléphone : le tableau
+                  défile. L'identifiant reste accroché à gauche, sinon on perd
+                  de vue la ligne qu'on est en train de lire dès la troisième
+                  colonne. Le fond opaque est celui de la carte — la colonne
+                  passe par-dessus les autres, elle ne peut pas être translucide.
+                */}
+                {["ID","Type","Assuré","Établissement","Montant","Score IA","Risque","Date","Assigné à","Statut"].map((h, rang) => (
                   <th key={h} scope="col"
-                    className="text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground-subtle px-4 py-3 whitespace-nowrap">
+                    className={`text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground-subtle px-4 py-3 whitespace-nowrap
+                                ${rang === 0 ? "sticky left-0 z-10 bg-card" : ""}`}>
                     {h}
                   </th>
                 ))}
@@ -412,7 +420,7 @@ export function AlertesClient({ alertes, stats, alertesTrend, utilisateur, seuil
                         pas cliquable : elle contient deux listes déroulantes,
                         et un clic sur « Résolu » ne doit pas changer d'écran.
                       */}
-                      <td className="px-4 py-3.5">
+                      <td className="sticky left-0 z-10 bg-card px-4 py-3.5">
                         <Link
                           href={`/alertes/${a.id}`}
                           className="rounded font-mono text-xs font-semibold text-emerald-400 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"

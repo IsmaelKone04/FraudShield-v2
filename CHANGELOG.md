@@ -4,6 +4,74 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 5 — Finition · L'écran étroit
+
+P5-6. La console était dessinée pour un écran large. Sur une tablette en
+portrait, la barre latérale prélevait 288 des 768 pixels disponibles ; sur un
+téléphone, deux tableaux poussaient la page entière hors du cadre.
+
+### Corrigé — le cadre
+
+- **La barre latérale s'efface en dessous de 1024 pixels** au lieu de 768
+  ([ADR-031](docs/DECISIONS.md)). Une tablette en portrait fait exactement
+  768 pixels : elle était traitée comme un écran de bureau. Le drapeau du
+  contexte ne s'appelle plus `isMobile` mais `enTiroir` — ce n'est plus une
+  question de téléphone. Les classes de rendu serveur suivent le même seuil,
+  sinon la barre apparaissait le temps de l'hydratation avant de disparaître.
+- **Les onze écrans respirent sur un téléphone** : la marge de page passe de
+  24 à 16 pixels en dessous de 768. L'écran Analyses, lui, n'en avait aucune —
+  son contenu touchait les bords à toutes les tailles.
+
+### Corrigé — les tableaux
+
+- **Deux tableaux n'avaient aucun conteneur qui défile** (les comptes et les
+  modèles, sur l'écran Paramètres) : leurs six et sept colonnes poussaient la
+  page hors de l'écran au lieu de glisser dans leur carte.
+- **Un tableau `w-full` dans un conteneur qui défile ne défile pas** : il se
+  tasse jusqu'à la largeur minimale de son contenu, un mot par colonne. Les dix
+  tableaux de la console ont désormais une largeur plancher calée sur leur
+  nombre de colonnes.
+- **L'identifiant reste accroché à gauche** sur le tableau des alertes : ses
+  onze colonnes ne tiennent sur aucun téléphone, et sans cette colonne fixe on
+  perd de vue la ligne qu'on lit dès la troisième. Son fond opaque la prive du
+  survol de la ligne — compromis assumé.
+- Le sommaire de l'écran Paramètres tenait dans une colonne figée de 220 pixels,
+  qui ne laissait qu'une centaine de pixels au panneau. Il passe au-dessus, en
+  une rangée qui défile.
+
+### Corrigé — les chiffres
+
+- **Les cartes d'indicateurs s'empilent en dessous de 640 pixels.** Sur deux
+  colonnes à 360 pixels, il reste environ 120 pixels pour un chiffre en corps
+  30 : `128 400 000 FCFA` en demande plus du double, et débordait.
+- Sur une carte de réseau, les trois mesures passent sur deux rangs, le montant
+  seul en pleine largeur : tronqué à quatre-vingt-dix pixels, il ne disait plus
+  rien.
+
+### Corrigé — deux effets de trop
+
+- **`npm run lint` ne signale plus rien.** Les deux dernières erreurs, portées
+  depuis le début du projet, étaient deux `setState` dans un effet. Le crochet
+  de largeur est réécrit avec `useSyncExternalStore` ; le graphique du tableau
+  de bord déduit sa période au rendu au lieu de la forcer après coup — et
+  distingue désormais « personne n'a choisi » de « on a choisi la période
+  courte ».
+
+### Ajouté — vérification
+
+- `verif-responsive` refuse un tableau sans conteneur ou sans largeur plancher,
+  une grille de trois colonnes ou plus qui ignore le téléphone, une largeur
+  écrite en dur au-delà de 360 pixels. Sur l'état d'avant cette tranche, il
+  relevait **douze défauts**.
+
+### Ce qui demande encore un œil
+
+Le contrôle lit le code, pas l'écran. La colonne d'identifiant accrochée, la
+barre latérale en tiroir sur une tablette et les cartes empilées se constatent
+un téléphone à la main — pas dans une feuille de style.
+
+---
+
 ## Phase 5 — Finition · Le thème, et les variables qui ne désignaient rien
 
 P5-3. La question posée était « monter le sélecteur clair/sombre ou retirer la

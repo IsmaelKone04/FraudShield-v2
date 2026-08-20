@@ -105,7 +105,7 @@ export function JournalClient() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
 
       {/* ── Retour ── */}
       <Link
@@ -174,7 +174,7 @@ export function JournalClient() {
       )}
 
       {/* ── Synthèse ── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <CarteSynthese
           icone={ScrollText}
           libelle="Actions enregistrées"
@@ -298,7 +298,7 @@ export function JournalClient() {
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="min-w-[880px]">
               <TableHeader>
                 <TableRow className="border-border">
                   <TableHead className="text-xs">Horodatage</TableHead>

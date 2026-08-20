@@ -148,7 +148,7 @@ export function ReseauClient({
   const vueY = (HAUTEUR - hauteurVue) / 2 - decalage.y
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
       <Link
         href="/reseaux"
         className="flex w-fit items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -200,7 +200,7 @@ export function ReseauClient({
       </div>
 
       {/* ── Synthèse ── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <CarteSynthese
           icone={Share2}
           libelle="Sinistres"

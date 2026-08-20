@@ -50,7 +50,7 @@ export function DataTable({ data }: { data: Alerte[] }) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full min-w-[940px] border-collapse">
             <thead>
               <tr className="border-b border-border/30">
                 {COLONNES.map(h => (

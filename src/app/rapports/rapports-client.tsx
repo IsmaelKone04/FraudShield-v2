@@ -208,7 +208,7 @@ export function RapportsClient({ data }: { data: RapportsData }) {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
 
       {/* ── En-tête ── */}
       <div className="flex items-start justify-between">
@@ -228,7 +228,7 @@ export function RapportsClient({ data }: { data: RapportsData }) {
       </div>
 
       {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {data.stats.map(stat => {
           const Icon  = statIconMap[stat.id]
           const color = statColorMap[stat.color] || statColorMap.default
@@ -264,7 +264,7 @@ export function RapportsClient({ data }: { data: RapportsData }) {
         <h2 className="text-sm font-semibold text-foreground mb-3">
           Génération rapide
         </h2>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <QuickGenerateCard
             icon={FileText}
             label="Rapport mensuel"

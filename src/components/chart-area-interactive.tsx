@@ -49,13 +49,19 @@ const chartConfig = {
 
 export function ChartAreaInteractive({ alertesTrend }: { alertesTrend: AlerteTrend[] }) {
   const isMobile = useIsMobile()
-  const [timeRange, setTimeRange] = React.useState("90d")
 
-  React.useEffect(() => {
-    if (isMobile) {
-      setTimeRange("7d")
-    }
-  }, [isMobile])
+  /*
+    Sur un téléphone, dix mois d'historique se tassent en une bouillie : la
+    période courte y est le bon défaut. Ce défaut se déduit désormais de la
+    largeur au moment du rendu ; il était posé après coup par un effet, qui
+    provoquait un second rendu et remplaçait la valeur déjà affichée.
+
+    `null` distingue « personne n'a encore choisi » de « on a choisi la
+    période courte » : dès que le lecteur tranche, la largeur n'a plus voix.
+  */
+  const [choixPeriode, setChoixPeriode] = React.useState<string | null>(null)
+  const timeRange = choixPeriode ?? (isMobile ? "7d" : "90d")
+  const setTimeRange = setChoixPeriode
 
   // Filtrage intelligent basé sur vos données (10 mois disponibles)
   const filteredData = React.useMemo(() => {
