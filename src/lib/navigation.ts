@@ -5,6 +5,7 @@ import {
   Gauge,
   LayoutDashboard,
   Calculator,
+  Layers,
   ScrollText,
   Search,
   Settings,
@@ -73,6 +74,12 @@ export const NAVIGATION: GroupeNavigation[] = [
         href: "/notation",
         icon: Calculator,
         description: "Le modèle, à l'épreuve",
+      },
+      {
+        title: "Portefeuille",
+        href: "/portefeuille",
+        icon: Layers,
+        description: "Ce qui est normal",
       },
       {
         title: "Simulateur de seuils",

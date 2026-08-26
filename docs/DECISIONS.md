@@ -1472,3 +1472,69 @@ variation vient d'une modification ou du tirage. Le plan d'encodage — modalit�
 moyennes, écarts-types — est établi sur les seules lignes d'apprentissage : les
 établir sur le jeu entier ferait entrer dans le modèle une information tirée des
 lignes de contrôle, et les mesures qui suivraient seraient flatteuses et fausses.
+
+---
+
+## ADR-034 — Le portefeuille sert de référence, pas de détecteur
+
+**Statut** : accepté · **Portée** : `scripts/portefeuille/`,
+`src/lib/portefeuille/`, `/portefeuille`
+
+**Constat.** Le second jeu fourni — 108 653 contrats automobiles français — ne
+porte aucune étiquette de fraude. `N_SINISTRE` compte les sinistres, il ne les
+qualifie pas. On ne peut pas y apprendre un détecteur, et l'ADR-033 l'avait déjà
+acté. Restait à décider ce qu'on en faisait : rien, ou autre chose.
+
+**Décision : autre chose.** Ce fichier décrit ce qui est **habituel** pour un
+profil donné, et c'est précisément la question que la console pose déjà sous
+chaque dossier depuis D1 — *par rapport à quoi ?* Un montant n'est un argument
+que comparé à ce qui se pratique ailleurs. Le portefeuille devient donc une
+table de référence, et l'écran `/portefeuille` la rend consultable.
+
+**Trois grandeurs, et leur raison d'être.** La **fréquence** est exprimée pour
+mille contrats : 0,114 sinistre par contrat ne se lit pas, 114 sinistres pour
+mille se lit. Le **coût moyen** est rapporté aux sinistres et non aux contrats —
+le diviser par l'ensemble du portefeuille donnerait un chiffre qui ne correspond
+à aucun sinistre réel. La **prime pure** est le produit des deux : le coût annuel
+attendu d'un contrat de la cohorte, et la seule des trois qui se compare d'une
+cohorte à l'autre sans arbitrage, puisqu'une cohorte peut déclarer plus souvent
+des sinistres moins chers.
+
+**Un plancher d'effectif, à cinq cents contrats.** Une fréquence calculée sur
+trente contrats varie du simple au double selon qu'un seul d'entre eux a
+déclaré. La publier reviendrait à présenter du bruit comme une référence — et
+c'est exactement le chiffre auquel s'accrocherait qui la conteste. Onze cohortes
+sont écartées à ce titre ; leur nombre est publié plutôt que tu, parce qu'il dit
+à quel point un découpage est déséquilibré.
+
+**L'agrégation est hors ligne.** Le fichier source pèse seize mégaoctets et n'est
+pas versionné ; la table qu'il produit en pèse onze kilo — un rapport de mille
+pour un. `npm run portefeuille:agreger` la régénère.
+
+**Ce que les chiffres disent, et leur modestie.** Aucun découpage ne sépare
+au-delà du double. Le plus net est le nombre de conducteurs désignés — 201
+sinistres pour mille contrats à quatre conducteurs, contre 108 à deux, soit
+1,86 — et il s'explique sans mystère : quatre conducteurs roulent plus que deux.
+Les autres tiennent entre 1,13 et 1,23. C'est une donnée de sinistralité
+ordinaire, pas un discriminant, et un test le vérifie explicitement : si une
+amplitude dépassait le triple, ce serait le signe d'une erreur d'agrégation
+avant d'être une découverte.
+
+**La distinction que l'écran écrit noir sur blanc.** Une cohorte qui déclare plus
+souvent est plus **exposée**, pas plus **suspecte**. Confondre les deux serait
+exactement le raccourci que ce projet reproche aux outils du marché — et il
+serait ici d'autant plus grave que les cohortes sont des régions, des âges et
+des catégories socioprofessionnelles.
+
+**Le contrat a permis la réutilisation, une fois de plus.** Les comparaisons
+produites sont des `Comparatif`, la forme définie en D1 pour les dossiers
+d'assurance maladie : `ComparatifContextuel` les affiche sans une ligne de
+changement. Seule l'énumération des unités s'est étendue — « € » et
+« sinistres » sont entrés à côté de « FCFA », « actes » et « jours ». Elle reste
+une énumération : laisser le champ libre reviendrait à accepter qu'une durée
+finisse un jour affichée en francs.
+
+**Trois domaines coexistent désormais, et aucun chiffre ne passe de l'un à
+l'autre** : l'assurance maladie de la console, l'automobile américaine du modèle
+(ADR-033), l'automobile française du portefeuille. Les rapprocher demanderait des
+correspondances qu'aucune des trois sources ne fournit.

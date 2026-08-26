@@ -94,9 +94,10 @@ npm run dev              # http://localhost:3000
 | `npm run build` | build de production |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint 9 (Next 16 a supprimé `next lint`) |
-| `npm test` | Vitest — 200 tests unitaires ([ADR-032](docs/DECISIONS.md)) |
+| `npm test` | Vitest — 220 tests unitaires ([ADR-032](docs/DECISIONS.md)) |
 | `npm run test:watch` | les mêmes, en surveillance |
 | `npm run modele:entrainer` | réapprend le modèle de détection ([ADR-033](docs/DECISIONS.md)) |
+| `npm run portefeuille:agreger` | régénère la table de référence ([ADR-034](docs/DECISIONS.md)) |
 
 ### Comptes de démonstration
 
@@ -498,7 +499,7 @@ les arbitrages. Résumé :
 | **P3** | Détail d'alerte (`/alertes/[id]`) | ✅ terminée |
 | **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · simulateur de seuils ✅ · piste d'audit ✅ · graphe de réseaux ✅ | terminée |
 | **P5** | Accessibilité ✅ · contrastes ✅ · leurre d'authentification ✅ · thème ✅ · responsive ✅ · tests unitaires ✅ · parcours de bout en bout · documentation finale | en cours |
-| **P6** | Un modèle appris sur 30 000 déclarations ✅ · écran de notation ✅ · mesures publiées ✅ · portefeuille de référence | en cours |
+| **P6** | Un modèle appris sur 30 000 déclarations ✅ · écran de notation ✅ · mesures publiées ✅ · portefeuille de référence ✅ | ✅ terminée |
 
 La phase 4 porte le parti pris du projet : **mettre l'analyste au centre plutôt que le
 modèle**. Les outils du marché produisent un score et une file d'alertes ; ils

@@ -4,6 +4,74 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 6 — Un modèle qui apprend · P6-2
+
+Le second jeu fourni ne porte aucune étiquette de fraude : on n'y apprend pas un
+détecteur. Il décrit en revanche ce qui est **habituel**, et c'est la question
+que la console pose déjà sous chaque dossier — *par rapport à quoi ?*
+
+### Ajouté — le portefeuille de référence
+
+- **`npm run portefeuille:agreger`** ([ADR-034](docs/DECISIONS.md)). Seize
+  mégaoctets de contrats deviennent onze kilo-octets de table consultable, un
+  rapport de mille pour un. Sept découpages : région, énergie, Crit'Air,
+  conducteurs désignés, âge du conducteur, âge du véhicule, ancienneté.
+- **Trois grandeurs par cohorte.** La fréquence pour mille contrats — 0,114 ne
+  se lit pas, 114 se lit. Le coût moyen d'un sinistre, rapporté aux sinistres et
+  non aux contrats : le diviser par l'ensemble donnerait un chiffre qui ne
+  correspond à aucun sinistre réel. Et la prime pure, produit des deux, seule à
+  se comparer d'une cohorte à l'autre sans arbitrage.
+- **`/portefeuille`** rend le tout consultable : on choisit un découpage, une
+  cohorte, et on la voit face à l'ensemble.
+
+### Ce que le portefeuille dit
+
+| | |
+|---|---|
+| Ensemble | **114** sinistres pour mille contrats · coût moyen **947 €** · attendu **108 €** par contrat |
+| Découpage le plus net | conducteurs désignés — **201 ‰** à quatre contre **108 ‰** à deux (1,86) |
+| Les six autres | entre 1,13 et 1,23 d'amplitude |
+
+Aucun découpage ne sépare au-delà du double, et le plus net s'explique sans
+mystère : quatre conducteurs roulent plus que deux. C'est une donnée de
+sinistralité ordinaire, pas un discriminant — un test le vérifie, parce qu'une
+amplitude supérieure au triple signalerait une erreur d'agrégation avant d'être
+une découverte.
+
+### La distinction que l'écran écrit noir sur blanc
+
+Une cohorte qui déclare plus souvent est plus **exposée**, pas plus
+**suspecte**. Confondre les deux serait le raccourci que ce projet reproche aux
+outils du marché — et il serait ici d'autant plus grave que les cohortes sont des
+régions, des âges et des catégories socioprofessionnelles.
+
+### Un plancher d'effectif, assumé et publié
+
+Cinq cents contrats minimum. Une fréquence calculée sur trente varie du simple au
+double selon qu'un seul d'entre eux a déclaré. Onze cohortes sont écartées à ce
+titre ; leur nombre est **affiché** plutôt que tu, parce qu'il dit à quel point un
+découpage est déséquilibré.
+
+### Le contrat a permis la réutilisation, une fois de plus
+
+Les comparaisons produites sont des `Comparatif`, la forme définie en D1 pour les
+dossiers d'assurance maladie : `ComparatifContextuel` les affiche sans une ligne
+de changement. Seule l'énumération des unités s'est étendue — « € » et
+« sinistres » à côté de « FCFA », « actes » et « jours ». Elle reste une
+énumération : laisser le champ libre reviendrait à accepter qu'une durée finisse
+un jour affichée en francs.
+
+### Ajouté — vérification
+
+- **20 tests** sur la table : que les trois grandeurs se recoupent, que la prime
+  pure est bien le produit des deux autres, qu'aucune cohorte publiée ne repose
+  sur trop peu de contrats, et que rien n'est inventé sur une cohorte inconnue.
+- **19 vérifications** sur le HTML servi (`verif-portefeuille`), dont celles qui
+  portent sur ce que la page doit **dire** : l'absence d'étiquette de fraude, la
+  différence entre exposition et suspicion.
+
+---
+
 ## Phase 6 — Un modèle qui apprend · P6-3 et P6-4
 
 Le modèle existait depuis P6-1, sans que rien ne permette de l'interroger. Un

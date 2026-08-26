@@ -20,7 +20,7 @@ par le modèle ne seraient plus vérifiables par un tiers.
 | Écartées | `policy_id` (identifiant), `incident_city` (plus de 200 modalités), `incident_date` |
 | Construite | `ecart_montant` = `claim_amount` − `total_claim_amount` |
 
-## `Base_de_donnees.csv` — non versionné
+## `Base_de_donnees.csv` — non versionné, mais utilisé
 
 108 653 contrats d'assurance automobile français : région, département, commune,
 Crit'Air, énergie, âge du véhicule, marque, âge du permis, sexe, catégorie
@@ -38,8 +38,15 @@ exactement la matière des comparatifs que la console affiche déjà à côté d
 dossier (`Comparatif` : valeur du dossier, valeur de la cohorte, effectif) — et
 un montant n'est un argument que comparé à ce qui se pratique ailleurs.
 
-Il est exclu du dépôt (17 Mo, `.gitignore`) tant que cet usage n'est pas
-implémenté ; le placer ici suffit à le retrouver.
+C'est ce qu'en fait `npm run portefeuille:agreger` : sept découpages, trois
+grandeurs par cohorte, un plancher de cinq cents contrats. Le résultat —
+`src/lib/portefeuille/reference.json`, onze kilo-octets — est versionné, la
+source ne l'est pas (17 Mo, `.gitignore`). Le placer ici suffit à pouvoir
+régénérer la table.
+
+**Une cohorte qui déclare plus souvent est plus exposée, pas plus suspecte.**
+Les découpages sont des régions, des âges, des catégories socioprofessionnelles :
+la confusion serait ici particulièrement fâcheuse.
 
 ## Ce que ces jeux ne sont pas
 

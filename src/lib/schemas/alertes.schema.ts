@@ -152,7 +152,14 @@ export const comparatifSchema = z.object({
   valeurCohorte: z.number().nonnegative(),
   /** Sur quoi la moyenne est calculée — sans quoi elle ne vaut rien. */
   effectif: z.string(),
-  unite: z.enum(["FCFA", "actes", "jours"]),
+  /*
+    Les unités sont énumérées pour que l'affichage sache quoi en faire, et
+    étendues quand un nouveau domaine arrive : « € » et « sinistres » sont
+    entrés avec le portefeuille de référence, qui compare des cohortes de
+    contrats et non des actes médicaux. Laisser le champ libre reviendrait à
+    accepter qu'une durée finisse un jour affichée en francs.
+  */
+  unite: z.enum(["FCFA", "actes", "jours", "€", "sinistres"]),
 })
 export type Comparatif = z.infer<typeof comparatifSchema>
 

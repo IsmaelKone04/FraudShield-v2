@@ -583,7 +583,7 @@ d'afficher un score écrit à la main.
 | # | Tâche | Est. | État |
 |---|---|---|---|
 | **P6-1** | Apprentissage sur les 30 000 déclarations étiquetées : lecture, encodage, découpage stratifié, régression logistique pénalisée, mesure sur un jeu de contrôle. Artefact chargé par la console, application traduite en français. | 2 | ✅ AUC 0,6935 · calibration 0,60 % (ADR-033) |
-| **P6-2** | Le portefeuille français (108 653 contrats) comme **référence de normalité** : alimenter les comparatifs de la console (valeur du dossier, valeur de la cohorte, effectif) à partir de comptages réels plutôt que de valeurs écrites à la main. | 1,5 | |
+| **P6-2** | Le portefeuille français (108 653 contrats) comme **référence de normalité** : alimenter les comparatifs de la console (valeur du dossier, valeur de la cohorte, effectif) à partir de comptages réels plutôt que de valeurs écrites à la main. | 1,5 | ✅ `/portefeuille`, 7 découpages (ADR-034) |
 | **P6-3** | Un écran de notation : soumettre une déclaration, voir le score, sa décomposition et la probabilité calibrée. Réutilise `DecompositionScore`, déjà écrit et déjà testé. | 1 | ✅ `/notation`, 20 vérifications |
 | **P6-4** | Publier ce que vaut le modèle **dans la console** — aire sous la courbe, calibration, points de fonctionnement — plutôt que dans un fichier de décisions. Un modèle dont on ne peut pas lire les mesures se présente comme meilleur qu'il n'est. | 0,75 | ✅ absorbée par P6-3 |
 
@@ -596,6 +596,14 @@ d'afficher un score écrit à la main.
 - **Le domaine ne recouvre pas celui de la console.** Ces déclarations sont
   automobiles, la console instruit de l'assurance maladie. Le modèle est un
   second domaine, pas un remplacement du premier.
+- **Le jeu sans étiquette n'était pas un jeu inutile.** Il ne pouvait pas
+  apprendre un détecteur ; il pouvait décrire ce qui est normal, ce qui est
+  l'autre moitié du contrat d'explication. Refuser la première lecture n'obligeait
+  pas à jeter le fichier.
+- **Aucun découpage ne sépare au-delà du double.** C'est un résultat, pas un
+  échec : ces gradients-là sont ceux d'une sinistralité ordinaire. Le seul qui
+  monte à 1,86 — le nombre de conducteurs désignés — s'explique par l'exposition,
+  pas par le risque moral.
 - **`DecompositionScore` n'a pas eu à bouger d'une ligne.** Le composant écrit
   en D1 pour des dossiers d'assurance maladie affiche la décomposition d'un
   modèle appris bien plus tard, parce que celle-ci passe le même schéma. C'est
@@ -621,7 +629,7 @@ Unité : la demi-journée de travail effectif.
 | P3 | Détail d'alerte | 2,75 | 16 | ✅ |
 | P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) · D2 ✅ (3) · D3 ✅ (4,5) · D4 ✅ (2,75) · D5 ✅ (1,5) |
 | P5 | Finition | 7 | 39 | |
-| P6 | Un modèle qui apprend | 5,25 | 44,25 | P6-1 ✅ (2) · P6-3 ✅ · P6-4 ✅ (1,75) |
+| P6 | Un modèle qui apprend | 5,25 | 44,25 | **✅ terminée** — P6-1 (2) · P6-2 (1,5) · P6-3 · P6-4 (1,75) |
 
 **≈ 39 demi-journées**, soit une vingtaine de jours pleins. Les phases 0 à 3 (16 demi-journées)
 donnent une application saine et démontrable ; la phase 4 est celle qui donne au projet

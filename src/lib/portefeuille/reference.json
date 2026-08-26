@@ -1,0 +1,466 @@
+{
+  "version": 1,
+  "agregeLe": "2026-08-26T10:11:46.814Z",
+  "source": {
+    "fichier": "Base_de_donnees.csv",
+    "contrats": 108653,
+    "effectifMinimal": 500
+  },
+  "ensemble": {
+    "contrats": 108653,
+    "sinistres": 12349,
+    "frequencePourMille": 114,
+    "coutMoyenSinistre": 947,
+    "primePure": 108
+  },
+  "dimensions": [
+    {
+      "cle": "region",
+      "libelle": "Région",
+      "colonne": "REGION",
+      "modalites": [
+        {
+          "cle": "1",
+          "contrats": 548,
+          "sinistres": 63,
+          "frequencePourMille": 115,
+          "coutMoyenSinistre": 813,
+          "primePure": 93
+        },
+        {
+          "cle": "11",
+          "contrats": 9898,
+          "sinistres": 1282,
+          "frequencePourMille": 130,
+          "coutMoyenSinistre": 998,
+          "primePure": 129
+        },
+        {
+          "cle": "24",
+          "contrats": 3697,
+          "sinistres": 433,
+          "frequencePourMille": 117,
+          "coutMoyenSinistre": 981,
+          "primePure": 115
+        },
+        {
+          "cle": "27",
+          "contrats": 10258,
+          "sinistres": 1157,
+          "frequencePourMille": 113,
+          "coutMoyenSinistre": 966,
+          "primePure": 109
+        },
+        {
+          "cle": "28",
+          "contrats": 8385,
+          "sinistres": 958,
+          "frequencePourMille": 114,
+          "coutMoyenSinistre": 918,
+          "primePure": 105
+        },
+        {
+          "cle": "32",
+          "contrats": 12949,
+          "sinistres": 1462,
+          "frequencePourMille": 113,
+          "coutMoyenSinistre": 934,
+          "primePure": 105
+        },
+        {
+          "cle": "44",
+          "contrats": 16916,
+          "sinistres": 1881,
+          "frequencePourMille": 111,
+          "coutMoyenSinistre": 966,
+          "primePure": 107
+        },
+        {
+          "cle": "52",
+          "contrats": 6619,
+          "sinistres": 766,
+          "frequencePourMille": 116,
+          "coutMoyenSinistre": 951,
+          "primePure": 110
+        },
+        {
+          "cle": "53",
+          "contrats": 2725,
+          "sinistres": 304,
+          "frequencePourMille": 112,
+          "coutMoyenSinistre": 928,
+          "primePure": 104
+        },
+        {
+          "cle": "75",
+          "contrats": 11010,
+          "sinistres": 1171,
+          "frequencePourMille": 106,
+          "coutMoyenSinistre": 914,
+          "primePure": 97
+        },
+        {
+          "cle": "76",
+          "contrats": 10122,
+          "sinistres": 1129,
+          "frequencePourMille": 112,
+          "coutMoyenSinistre": 885,
+          "primePure": 99
+        },
+        {
+          "cle": "84",
+          "contrats": 11933,
+          "sinistres": 1300,
+          "frequencePourMille": 109,
+          "coutMoyenSinistre": 959,
+          "primePure": 105
+        },
+        {
+          "cle": "93",
+          "contrats": 2398,
+          "sinistres": 297,
+          "frequencePourMille": 124,
+          "coutMoyenSinistre": 987,
+          "primePure": 122
+        },
+        {
+          "cle": "94",
+          "contrats": 546,
+          "sinistres": 70,
+          "frequencePourMille": 128,
+          "coutMoyenSinistre": 954,
+          "primePure": 122
+        }
+      ],
+      "ecartees": 3
+    },
+    {
+      "cle": "energie",
+      "libelle": "Énergie du véhicule",
+      "colonne": "ENERGIE",
+      "modalites": [
+        {
+          "cle": "Electrique et hydrogene",
+          "contrats": 5800,
+          "sinistres": 623,
+          "frequencePourMille": 107,
+          "coutMoyenSinistre": 919,
+          "primePure": 99
+        },
+        {
+          "cle": "Essence",
+          "contrats": 43233,
+          "sinistres": 4980,
+          "frequencePourMille": 115,
+          "coutMoyenSinistre": 937,
+          "primePure": 108
+        },
+        {
+          "cle": "Essence hybride rechargeable",
+          "contrats": 4798,
+          "sinistres": 580,
+          "frequencePourMille": 121,
+          "coutMoyenSinistre": 902,
+          "primePure": 109
+        },
+        {
+          "cle": "Gaz",
+          "contrats": 8950,
+          "sinistres": 986,
+          "frequencePourMille": 110,
+          "coutMoyenSinistre": 947,
+          "primePure": 104
+        },
+        {
+          "cle": "Gazole",
+          "contrats": 45651,
+          "sinistres": 5152,
+          "frequencePourMille": 113,
+          "coutMoyenSinistre": 965,
+          "primePure": 109
+        }
+      ],
+      "ecartees": 2
+    },
+    {
+      "cle": "critair",
+      "libelle": "Vignette Crit'Air",
+      "colonne": "CRITAIR",
+      "modalites": [
+        {
+          "cle": "Crit'air 1",
+          "contrats": 32790,
+          "sinistres": 3765,
+          "frequencePourMille": 115,
+          "coutMoyenSinistre": 925,
+          "primePure": 106
+        },
+        {
+          "cle": "Crit'air 2",
+          "contrats": 39045,
+          "sinistres": 4412,
+          "frequencePourMille": 113,
+          "coutMoyenSinistre": 961,
+          "primePure": 109
+        },
+        {
+          "cle": "Crit'air 3",
+          "contrats": 19406,
+          "sinistres": 2147,
+          "frequencePourMille": 111,
+          "coutMoyenSinistre": 946,
+          "primePure": 105
+        },
+        {
+          "cle": "Crit'air 4",
+          "contrats": 4650,
+          "sinistres": 519,
+          "frequencePourMille": 112,
+          "coutMoyenSinistre": 1006,
+          "primePure": 112
+        },
+        {
+          "cle": "Crit'air 5",
+          "contrats": 2401,
+          "sinistres": 285,
+          "frequencePourMille": 119,
+          "coutMoyenSinistre": 1070,
+          "primePure": 127
+        },
+        {
+          "cle": "Crit'air E",
+          "contrats": 5800,
+          "sinistres": 623,
+          "frequencePourMille": 107,
+          "coutMoyenSinistre": 919,
+          "primePure": 99
+        },
+        {
+          "cle": "Non classee",
+          "contrats": 4488,
+          "sinistres": 588,
+          "frequencePourMille": 131,
+          "coutMoyenSinistre": 916,
+          "primePure": 120
+        }
+      ],
+      "ecartees": 1
+    },
+    {
+      "cle": "conducteurs",
+      "libelle": "Conducteurs désignés",
+      "colonne": "N_COND",
+      "modalites": [
+        {
+          "cle": "1",
+          "contrats": 21678,
+          "sinistres": 2388,
+          "frequencePourMille": 110,
+          "coutMoyenSinistre": 898,
+          "primePure": 99
+        },
+        {
+          "cle": "2",
+          "contrats": 68592,
+          "sinistres": 7379,
+          "frequencePourMille": 108,
+          "coutMoyenSinistre": 992,
+          "primePure": 107
+        },
+        {
+          "cle": "3",
+          "contrats": 14347,
+          "sinistres": 1909,
+          "frequencePourMille": 133,
+          "coutMoyenSinistre": 853,
+          "primePure": 113
+        },
+        {
+          "cle": "4",
+          "contrats": 3124,
+          "sinistres": 479,
+          "frequencePourMille": 153,
+          "coutMoyenSinistre": 894,
+          "primePure": 137
+        },
+        {
+          "cle": "5",
+          "contrats": 748,
+          "sinistres": 150,
+          "frequencePourMille": 201,
+          "coutMoyenSinistre": 943,
+          "primePure": 189
+        }
+      ],
+      "ecartees": 1
+    },
+    {
+      "cle": "ageConducteur",
+      "libelle": "Âge du conducteur",
+      "colonne": "AGEREV",
+      "modalites": [
+        {
+          "cle": "20 à 29 ans",
+          "contrats": 3054,
+          "sinistres": 336,
+          "frequencePourMille": 110,
+          "coutMoyenSinistre": 2003,
+          "primePure": 220
+        },
+        {
+          "cle": "30 à 39 ans",
+          "contrats": 14145,
+          "sinistres": 1562,
+          "frequencePourMille": 110,
+          "coutMoyenSinistre": 1500,
+          "primePure": 166
+        },
+        {
+          "cle": "40 à 49 ans",
+          "contrats": 21361,
+          "sinistres": 2331,
+          "frequencePourMille": 109,
+          "coutMoyenSinistre": 1114,
+          "primePure": 122
+        },
+        {
+          "cle": "50 à 59 ans",
+          "contrats": 27804,
+          "sinistres": 3256,
+          "frequencePourMille": 117,
+          "coutMoyenSinistre": 914,
+          "primePure": 107
+        },
+        {
+          "cle": "60 à 69 ans",
+          "contrats": 24276,
+          "sinistres": 2802,
+          "frequencePourMille": 115,
+          "coutMoyenSinistre": 696,
+          "primePure": 80
+        },
+        {
+          "cle": "70 à 79 ans",
+          "contrats": 16896,
+          "sinistres": 1917,
+          "frequencePourMille": 113,
+          "coutMoyenSinistre": 568,
+          "primePure": 64
+        },
+        {
+          "cle": "80 à 89 ans",
+          "contrats": 1090,
+          "sinistres": 141,
+          "frequencePourMille": 129,
+          "coutMoyenSinistre": 456,
+          "primePure": 59
+        }
+      ],
+      "ecartees": 1
+    },
+    {
+      "cle": "ageVehicule",
+      "libelle": "Âge du véhicule",
+      "colonne": "AGE_VOIT",
+      "modalites": [
+        {
+          "cle": "0 à 4 ans",
+          "contrats": 31762,
+          "sinistres": 3545,
+          "frequencePourMille": 112,
+          "coutMoyenSinistre": 974,
+          "primePure": 109
+        },
+        {
+          "cle": "5 à 9 ans",
+          "contrats": 24306,
+          "sinistres": 2720,
+          "frequencePourMille": 112,
+          "coutMoyenSinistre": 925,
+          "primePure": 104
+        },
+        {
+          "cle": "10 à 14 ans",
+          "contrats": 19307,
+          "sinistres": 2165,
+          "frequencePourMille": 112,
+          "coutMoyenSinistre": 968,
+          "primePure": 109
+        },
+        {
+          "cle": "15 à 19 ans",
+          "contrats": 16469,
+          "sinistres": 1913,
+          "frequencePourMille": 116,
+          "coutMoyenSinistre": 917,
+          "primePure": 107
+        },
+        {
+          "cle": "20 à 24 ans",
+          "contrats": 11039,
+          "sinistres": 1271,
+          "frequencePourMille": 115,
+          "coutMoyenSinistre": 968,
+          "primePure": 111
+        },
+        {
+          "cle": "25 à 29 ans",
+          "contrats": 5770,
+          "sinistres": 735,
+          "frequencePourMille": 127,
+          "coutMoyenSinistre": 880,
+          "primePure": 112
+        }
+      ],
+      "ecartees": 0
+    },
+    {
+      "cle": "anciennete",
+      "libelle": "Ancienneté du contrat",
+      "colonne": "ANCIENNETE",
+      "modalites": [
+        {
+          "cle": "0 à 4 ans",
+          "contrats": 67159,
+          "sinistres": 7577,
+          "frequencePourMille": 113,
+          "coutMoyenSinistre": 992,
+          "primePure": 112
+        },
+        {
+          "cle": "5 à 9 ans",
+          "contrats": 22233,
+          "sinistres": 2524,
+          "frequencePourMille": 114,
+          "coutMoyenSinistre": 868,
+          "primePure": 99
+        },
+        {
+          "cle": "10 à 14 ans",
+          "contrats": 11091,
+          "sinistres": 1232,
+          "frequencePourMille": 111,
+          "coutMoyenSinistre": 871,
+          "primePure": 97
+        },
+        {
+          "cle": "15 à 19 ans",
+          "contrats": 5703,
+          "sinistres": 691,
+          "frequencePourMille": 121,
+          "coutMoyenSinistre": 916,
+          "primePure": 111
+        },
+        {
+          "cle": "20 à 24 ans",
+          "contrats": 1978,
+          "sinistres": 252,
+          "frequencePourMille": 127,
+          "coutMoyenSinistre": 916,
+          "primePure": 117
+        }
+      ],
+      "ecartees": 3
+    }
+  ]
+}
