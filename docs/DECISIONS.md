@@ -1606,3 +1606,46 @@ c'est exactement ce que les scripts `verif-*` et `preuve-*` du dossier de travai
 font déjà, et cette suite continue d'y vivre, réexécutée à chaque tranche pour
 prouver que les quatre gardes de D5 tiennent toujours — huit succès à la
 dernière exécution.
+
+---
+
+## ADR-036 — Les captures s'écrivent avec Playwright, plutôt qu'à la main ; deux documents séparent l'architecture du contrat d'API
+
+**Statut** : accepté · **Portée** : `scripts/captures/prendre.mjs`,
+`docs/ARCHITECTURE.md`, `docs/API-CONTRACT.md`, `README.md`
+
+**Le refus initial de capturer des écrans (ADR-005) ne tient plus, pour la raison
+qui l'avait motivé.** Ajouter un outil de navigateur seulement pour illustrer la
+documentation n'aurait pas justifié la dépendance. Depuis P5-5b, Playwright est déjà
+dans le dépôt pour une autre raison — les parcours de bout en bout — et son coût
+marginal pour prendre huit captures est nul. Le script
+(`npm run captures:prendre`) réutilise les deux comptes de démonstration, ouvre
+chaque écran dans un vrai navigateur et écrit dans `docs/captures/`, plutôt que huit
+copies d'écran prises à la main et jamais reproductibles à l'identique après un
+changement de design. Deux contextes de navigateur distincts (pas deux
+`page.goto("/login")` sur la même page) : `/login` redirige vers `/dashboard` pour
+une session déjà ouverte, ce que l'analyste connecté rencontre pour l'écran
+administrateur sinon.
+
+**Deux documents, parce que deux publics.** `docs/ARCHITECTURE.md` s'adresse à qui
+reprend ce dépôt : comment une requête traverse les couches, ce que le store
+garantit, où vit la migration. `docs/API-CONTRACT.md` s'adresse à l'équipe qui
+construit le service de détection : quels endpoints, quelles formes, quel
+comportement attendu sur un refus — rien de plus. Les fusionner aurait produit un
+document que ni l'un ni l'autre public n'aurait lu en entier.
+
+**Le contrat d'API n'est pas une redite des schémas Zod : c'est leur lecture
+humaine, adossée à eux.** Chaque endpoint documenté renvoie explicitement au schéma
+qui le valide — `src/lib/schemas/` reste la source unique, ce document ne fait que
+la rendre lisible sans avoir à ouvrir dix fichiers. La contrainte la plus délicate du
+contrat (la somme des contributions doit égaler le score affiché) n'est d'ailleurs
+pas exprimable par Zod seul : elle est documentée en toutes lettres, avec un renvoi
+vers `scorer.ts` qui montre comment un vrai modèle la satisfait y compris à un score
+saturé.
+
+**Ce que ce chantier laisse volontairement ouvert.** L'authentification côté API
+n'est pas arrêtée — la console tourne aujourd'hui sur un répertoire local de comptes
+de démonstration, et le contrat le dit explicitement plutôt que d'inventer un schéma
+de jeton hypothétique. `docs/API-CONTRACT.md` le liste comme un écart assumé, à
+traiter avant tout branchement réel, plutôt que de laisser croire que la question est
+réglée.

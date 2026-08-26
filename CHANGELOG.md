@@ -4,6 +4,45 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## v2.0.0 — P5-8, dernière carte de la phase 5
+
+Le seul chantier restant pour fermer la phase 5 (et, avec la phase 6 déjà
+terminée, l'ensemble du plan de reprise) : une documentation qui décrit le
+dépôt tel qu'il est aujourd'hui, pas tel qu'il était en août. Le nom de
+version suit celui du dépôt (« FraudShield v2 ») plutôt que d'introduire une
+numérotation propre à ce journal.
+
+### Ajouté
+
+- **`docs/ARCHITECTURE.md`.** Comment une requête traverse les couches
+  (routage → service → client d'accès → schéma → composant → store →
+  écriture réseau), le contrat optimiste que suit chaque action du store
+  (appliquer avant la réponse, annuler sur l'échec, journaliser seulement
+  après un envoi réussi), la migration de `localStorage` et où le modèle de
+  notation automobile (phase 6) sort de ce flux.
+- **`docs/API-CONTRACT.md`.** Pour l'équipe qui construit le service de
+  détection : chaque endpoint attendu, sa forme exacte, le comportement sur
+  un refus. Adossé aux schémas Zod plutôt que de les paraphraser — en cas de
+  divergence, le schéma fait foi. Documente en toutes lettres la contrainte
+  la plus délicate du contrat (la somme des contributions du score doit
+  égaler le score affiché), qu'aucun schéma ne peut à lui seul exprimer.
+- **`scripts/captures/prendre.mjs`** (`npm run captures:prendre`), et huit
+  captures dans `docs/captures/` : tableau de bord, décomposition du score,
+  boucle de rétroaction, simulateur de seuils, graphe de réseaux, notation,
+  portefeuille de référence, piste d'audit. Playwright équipait déjà le
+  dépôt pour les parcours de bout en bout (P5-5b) — l'ajouter spécifiquement
+  pour des captures ne se serait pas justifié (ADR-005), le réutiliser une
+  fois là pour une autre raison, si (ADR-036).
+- **`README.md`** : section captures, table des scripts à jour
+  (`captures:prendre`), compteurs de tests réactualisés.
+
+### Vérifications
+
+`npm run typecheck` ✅ · `npm run lint` ✅ · `npm test` 256/256 · `npm run e2e`
+2/2 · `npm run build` ✅.
+
+---
+
 ## Phase 6 — Un modèle qui apprend · P6-2
 
 Le second jeu fourni ne porte aucune étiquette de fraude : on n'y apprend pas un

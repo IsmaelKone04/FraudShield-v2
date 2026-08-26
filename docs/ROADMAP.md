@@ -236,7 +236,7 @@ les captures sont déjà prévues.
 | 404 souple sur un identifiant inconnu : bonne page, statut 200. Cause mesurée (ADR-013). | P5, si un robot ou un test de bout en bout l'exige |
 | ~~« Classée sans suite » n'est pas qualifiée par cause.~~ Réglé en D2. | ~~P4-6~~ ✅ |
 | ~~Le score n'est pas décomposé — les signaux par acte en tiennent lieu.~~ Réglé en D1. | ~~P4-1 à P4-4~~ ✅ |
-| Captures d'écran de la documentation. | P5-8 |
+| ~~Captures d'écran de la documentation.~~ Réglé en P5-8. | ~~P5-8~~ ✅ |
 
 ---
 
@@ -284,7 +284,7 @@ la phrase).
 |---|---|
 | Les `enonce` sont écrits dans le jeu de données, pas composés depuis les valeurs. | API réelle, ou table de gabarits par `code` de facteur |
 | Le score reste celui du jeu de données : rien ne le recalcule à partir des facteurs. | D4, où le rejeu à seuil variable en aura besoin |
-| Pas de capture d'écran (toujours aucun outil de navigateur). | P5-8 |
+| ~~Pas de capture d'écran (toujours aucun outil de navigateur).~~ Réglé en P5-8, Playwright étant entretemps entré au dépôt pour une autre raison (ADR-036). | ~~P5-8~~ ✅ |
 
 #### D2 — Boucle de rétroaction analyste → modèle ✅ terminé
 
@@ -408,7 +408,7 @@ pure et déterministe, dont le résultat part complet dans le HTML servi.
 | Aucun nœud ne se déplace à la souris. | Contrepartie assumée d'une disposition arrêtée avant le navigateur |
 | Les liens sont orientés dans le modèle, dessinés sans flèche. | Le sens se lit dans le panneau latéral |
 | Le graphe ne couvre que les sinistres rattachés à un dossier. | Une alerte isolée n'a pas de réseau, et l'écran le dit |
-| Pas de capture d'écran. | P5-8 |
+| ~~Pas de capture d'écran.~~ Réglé en P5-8. | ~~P5-8~~ ✅ |
 
 #### D4 — Simulateur de seuils ✅ terminé
 
@@ -515,7 +515,7 @@ projet d'un tableau de bord de plus.
 
 ---
 
-### Phase 5 — Finition et publication · **M5**
+### Phase 5 — Finition et publication · **M5** ✅ terminée
 
 | # | Tâche | Est. | État |
 |---|---|---|---|
@@ -527,7 +527,7 @@ projet d'un tableau de bord de plus.
 | **P5-5b** | Le reste des suites hors dépôt (piste d'audit, stores Zustand), puis un parcours Playwright login → alerte → décision. | 1 | ✅ 36 tests + 2 parcours Playwright (ADR-035) |
 | **P5-6** | Responsive : les tableaux sur mobile, la sidebar sur tablette. | 1 | ✅ seuil à 1024 px, planchers de tableaux (ADR-031) |
 | **P5-7** | Durcissement de `src/auth.ts` : `DUMMY_HASH` est actuellement l'empreinte réelle du compte admin. La garde `!user ||` protège aujourd'hui, mais réutiliser une empreinte valide comme leurre est un piège qu'une future refactorisation déclenchera. Générer un leurre dédié. | 0,25 | ✅ |
-| **P5-8** | **Documentation finale** : README complet avec captures, `docs/ARCHITECTURE.md`, `docs/API-CONTRACT.md` (le contrat que la vraie API doit respecter — utile au coéquipier), CHANGELOG v2.0. | 1,5 | |
+| **P5-8** | **Documentation finale** : README complet avec captures, `docs/ARCHITECTURE.md`, `docs/API-CONTRACT.md` (le contrat que la vraie API doit respecter — utile au coéquipier), CHANGELOG v2.0. | 1,5 | ✅ 8 captures (ADR-036), 2 documents ajoutés |
 
 **Écarts constatés — P5**
 
@@ -633,7 +633,7 @@ Unité : la demi-journée de travail effectif.
 | P2 | Interactions | 5,25 | 13,25 | ✅ |
 | P3 | Détail d'alerte | 2,75 | 16 | ✅ |
 | P4 | Différenciateurs | 16 | 32 | D1 ✅ (3,5) · D2 ✅ (3) · D3 ✅ (4,5) · D4 ✅ (2,75) · D5 ✅ (1,5) |
-| P5 | Finition | 7 | 39 | |
+| P5 | Finition | 7 | 39 | **✅ terminée** |
 | P6 | Un modèle qui apprend | 5,25 | 44,25 | **✅ terminée** — P6-1 (2) · P6-2 (1,5) · P6-3 · P6-4 (1,75) |
 
 **≈ 39 demi-journées**, soit une vingtaine de jours pleins. Les phases 0 à 3 (16 demi-journées)
@@ -648,8 +648,8 @@ Si le temps manque, deux découpes tiennent debout :
   sans différenciateur. ≈ 16 demi-journées, dont 1,75 déjà faites.
 - **Maximum d'impact à effort contenu** — P0 → P3 + **D1 seul** + P5-8 : l'explicabilité
   est le différenciateur au meilleur rapport valeur/effort, 3,5 demi-journées pour
-  l'argument le plus fort du lot. ≈ 21 demi-journées. **→ atteint** : il ne reste que
-  P5-8 pour tenir cette découpe.
+  l'argument le plus fort du lot. ≈ 21 demi-journées. **→ atteint et dépassé** : P5-8
+  est fait, et le reste de la phase 4 (D2 à D5) comme la phase 6 le sont aussi.
 
 ### Risques identifiés
 

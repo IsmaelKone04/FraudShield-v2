@@ -99,6 +99,7 @@ npm run dev              # http://localhost:3000
 | `npm run e2e` | Playwright — connexion, décision, persistance ([ADR-035](docs/DECISIONS.md)) |
 | `npm run modele:entrainer` | réapprend le modèle de détection ([ADR-033](docs/DECISIONS.md)) |
 | `npm run portefeuille:agreger` | régénère la table de référence ([ADR-034](docs/DECISIONS.md)) |
+| `npm run captures:prendre` | régénère `docs/captures/` avec un vrai navigateur ([ADR-036](docs/DECISIONS.md)) |
 
 ### Comptes de démonstration
 
@@ -117,6 +118,18 @@ l'affichage d'un nom. Les mots de passe, eux, sont stockés sous forme d'**empre
 bcrypt** dans [`src/auth.ts`](src/auth.ts), jamais en clair, et volontairement à part :
 ce module-là n'est pas envoyé au navigateur. L'authentification définitive est destinée
 à être déléguée à l'API.
+
+## 📸 Captures d'écran
+
+Prises avec `npm run captures:prendre` ([ADR-036](docs/DECISIONS.md)) — un vrai
+navigateur, les comptes de démonstration ci-dessus, aucune mise en scène.
+
+| | |
+|---|---|
+| ![Tableau de bord](docs/captures/01-dashboard.png) Tableau de bord | ![Décomposition du score](docs/captures/02-decomposition-score.png) Pourquoi ce score (`/alertes/[id]`) |
+| ![Qualité du modèle](docs/captures/03-qualite-boucle-retroaction.png) Qualité du modèle (`/qualite`) | ![Simulateur de seuils](docs/captures/04-simulateur-seuils.png) Simulateur de seuils (`/simulation`) |
+| ![Graphe de réseaux](docs/captures/05-graphe-reseaux.png) Graphe de réseaux (`/reseaux/[id]`) | ![Notation d'une déclaration](docs/captures/06-notation-modele-auto.png) Notation, modèle auto (`/notation`) |
+| ![Portefeuille de référence](docs/captures/07-portefeuille-reference.png) Portefeuille de référence (`/portefeuille`) | ![Journal d'audit](docs/captures/08-piste-audit.png) Journal d'audit, réservé à l'administrateur (`/dashboard/admin`) |
 
 ## ✍️ Ce qui est réellement interactif
 
@@ -403,7 +416,10 @@ src/
 └── proxy.ts              # Contrôle d'accès aux routes (ex-`middleware`, Next.js 16)
 ```
 
-Les arbitrages structurants sont consignés dans [`docs/DECISIONS.md`](docs/DECISIONS.md).
+Les arbitrages structurants sont consignés dans [`docs/DECISIONS.md`](docs/DECISIONS.md),
+le trajet d'une requête à travers ces couches dans
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), et le contrat que la vraie API doit
+respecter dans [`docs/API-CONTRACT.md`](docs/API-CONTRACT.md).
 
 ### Contrôle d'accès
 
@@ -499,7 +515,7 @@ les arbitrages. Résumé :
 | **P2** | Interactions : statuts, assignation, export, paramètres persistés | ✅ terminée |
 | **P3** | Détail d'alerte (`/alertes/[id]`) | ✅ terminée |
 | **P4** | Explicabilité du score ✅ · boucle de rétroaction ✅ · simulateur de seuils ✅ · piste d'audit ✅ · graphe de réseaux ✅ | terminée |
-| **P5** | Accessibilité ✅ · contrastes ✅ · leurre d'authentification ✅ · thème ✅ · responsive ✅ · tests unitaires ✅ · parcours de bout en bout ✅ · documentation finale | en cours |
+| **P5** | Accessibilité ✅ · contrastes ✅ · leurre d'authentification ✅ · thème ✅ · responsive ✅ · tests unitaires ✅ · parcours de bout en bout ✅ · documentation finale ✅ | ✅ terminée |
 | **P6** | Un modèle appris sur 30 000 déclarations ✅ · écran de notation ✅ · mesures publiées ✅ · portefeuille de référence ✅ | ✅ terminée |
 
 La phase 4 porte le parti pris du projet : **mettre l'analyste au centre plutôt que le
