@@ -1538,3 +1538,71 @@ finisse un jour affichée en francs.
 l'autre** : l'assurance maladie de la console, l'automobile américaine du modèle
 (ADR-033), l'automobile française du portefeuille. Les rapprocher demanderait des
 correspondances qu'aucune des trois sources ne fournit.
+
+---
+
+## ADR-035 — Le reste de D5 rentre dans le dépôt, et un parcours de bout en bout s'y ajoute
+
+**Statut** : accepté · **Portée** : `lib/store/migration.test.ts`,
+`lib/store/modifications.store.test.ts`, `playwright.config.ts`, `e2e/`
+
+**Constat.** P5-5a avait fait rentrer huit suites dans le dépôt (ADR-032), en
+laissant deux choses hors de portée : la migration du contenu local — le seul
+code du projet qui puisse détruire le travail d'un utilisateur — et le câblage
+du store, c'est-à-dire ce qu'une action de la console produit réellement une
+fois qu'elle traverse `appliquer`, le service simulé et le journal.
+
+**La migration, éprouvée sur ce qu'elle défait ET sur ce qu'elle garde.** Le
+classement sans suite a fini par exiger une cause (ADR-018) ; les décisions
+enregistrées avant n'en portent pas. `defaireDecisionsNonQualifiees` les annule
+plutôt que de laisser la validation d'entrée jeter tout le contenu local pour un
+champ manquant sur un seul dossier. Dix-sept tests, dont la moitié porte
+délibérément sur la **conservation** — statuts, assignations, notes, décisions
+déjà qualifiées — parce qu'un test qui ne prouve que la destruction laisserait
+une régression silencieuse sur l'autre moitié de la promesse.
+
+**Le store, éprouvé sur ce qu'aucune fonction pure ne peut garantir seule.**
+`@/lib/api/mutations` est simulé pour provoquer un refus sans dépendre du
+réseau. Dix-neuf tests établissent qu'une modification refusée par le service
+**n'écrit rien au journal** — le journal consigne ce qui a eu lieu, pas ce qui a
+été tenté —, que l'annulation d'une décision journalise sa propre entrée plutôt
+que de faire disparaître la précédente sans trace, et que « Réinitialiser »
+n'efface pas la trace de ce qu'il efface.
+
+**Un parcours de bout en bout, pour ce que ni l'un ni l'autre ne peut prouver.**
+Un test unitaire prouve que `deciderAlerte` produit le bon écart ; il ne prouve
+pas qu'une session s'ouvre réellement dans un navigateur, ni que ce que
+`localStorage` contient après une décision en ressort intact après un
+**rechargement complet de la page**. C'est une propriété différente : elle
+engage le navigateur, pas seulement le code. Playwright (Chromium) est ajouté
+pour ce seul usage, avec deux parcours : connexion → décision → rechargement →
+persistance vérifiée → annulation, et connexion administrateur → décision avec
+motif → piste d'audit qui reçoit ce motif tel qu'il a été rédigé.
+
+**Une course révélée par les tests eux-mêmes.** Le second parcours échouait de
+façon reproductible : la décision s'affichait, mais le journal, consulté
+juste après, ne la contenait pas. La cause n'était pas applicative — c'est
+l'écriture dans `localStorage` par le middleware `persist` de Zustand, qui
+n'est pas garantie synchrone, mise en concurrence avec un `page.goto` qui
+décharge immédiatement le document. Le correctif n'est pas un délai arbitraire :
+le test navigue désormais par le **lien du sommaire**, une transition côté
+client qui garde le même store en mémoire sans jamais repasser par
+`localStorage`. C'est aussi, très exactement, le geste qu'un analyste ferait —
+un utilisateur ne recharge pas la page pour aller au journal, il clique sur le
+lien.
+
+**Le délai des tests suit une réalité du serveur de développement, pas une
+réalité applicative.** Turbopack compile chaque route à la demande ; le premier
+accès à `/alertes/[id]` dans une session fraîche peut dépasser dix secondes à
+lui seul. Le délai global est porté à soixante secondes en conséquence — un
+choix documenté, pas une tolérance oubliée.
+
+**Ce qui reste hors du dépôt, et pourquoi ce n'est pas un manque.**
+`preuve-garde-d5` — qui neutralise `proxy.ts` en le réécrivant sur le disque et
+observe qu'une page protégée se défend malgré tout, ou qui casse une entrée de
+journal pour vérifier que les autres survivent — mute des fichiers source et
+interroge un serveur vivant. Ce n'est pas ce que Vitest est fait pour exprimer ;
+c'est exactement ce que les scripts `verif-*` et `preuve-*` du dossier de travail
+font déjà, et cette suite continue d'y vivre, réexécutée à chaque tranche pour
+prouver que les quatre gardes de D5 tiennent toujours — huit succès à la
+dernière exécution.

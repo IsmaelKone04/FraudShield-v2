@@ -524,13 +524,18 @@ projet d'un tableau de bord de plus.
 | **P5-3** | Thème clair/sombre : `next-themes` est installé, aucun `ThemeProvider` n'est monté, `dark` est figé sur `<html>`. Monter le fournisseur et l'interrupteur, ou retirer la dépendance. | 0,5 | ✅ dépendance retirée (ADR-030) |
 | **P5-4** | Parcours clavier complet, contrastes vérifiés sur les badges de risque (rouge sur sombre : à mesurer). | 0,5 | ✅ |
 | **P5-5a** | Tests : Vitest + Testing Library sur le service, la validation Zod, le calcul de score et le simulateur. | 1 | ✅ 180 tests, `npm test` (ADR-032) |
-| **P5-5b** | Le reste des suites hors dépôt (piste d'audit, stores Zustand), puis un parcours Playwright login → alerte → décision. | 1 | |
+| **P5-5b** | Le reste des suites hors dépôt (piste d'audit, stores Zustand), puis un parcours Playwright login → alerte → décision. | 1 | ✅ 36 tests + 2 parcours Playwright (ADR-035) |
 | **P5-6** | Responsive : les tableaux sur mobile, la sidebar sur tablette. | 1 | ✅ seuil à 1024 px, planchers de tableaux (ADR-031) |
 | **P5-7** | Durcissement de `src/auth.ts` : `DUMMY_HASH` est actuellement l'empreinte réelle du compte admin. La garde `!user ||` protège aujourd'hui, mais réutiliser une empreinte valide comme leurre est un piège qu'une future refactorisation déclenchera. Générer un leurre dédié. | 0,25 | ✅ |
 | **P5-8** | **Documentation finale** : README complet avec captures, `docs/ARCHITECTURE.md`, `docs/API-CONTRACT.md` (le contrat que la vraie API doit respecter — utile au coéquipier), CHANGELOG v2.0. | 1,5 | |
 
 **Écarts constatés — P5**
 
+- **Un parcours de bout en bout a trouvé une course que rien d'autre n'aurait
+  vue.** L'écriture dans `localStorage` par Zustand n'est pas garantie
+  synchrone ; un `page.goto` juste après une décision pouvait décharger le
+  document avant la fin de l'écriture. Aucun test unitaire ne pouvait le
+  révéler — il ne quitte jamais la page.
 - **Les tests existaient, mais personne ne pouvait les lancer.** La carte disait
   « écrire des tests » ; il y en avait déjà deux mille sept cents lignes, hors
   dépôt, derrière une compilation temporaire et un crochet sur la résolution des

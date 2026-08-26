@@ -48,3 +48,9 @@ next-env.d.ts
 # il ne sert pas à l'apprentissage. Le jeu de déclarations, lui, est versionné :
 # sans lui, `npm run modele:entrainer` n'est pas reproductible.
 /donnees/Base_de_donnees.csv
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

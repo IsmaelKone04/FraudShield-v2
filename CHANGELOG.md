@@ -129,6 +129,64 @@ par le lien lui-même, qui, lui, mène quelque part.
 
 ---
 
+## Phase 5 — Finition · Le reste de D5, et un navigateur pour de vrai
+
+P5-5b. Deux suites restaient hors du dépôt depuis P5-5a — la migration et le
+câblage du store — et rien ne prouvait qu'une décision survit à un
+rechargement complet de la page.
+
+### Ajouté — la migration et le store rentrent (36 tests)
+
+- **`lib/store/migration.test.ts`** (17 tests). `defaireDecisionsNonQualifiees`
+  est le seul code du projet qui puisse détruire le travail d'un utilisateur.
+  La moitié des tests porte délibérément sur ce qu'elle **garde** — statuts,
+  assignations, notes, décisions déjà qualifiées — et non sur ce qu'elle
+  défait : un test qui ne prouve que la destruction laisserait passer une
+  régression sur l'autre moitié de la promesse.
+- **`lib/store/modifications.store.test.ts`** (19 tests). `@/lib/api/mutations`
+  est simulé pour provoquer un refus du service sans réseau. Ce que ces tests
+  établissent : une modification refusée n'écrit **rien** au journal, une
+  décision annulée journalise sa propre entrée plutôt que de faire disparaître
+  la précédente sans trace, et « Réinitialiser » n'efface pas la trace de ce
+  qu'il efface.
+
+### Ajouté — un navigateur pour de vrai (ADR-035)
+
+- **`npm run e2e`**, Playwright sur Chromium. Deux parcours : connexion →
+  décision → **rechargement complet** → persistance vérifiée → annulation ; et
+  connexion administrateur → décision motivée → le motif retrouvé dans la
+  piste d'audit.
+- **Ce qu'un test unitaire ne peut pas prouver.** Que `deciderAlerte` produit
+  le bon écart, oui. Qu'une session s'ouvre réellement dans un navigateur, et
+  que `localStorage` ressort intact après un rechargement complet — non. C'est
+  une propriété qui engage le navigateur, pas seulement le code.
+
+### Une course, trouvée par le test lui-même
+
+Le second parcours échouait de façon reproductible : la décision s'affichait,
+le journal consulté juste après ne la contenait pas. L'écriture dans
+`localStorage` par le middleware `persist` de Zustand n'est pas garantie
+synchrone ; un `page.goto` immédiatement après décharge le document avant que
+l'écriture n'ait forcément fini. Le correctif n'est pas un délai arbitraire :
+le test navigue désormais par le **lien du sommaire** — une transition côté
+client, qui garde le même store en mémoire sans repasser par `localStorage`.
+C'est aussi le geste qu'un analyste ferait vraiment.
+
+### Ce qui reste hors du dépôt, et pourquoi
+
+`preuve-garde-d5` — qui réécrit `proxy.ts` sur le disque pour vérifier qu'une
+page protégée se défend malgré tout, ou casse une entrée de journal pour
+vérifier que les autres survivent — mute des fichiers source et interroge un
+serveur vivant. Ce n'est pas ce que Vitest exprime ; c'est ce que les scripts
+`verif-*` font déjà. Réexécutée à cette tranche : **8 succès, 0 échec**.
+
+### Ajouté — vérification
+
+- `npm test` : **256 tests**, 12 fichiers.
+- `npm run e2e` : **2 parcours**, stables sur deux exécutions consécutives.
+
+---
+
 ## Phase 6 — Un modèle qui apprend · P6-1
 
 Jusqu'ici, `scoreIA` était un nombre écrit dans un fichier de démonstration et
