@@ -4,6 +4,7 @@ import {
   FileText,
   Gauge,
   LayoutDashboard,
+  Calculator,
   ScrollText,
   Search,
   Settings,
@@ -66,6 +67,12 @@ export const NAVIGATION: GroupeNavigation[] = [
         href: "/qualite",
         icon: Gauge,
         description: "Faux positifs & dérive",
+      },
+      {
+        title: "Notation",
+        href: "/notation",
+        icon: Calculator,
+        description: "Le modèle, à l'épreuve",
       },
       {
         title: "Simulateur de seuils",

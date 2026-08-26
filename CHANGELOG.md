@@ -4,6 +4,63 @@ Une section par phase de [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
+## Phase 6 — Un modèle qui apprend · P6-3 et P6-4
+
+Le modèle existait depuis P6-1, sans que rien ne permette de l'interroger. Un
+score qu'on ne peut pas interroger ne se conteste pas.
+
+### Ajouté — l'écran `/notation`
+
+- **On compose une déclaration, le score bouge, et la décomposition dit de
+  combien.** C'est la seule façon de vérifier qu'un modèle fait ce qu'il prétend
+  faire. Huit variables sont manipulables — celles qui pèsent —, les autres
+  restent à leur valeur moyenne, et l'écran le dit plutôt que de le taire.
+- **Le dossier moyen du portefeuille sert de repère.** Sans lui, on ne sait pas
+  si 62 est beaucoup : l'écart au dossier moyen est affiché à côté du score.
+- **La probabilité calibrée est publiée à côté du score**, jamais confondue avec
+  lui : le score est une transformation affine du logit, la probabilité une
+  sigmoïde de celui-ci. Les deux ordonnent pareil, ils ne se lisent pas pareil.
+- Le calcul se fait dans le navigateur. Le modèle tient en treize kilo-octets de
+  coefficients ; un aller-retour au serveur pour une addition n'apporterait
+  qu'une latence.
+- **`DecompositionScore` est réutilisé tel quel.** Le composant écrit en D1 pour
+  les dossiers d'assurance maladie affiche la décomposition d'un modèle appris
+  neuf mois plus tard, sans une ligne de changement : la décomposition produite
+  passe le même schéma Zod.
+
+### Ajouté — ce que vaut le modèle, dans la console (P6-4)
+
+Aire sous la courbe ROC, écart de calibration, précision et rappel au seuil 60,
+et le chiffre qui parle à une cellule : **4,1 dossiers à instruire par fraude
+trouvée, contre 8,7 au hasard**. Un modèle dont on ne peut pas lire les mesures
+se présente comme meilleur qu'il n'est.
+
+L'exactitude n'est pas affichée, et l'écran écrit pourquoi : à 11,5 % de
+fraudes, répondre « non » à tout en obtiendrait 88,5 % sans avoir rien appris.
+
+### Ce que l'écran dit, et qu'aucun test unitaire ne pouvait dire
+
+Un bandeau rappelle que **ces déclarations sont automobiles** et que les alertes
+de la console relèvent de l'assurance maladie — deux domaines, aucun chiffre ne
+passe de l'un à l'autre. Ce n'est pas une précaution de façade : laisser croire
+que ce modèle note les alertes serait la seule sur-promesse du projet, et le
+risque était identifié dans la feuille de route dès la phase 0.
+
+### Ajouté — vérification
+
+- `verif-notation` : **20 vérifications** sur le HTML réellement servi — que
+  l'écran est protégé comme les autres, que le score et sa décomposition sont
+  rendus, que les mesures du modèle y figurent, et que l'avertissement de
+  domaine y est écrit.
+
+### Corrigé au passage
+
+Une assertion de ce contrôle visait l'infobulle du sommaire, que le serveur ne
+rend pas : elle éprouvait quelque chose qui n'existe pas dans la page. Remplacée
+par le lien lui-même, qui, lui, mène quelque part.
+
+---
+
 ## Phase 6 — Un modèle qui apprend · P6-1
 
 Jusqu'ici, `scoreIA` était un nombre écrit dans un fichier de démonstration et

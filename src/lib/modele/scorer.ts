@@ -298,6 +298,61 @@ export function noter(declaration: Declaration, calculeLe?: string): Notation {
   }
 }
 
+/**
+ * Les modalités connues d'une variable qualitative, référence comprise.
+ *
+ * L'écran de notation en fait ses listes déroulantes : proposer une valeur que
+ * le modèle n'a jamais vue ne produirait pas d'erreur, seulement un dossier
+ * traité comme la modalité de référence — un silence pire qu'un refus.
+ */
+export function modalites(colonne: string): string[] {
+  const table = MODELE.encodage.modalites as Record<
+    string,
+    { reference: string; autres: string[] }
+  >
+  const entree = table[colonne]
+  return entree ? [entree.reference, ...entree.autres] : []
+}
+
+/**
+ * La déclaration médiane du portefeuille.
+ *
+ * Point de départ de l'écran de notation, et surtout **repère** : le score
+ * qu'elle obtient est celui d'un dossier quelconque. Sans lui, on ne saurait
+ * pas si 62 est beaucoup.
+ *
+ * Les valeurs quantitatives sont les moyennes du jeu d'apprentissage, les
+ * qualitatives leur modalité de référence. Ce n'est donc pas une déclaration
+ * réelle mais un dossier moyen, et l'écran le dit plutôt que de laisser croire
+ * à un cas d'espèce.
+ */
+export function declarationMediane(): Declaration {
+  const stats = MODELE.encodage.stats as Record<string, { moyenne: number }>
+  const totalSinistre = Math.round(stats.total_claim_amount.moyenne)
+  const ecart = Math.round(stats.ecart_montant.moyenne)
+
+  const base: Declaration = {
+    policy_deductible: Math.round(stats.policy_deductible.moyenne),
+    policy_annual_premium: Math.round(stats.policy_annual_premium.moyenne),
+    insured_age: Math.round(stats.insured_age.moyenne),
+    incident_hour_of_the_day: Math.round(stats.incident_hour_of_the_day.moyenne),
+    number_of_vehicles_involved: Math.round(
+      stats.number_of_vehicles_involved.moyenne
+    ),
+    bodily_injuries: Math.round(stats.bodily_injuries.moyenne),
+    witnesses: Math.round(stats.witnesses.moyenne),
+    total_claim_amount: totalSinistre,
+    // `claim_amount` n'est pas une variable du modèle : c'est `ecart_montant`
+    // qui l'est. Elle est reconstruite pour que la déclaration reste lisible.
+    claim_amount: totalSinistre + ecart,
+  }
+
+  for (const colonne of MODELE.encodage.categorielles) {
+    base[colonne] = modalites(colonne)[0]
+  }
+  return base
+}
+
 /** Ce que vaut le modèle, mesuré sur des déclarations qu'il n'a jamais vues. */
 export const MESURES = MODELE.mesures
 export const SOURCE_MODELE = MODELE.source
